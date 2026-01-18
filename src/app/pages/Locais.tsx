@@ -1,85 +1,178 @@
-import { Link } from 'react-router-dom';
-import { usePlaces } from '../hooks/usePlaces';
+import { useState } from 'react';
+import { SlidersHorizontal } from 'lucide-react';
+import { Header } from '../components/Header';
+import { SearchBar } from '../components/SearchBar';
+import { CategoryFilter } from '../components/CategoryFilter';
+import { SimpleMap } from '../components/SimpleMap';
+import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
+import { BottomNav } from '../components/BottomNav';
+import { FilterModal, FilterOptions } from '../components/FilterModal';
 
-export const Locais = () => {
-  const { places, loading, error } = usePlaces();
+const categories = ['Todos', 'Cafés', 'Bares', 'Restaurantes', 'Cultura'];
 
-  if (loading) {
-    return (
-      <div style={{ padding: '24px', textAlign: 'center' }}>
-        <p>Carregando locais...</p>
-      </div>
-    );
-  }
+const mockPlaces = [
+  {
+    id: '1',
+    name: 'Café das Minas',
+    description: 'Café acolhedor com ambiente seguro e inclusivo',
+    rating: 4.8,
+    reviewCount: 124,
+    distance: '0.8 km',
+    address: 'Rua das Flores, 123',
+    imageUrl: 'https://images.unsplash.com/photo-1739723745132-97df9db49db2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3p5JTIwY2FmZSUyMGludGVyaW9yfGVufDF8fHx8MTc2NzgyNDAzNXww&ixlib=rb-4.1.0&q=80&w=1080',
+    tags: [
+      { label: 'Wi-Fi', color: '#932d6f' },
+      { label: 'Pet-friendly', color: '#932d6f' },
+      { label: 'Vegano', color: '#9B7EDE' },
+    ],
+    isSafe: true,
+    lat: -23.5505,
+    lng: -46.6333,
+  },
+  {
+    id: '2',
+    name: 'Bar Sapatão',
+    description: 'Bar exclusivo para mulheres lésbicas',
+    rating: 4.9,
+    reviewCount: 89,
+    distance: '1.2km',
+    address: 'Av. Arco-Íris, 456',
+    imageUrl: 'https://images.unsplash.com/photo-1697738855045-d61710a9e509?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZXNiaWFuJTIwYmFyJTIwbGdidHxlbnwxfHx8fDE3Njc4MzM0MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    tags: [
+      { label: 'Wi-Fi', color: '#932d6f' },
+      { label: 'Pet-friendly', color: '#932d6f' },
+      { label: 'Vegano', color: '#9B7EDE' },
+    ],
+    isSafe: true,
+    lat: -23.5515,
+    lng: -46.6343,
+  },
+  {
+    id: '3',
+    name: 'Restaurante Plural',
+    description: 'Culinária diversa em ambiente acolhedor',
+    rating: 4.7,
+    reviewCount: 156,
+    distance: '2.1 km',
+    address: 'Praça da Diversidade, 789',
+    imageUrl: 'https://images.unsplash.com/photo-1592861956120-e524fc739696?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwZGluaW5nfGVufDF8fHx8MTc2Nzc2MzE3MHww&ixlib=rb-4.1.0&q=80&w=1080',
+    tags: [
+      { label: 'Vegano', color: '#9B7EDE' },
+      { label: 'Wi-Fi', color: '#932d6f' },
+      { label: 'Acessível', color: '#932d6f' },
+    ],
+    isSafe: true,
+    lat: -23.5495,
+    lng: -46.6323,
+  },
+];
 
-  if (error) {
-    return (
-      <div style={{ padding: '24px', textAlign: 'center' }}>
-        <p style={{ color: '#ef4444' }}>Erro ao carregar locais: {error.message}</p>
-      </div>
-    );
-  }
+interface LocaisProps {
+  onNavigate: (page: string) => void;
+}
+
+export function Locais({ onNavigate }: LocaisProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState<FilterOptions>({
+    distance: 'any',
+    rating: 'any',
+    amenities: [],
+    accessibility: false,
+  });
+
+  const handleApplyFilters = () => {
+    // Aqui você pode implementar a lógica de filtragem
+    console.log('Filtros aplicados:', filters);
+    setIsFilterModalOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({
+      distance: 'any',
+      rating: 'any',
+      amenities: [],
+      accessibility: false,
+    });
+  };
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '32px', marginBottom: '24px', color: '#1f2937' }}>
-        Locais
-      </h1>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-        {places.map((place) => (
-          <Link
-            key={place.id}
-            to={`/locais/${place.id}`}
-            style={{
-              textDecoration: 'none',
-              color: 'inherit',
-            }}
-          >
-            <div
-              style={{
-                backgroundColor: '#fff',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                cursor: 'pointer',
-                transition: 'transform 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <img
-                src={place.image}
-                alt={place.name}
-                style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+    <div className="min-h-screen bg-muted">
+      <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+        {/* Header fixo */}
+        <Header onNavigate={onNavigate} />
+        
+        {/* Conteúdo scrollável */}
+        <div className="flex-1 overflow-y-auto pb-24">
+          {/* Search e filtros */}
+          <div className="px-5 pt-6 pb-4">
+            <h1 className="text-2xl font-semibold text-primary mb-4">Locais Seguros</h1>
+            
+            {/* Search */}
+            <div className="mb-4">
+              <SearchBar
+                placeholder="Buscar lugares..."
+                value={searchQuery}
+                onChange={setSearchQuery}
               />
-              <div style={{ padding: '16px' }}>
-                <h3 style={{ fontSize: '20px', marginBottom: '8px', color: '#1f2937' }}>
-                  {place.name}
-                </h3>
-                <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '8px' }}>
-                  {place.description}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
-                  <span style={{ fontSize: '14px', color: '#6b7280', backgroundColor: '#f3f4f6', padding: '4px 8px', borderRadius: '4px' }}>
-                    {place.category}
-                  </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <span style={{ color: '#f59e0b' }}>⭐</span>
-                    <span style={{ fontSize: '16px', color: '#1f2937', fontWeight: '600' }}>
-                      {place.rating}
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
-          </Link>
-        ))}
+
+            {/* Category Filters */}
+            <CategoryFilter
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+            />
+          </div>
+
+          {/* Map */}
+          <div className="px-5 mb-6">
+            <SimpleMap
+              places={mockPlaces}
+              center={{ lat: -23.5505, lng: -46.6333 }}
+            />
+          </div>
+
+          {/* Results Header */}
+          <div className="px-5 mb-4 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              {mockPlaces.length} lugares encontrados
+            </p>
+            <button
+              className="flex items-center gap-2 text-primary font-medium text-sm hover:text-primary/80 transition-colors"
+              onClick={() => setIsFilterModalOpen(true)}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              Filtros
+            </button>
+          </div>
+
+          {/* Places List */}
+          <div className="px-5 space-y-4 pb-6">
+            {mockPlaces.map((place) => (
+              <PlaceCardExpanded 
+                key={place.id} 
+                {...place} 
+                onClick={() => onNavigate('place-details')}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Navigation fixo */}
+        <BottomNav activeItem="places" onItemClick={onNavigate} />
       </div>
+
+      {/* Filter Modal */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
+      />
     </div>
   );
-};
+}

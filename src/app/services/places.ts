@@ -2,7 +2,6 @@ import { Place } from '../types';
 import { mockPlaces } from '../data/mocks';
 
 export const getPlaces = async (): Promise<Place[]> => {
-  // Simula delay de API
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve([...mockPlaces]);

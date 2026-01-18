@@ -10,13 +10,17 @@ export interface User {
 export interface Place {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   image: string;
-  address: string;
+  imageUrl?: string;
+  address?: string;
   rating: number;
   category: string;
   latitude?: number;
   longitude?: number;
+  reviewCount?: number;
+  distance?: string;
+  isSafe?: boolean;
 }
 
 export interface Service {
@@ -24,6 +28,7 @@ export interface Service {
   name: string;
   description: string;
   image: string;
+  imageUrl?: string;
   price?: number;
   category: string;
   categorySlug: string;
@@ -35,11 +40,14 @@ export interface Event {
   id: string;
   name: string;
   description: string;
-  image: string;
+  image?: string;
+  imageUrl?: string;
   date: string;
+  time?: string;
   location: string;
   category: string;
   price?: number;
+  participants?: number;
 }
 
 export interface Review {
@@ -50,7 +58,10 @@ export interface Review {
   userId: string;
   userName: string;
   userAvatar?: string;
+  author?: string;
+  avatar?: string;
   rating: number;
   comment: string;
-  createdAt: string;
+  createdAt?: string;
+  date?: string;
 }

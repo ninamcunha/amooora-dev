@@ -1,60 +1,45 @@
-import { useNavigate } from 'react-router-dom';
+import logoAmooora from "../../assets/5a07ef013ecd4a0869fe2fae41fafe9f484c2b89.png";
 
-export const Welcome = () => {
-  const navigate = useNavigate();
+interface WelcomeProps {
+  onNavigate: (page: string) => void;
+}
 
+export function Welcome({ onNavigate }: WelcomeProps) {
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        backgroundColor: '#f9fafb',
-      }}
-    >
-      <div style={{ textAlign: 'center', maxWidth: '400px' }}>
-        <h1 style={{ fontSize: '36px', marginBottom: '16px', color: '#1f2937' }}>
-          Bem-vindo ao Amooora
-        </h1>
-        <p style={{ fontSize: '18px', marginBottom: '32px', color: '#6b7280' }}>
-          Descubra os melhores locais, serviços e eventos ao seu redor
-        </p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <button
-            onClick={() => navigate('/cadastro')}
-            style={{
-              padding: '12px 24px',
-              backgroundColor: '#3b82f6',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              fontWeight: '600',
-            }}
-          >
-            Criar Conta
-          </button>
-          <button
-            onClick={() => navigate('/home')}
-            style={{
-              padding: '12px 24px',
-              backgroundColor: '#fff',
-              color: '#3b82f6',
-              border: '1px solid #3b82f6',
-              borderRadius: '8px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              fontWeight: '600',
-            }}
-          >
-            Entrar
-          </button>
+    <div className="min-h-screen bg-muted">
+      <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex items-center justify-center px-6">
+        <div className="w-full">
+          {/* Logo */}
+          <div className="flex justify-center mb-16">
+            <img
+              src={logoAmooora}
+              alt="Amooora - Um mundo inteiro de acolhimento e liberdade"
+              className="w-64"
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="space-y-4">
+            <button
+              onClick={() => onNavigate('home')}
+              className="w-full bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg"
+            >
+              Entrar
+            </button>
+            <button
+              onClick={() => onNavigate('register')}
+              className="w-full bg-transparent border-2 border-primary text-primary py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/5 transition-colors"
+            >
+              Cadastrar
+            </button>
+          </div>
+
+          {/* Tagline */}
+          <p className="text-center text-muted-foreground text-sm mt-8">
+            Um mundo inteiro de acolhimento e liberdade
+          </p>
         </div>
       </div>
     </div>
   );
-};
+}

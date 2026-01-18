@@ -2,7 +2,6 @@ import { User } from '../types';
 import { mockUsers } from '../data/mocks';
 
 export const getCurrentUser = async (): Promise<User | null> => {
-  // Por enquanto retorna o primeiro usuário como "logado"
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(mockUsers[0] || null);
