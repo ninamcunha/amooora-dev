@@ -17,7 +17,7 @@ import { ServiceCategoryList } from './pages/ServiceCategoryList';
 import { CreateReview } from './pages/CreateReview';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('welcome');
+  const [currentPage, setCurrentPage] = useState('splash');
   const [previousPage, setPreviousPage] = useState('home');
 
   const handleNavigate = (page: string) => {
