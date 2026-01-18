@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Header } from '../components/Header';
-import { CategoryFilter } from '../components/CategoryFilter';
+import { SearchBar } from '../components/SearchBar';
+import { CommunityStats } from '../components/CommunityStats';
+import { CommunityFilters } from '../components/CommunityFilters';
 import { CommunityPostCard } from '../components/CommunityPostCard';
 import { BottomNav } from '../components/BottomNav';
 
@@ -23,7 +25,7 @@ const mockPosts = [
     },
     likes: 45,
     replies: 23,
-    isTrending: true,
+    isTrending: false,
   },
   {
     id: '2',
@@ -46,7 +48,7 @@ const mockPosts = [
     id: '3',
     author: {
       name: 'Julia Ferreira',
-      avatarUrl: 'https://images.unsplash.com/photo-1617931928012-3d65dcfffee2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXRpbmElMjB3b21hbiUyMGhhcHB5fGVufDF8fHx8MTc2NzgzNDEwOHww&ixlib=rb-4.1.0&q=80&w=1080',
+      avatarUrl: 'https://images.unsplash.com/photo-1617931928012-3d65dcfffee2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXRpbmElMjB3b21hbiUyMGhhcHB5fGVufDF8fHwxNzY3ODM0MTA4fDA&ixlib=rb-4.1.0&q=80&w=1080',
     },
     timeAgo: '1d atrás',
     title: 'Recomendações de profissionais de saúde',
@@ -57,7 +59,7 @@ const mockPosts = [
     },
     likes: 89,
     replies: 34,
-    isTrending: true,
+    isTrending: false,
   },
   {
     id: '4',
@@ -83,7 +85,9 @@ interface ComunidadeProps {
 }
 
 export function Comunidade({ onNavigate }: ComunidadeProps) {
+  const [activeView, setActiveView] = useState<'feed' | 'trending' | 'members'>('feed');
   const [activeCategory, setActiveCategory] = useState('Todos');
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <div className="min-h-screen bg-muted">
@@ -93,29 +97,57 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
         
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto pb-24">
-          {/* Page Header */}
+          {/* Page Header com Título e Botão + */}
           <div className="px-5 pt-6 pb-4">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-2xl font-semibold text-primary">Comunidade</h1>
-              <button className="w-12 h-12 bg-primary rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors shadow-md">
-                <Plus className="w-6 h-6 text-white" />
+              <h1 className="text-3xl font-bold text-primary">Comunidade</h1>
+              <button className="w-14 h-14 bg-[#932d6f] rounded-full flex items-center justify-center hover:bg-[#7d2660] transition-colors shadow-lg">
+                <Plus className="w-7 h-7 text-white" />
               </button>
             </div>
-            
-            {/* Category Filters */}
-            <CategoryFilter
-              categories={categories}
-              activeCategory={activeCategory}
-              onCategoryChange={setActiveCategory}
-            />
+
+            {/* Barra de busca */}
+            <div className="mb-4">
+              <SearchBar 
+                placeholder="Buscar tópicos, pessoas..."
+                value={searchQuery}
+                onChange={setSearchQuery}
+              />
+            </div>
           </div>
 
-          {/* Content */}
+          {/* Estatísticas da Comunidade */}
+          <CommunityStats 
+            members={1243}
+            posts={567}
+            activeToday={89}
+          />
+
+          {/* Filtros (duas linhas) */}
+          <CommunityFilters
+            activeView={activeView}
+            activeCategory={activeCategory}
+            categories={categories}
+            onViewChange={setActiveView}
+            onCategoryChange={setActiveCategory}
+          />
+
+          {/* Lista de Posts */}
           <div className="px-5 space-y-4 pb-6">
-            {/* Posts */}
-            {mockPosts.map((post) => (
-              <CommunityPostCard key={post.id} {...post} />
-            ))}
+            {mockPosts
+              .filter((post) => {
+                if (activeCategory !== 'Todos' && post.category.label !== activeCategory) {
+                  return false;
+                }
+                if (searchQuery && !post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                    !post.description.toLowerCase().includes(searchQuery.toLowerCase())) {
+                  return false;
+                }
+                return true;
+              })
+              .map((post) => (
+                <CommunityPostCard key={post.id} {...post} />
+              ))}
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-import { Bell, UserPen, ArrowLeft } from 'lucide-react';
+import { Bell, UserPen, ArrowLeft, Users } from 'lucide-react';
 import logoAmooora from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 
 interface HeaderProps {
@@ -32,17 +32,20 @@ export function Header({ onNavigate, showBackButton, onBack }: HeaderProps) {
 
         {/* Botões à direita */}
         <div className="flex items-center gap-2">
-          {/* Botão de Notificação */}
-          <button className="w-10 h-10 rounded-full bg-[#932d6f] flex items-center justify-center hover:bg-[#7d2660] transition-colors">
+          {/* Botão de Notificação com badge */}
+          <button className="relative w-10 h-10 rounded-full bg-[#932d6f] flex items-center justify-center hover:bg-[#7d2660] transition-colors">
             <Bell className="w-5 h-5 text-white" />
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
+              3
+            </span>
           </button>
 
-          {/* Botão de Editar Perfil */}
+          {/* Botão de Comunidade/Pessoas */}
           <button 
-            onClick={() => onNavigate?.('profile')}
+            onClick={() => onNavigate?.('community')}
             className="w-10 h-10 rounded-full bg-[#FF6B7A] flex items-center justify-center hover:bg-[#ff5766] transition-colors"
           >
-            <UserPen className="w-5 h-5 text-white" />
+            <Users className="w-5 h-5 text-white" />
           </button>
         </div>
       </div>
