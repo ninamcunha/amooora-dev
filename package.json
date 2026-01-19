@@ -89,5 +89,8 @@
     "overrides": {
       "vite": "6.3.5"
     }
+  },
+  "overrides": {
+    "tar": "^7.0.0"
   }
 }
