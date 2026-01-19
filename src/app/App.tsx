@@ -14,6 +14,11 @@ import { ServiceDetails } from './components/ServiceDetails';
 import { EventDetails } from './components/EventDetails';
 import { ServiceCategoryList } from './pages/ServiceCategoryList';
 import { CreateReview } from './pages/CreateReview';
+import { Admin } from './pages/Admin';
+import { AdminCadastro } from './pages/AdminCadastro';
+import { AdminCadastrarLocal } from './pages/AdminCadastrarLocal';
+import { AdminCadastrarServico } from './pages/AdminCadastrarServico';
+import { AdminCadastrarEvento } from './pages/AdminCadastrarEvento';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
@@ -65,6 +70,16 @@ export default function App() {
         return <EditarPerfil onNavigate={handleNavigate} />;
       case 'settings':
         return <Configuracoes onBack={() => setCurrentPage('profile')} />;
+      case 'admin':
+        return <Admin onNavigate={handleNavigate} />;
+      case 'admin-cadastrar-usuario':
+        return <AdminCadastro onNavigate={handleNavigate} />;
+      case 'admin-cadastrar-local':
+        return <AdminCadastrarLocal onNavigate={handleNavigate} />;
+      case 'admin-cadastrar-servico':
+        return <AdminCadastrarServico onNavigate={handleNavigate} />;
+      case 'admin-cadastrar-evento':
+        return <AdminCadastrarEvento onNavigate={handleNavigate} />;
       default:
         return <Welcome onNavigate={handleNavigate} />;
     }

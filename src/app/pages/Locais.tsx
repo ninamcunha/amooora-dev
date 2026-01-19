@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
@@ -7,71 +7,16 @@ import { SimpleMap } from '../components/SimpleMap';
 import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
 import { BottomNav } from '../components/BottomNav';
 import { FilterModal, FilterOptions } from '../components/FilterModal';
+import { usePlaces } from '../hooks/usePlaces';
 
 const categories = ['Todos', 'Cafés', 'Bares', 'Restaurantes', 'Cultura'];
-
-const mockPlaces = [
-  {
-    id: '1',
-    name: 'Café das Minas',
-    description: 'Café acolhedor com ambiente seguro e inclusivo',
-    rating: 4.8,
-    reviewCount: 124,
-    distance: '0.8 km',
-    address: 'Rua das Flores, 123',
-    imageUrl: 'https://images.unsplash.com/photo-1739723745132-97df9db49db2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3p5JTIwY2FmZSUyMGludGVyaW9yfGVufDF8fHx8MTc2NzgyNDAzNXww&ixlib=rb-4.1.0&q=80&w=1080',
-    tags: [
-      { label: 'Wi-Fi', color: '#932d6f' },
-      { label: 'Pet-friendly', color: '#932d6f' },
-      { label: 'Vegano', color: '#9B7EDE' },
-    ],
-    isSafe: true,
-    lat: -23.5505,
-    lng: -46.6333,
-  },
-  {
-    id: '2',
-    name: 'Bar Sapatão',
-    description: 'Bar exclusivo para mulheres lésbicas',
-    rating: 4.9,
-    reviewCount: 89,
-    distance: '1.2km',
-    address: 'Av. Arco-Íris, 456',
-    imageUrl: 'https://images.unsplash.com/photo-1697738855045-d61710a9e509?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZXNiaWFuJTIwYmFyJTIwbGdidHxlbnwxfHx8fDE3Njc4MzM0MjF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    tags: [
-      { label: 'Wi-Fi', color: '#932d6f' },
-      { label: 'Pet-friendly', color: '#932d6f' },
-      { label: 'Vegano', color: '#9B7EDE' },
-    ],
-    isSafe: true,
-    lat: -23.5515,
-    lng: -46.6343,
-  },
-  {
-    id: '3',
-    name: 'Restaurante Plural',
-    description: 'Culinária diversa em ambiente acolhedor',
-    rating: 4.7,
-    reviewCount: 156,
-    distance: '2.1 km',
-    address: 'Praça da Diversidade, 789',
-    imageUrl: 'https://images.unsplash.com/photo-1592861956120-e524fc739696?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwZGluaW5nfGVufDF8fHx8MTc2Nzc2MzE3MHww&ixlib=rb-4.1.0&q=80&w=1080',
-    tags: [
-      { label: 'Vegano', color: '#9B7EDE' },
-      { label: 'Wi-Fi', color: '#932d6f' },
-      { label: 'Acessível', color: '#932d6f' },
-    ],
-    isSafe: true,
-    lat: -23.5495,
-    lng: -46.6323,
-  },
-];
 
 interface LocaisProps {
   onNavigate: (page: string) => void;
 }
 
 export function Locais({ onNavigate }: LocaisProps) {
+  const { places, loading, error } = usePlaces();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -81,6 +26,55 @@ export function Locais({ onNavigate }: LocaisProps) {
     amenities: [],
     accessibility: false,
   });
+
+  // Filtrar lugares por categoria e busca
+  const filteredPlaces = useMemo(() => {
+    let filtered = places;
+
+    // Filtro por categoria
+    if (activeCategory !== 'Todos') {
+      filtered = filtered.filter((place) => place.category === activeCategory);
+    }
+
+    // Filtro por busca
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (place) =>
+          place.name.toLowerCase().includes(query) ||
+          place.description?.toLowerCase().includes(query) ||
+          place.address?.toLowerCase().includes(query)
+      );
+    }
+
+    // Filtro por rating
+    if (filters.rating !== 'any') {
+      const minRating = filters.rating === '4+' ? 4 : filters.rating === '3+' ? 3 : 0;
+      filtered = filtered.filter((place) => place.rating >= minRating);
+    }
+
+    return filtered;
+  }, [places, activeCategory, searchQuery, filters]);
+
+  // Converter Place para formato do PlaceCardExpanded
+  const placesForCards = useMemo(() => {
+    return filteredPlaces.map((place) => ({
+      id: place.id,
+      name: place.name,
+      description: place.description || 'Sem descrição',
+      rating: place.rating,
+      reviewCount: place.reviewCount || 0,
+      distance: place.distance || 'N/A',
+      address: place.address || 'Endereço não informado',
+      imageUrl: place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+      tags: [
+        { label: place.category, color: '#932d6f' },
+      ],
+      isSafe: place.isSafe ?? true,
+      lat: place.latitude,
+      lng: place.longitude,
+    }));
+  }, [filteredPlaces]);
 
   const handleApplyFilters = () => {
     // Aqui você pode implementar a lógica de filtragem
@@ -126,38 +120,67 @@ export function Locais({ onNavigate }: LocaisProps) {
             />
           </div>
 
+          {/* Loading */}
+          {loading && (
+            <div className="px-5 py-12 text-center">
+              <p className="text-muted-foreground">Carregando locais...</p>
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <div className="px-5 py-12 text-center">
+              <p className="text-red-500">Erro ao carregar locais: {error.message}</p>
+            </div>
+          )}
+
           {/* Map */}
-          <div className="px-5 mb-6">
-            <SimpleMap
-              places={mockPlaces}
-              center={{ lat: -23.5505, lng: -46.6333 }}
-            />
-          </div>
+          {!loading && !error && placesForCards.length > 0 && (
+            <div className="px-5 mb-6">
+              <SimpleMap
+                places={placesForCards}
+                center={placesForCards[0]?.lat && placesForCards[0]?.lng 
+                  ? { lat: placesForCards[0].lat, lng: placesForCards[0].lng }
+                  : { lat: -23.5505, lng: -46.6333 }
+                }
+              />
+            </div>
+          )}
 
           {/* Results Header */}
-          <div className="px-5 mb-4 flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              {mockPlaces.length} lugares encontrados
-            </p>
-            <button
-              className="flex items-center gap-2 text-primary font-medium text-sm hover:text-primary/80 transition-colors"
-              onClick={() => setIsFilterModalOpen(true)}
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filtros
-            </button>
-          </div>
+          {!loading && !error && (
+            <div className="px-5 mb-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {filteredPlaces.length} {filteredPlaces.length === 1 ? 'lugar encontrado' : 'lugares encontrados'}
+              </p>
+              <button
+                className="flex items-center gap-2 text-primary font-medium text-sm hover:text-primary/80 transition-colors"
+                onClick={() => setIsFilterModalOpen(true)}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                Filtros
+              </button>
+            </div>
+          )}
 
           {/* Places List */}
-          <div className="px-5 space-y-4 pb-6">
-            {mockPlaces.map((place) => (
-              <PlaceCardExpanded 
-                key={place.id} 
-                {...place} 
-                onClick={() => onNavigate('place-details')}
-              />
-            ))}
-          </div>
+          {!loading && !error && (
+            <div className="px-5 space-y-4 pb-6">
+              {placesForCards.length > 0 ? (
+                placesForCards.map((place) => (
+                  <PlaceCardExpanded 
+                    key={place.id} 
+                    {...place} 
+                    onClick={() => onNavigate('place-details')}
+                  />
+                ))
+              ) : (
+                <div className="py-12 text-center">
+                  <p className="text-muted-foreground">Nenhum lugar encontrado</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Bottom Navigation fixo */}

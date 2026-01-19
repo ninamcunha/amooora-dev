@@ -36,6 +36,67 @@ export const getPlaces = async (): Promise<Place[]> => {
   }
 };
 
+export const createPlace = async (placeData: {
+  name: string;
+  description?: string;
+  image: string;
+  address?: string;
+  category: string;
+  latitude?: number;
+  longitude?: number;
+  isSafe?: boolean;
+}): Promise<Place> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id;
+
+    const { data, error } = await supabase
+      .from('places')
+      .insert({
+        name: placeData.name,
+        description: placeData.description || null,
+        image: placeData.image,
+        address: placeData.address || null,
+        category: placeData.category,
+        latitude: placeData.latitude || null,
+        longitude: placeData.longitude || null,
+        is_safe: placeData.isSafe ?? true,
+        created_by: userId || null,
+        rating: 0,
+        review_count: 0,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erro ao criar local:', error);
+      throw new Error(`Erro ao criar local: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Erro ao criar local: nenhum dado retornado');
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description || undefined,
+      image: data.image,
+      imageUrl: data.image,
+      address: data.address || undefined,
+      rating: Number(data.rating) || 0,
+      category: data.category,
+      latitude: data.latitude ? Number(data.latitude) : undefined,
+      longitude: data.longitude ? Number(data.longitude) : undefined,
+      reviewCount: data.review_count || 0,
+      isSafe: data.is_safe ?? true,
+    };
+  } catch (error) {
+    console.error('Erro ao criar local:', error);
+    throw error;
+  }
+};
+
 export const getPlaceById = async (id: string): Promise<Place | null> => {
   try {
     const { data, error } = await supabase

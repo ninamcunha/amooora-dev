@@ -1,88 +1,67 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Header } from '../components/Header';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { EventCardExpanded } from '../components/EventCardExpanded';
 import { BottomNav } from '../components/BottomNav';
+import { useEvents } from '../hooks/useEvents';
 
 const categories = ['Todos', 'Hoje', 'Semana', 'Gratuitos'];
-
-const mockEvents = [
-  {
-    id: '1',
-    name: 'Sarau Lésbico',
-    description: 'Noite de poesia, música e arte com mulheres da comunidade',
-    date: '15 Dez',
-    fullDate: '15 de Dezembro, 2024',
-    time: '19h00',
-    location: 'Centro Cultural - Rua das Artes, 100',
-    participants: '45/80 participantes',
-    imageUrl: 'https://images.unsplash.com/photo-1756978303719-57095d8bd250?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNpYyUyMGNvbmNlcnQlMjBmZXN0aXZhbCUyMGNyb3dkfGVufDF8fHx8MTc2NzcwODU4OXww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: {
-      label: 'Cultura',
-      color: '#932d6f',
-    },
-    price: 'Gratuito',
-    isPaid: false,
-  },
-  {
-    id: '2',
-    name: 'Workshop de Autocuidado',
-    description: 'Práticas de bem-estar e saúde mental para mulheres lésbicas',
-    date: '18 Dez',
-    fullDate: '18 de Dezembro, 2024',
-    time: '14h00',
-    location: 'Espaço Violeta - Av. Bem-Estar, 250',
-    participants: '28/30 participantes',
-    imageUrl: 'https://images.unsplash.com/photo-1599137055145-3e6f2ae470f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b2dhJTIwd2VsbG5lc3MlMjB3b21lbnxlbnwxfHx8fDE3Njc4MzM5NDF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: {
-      label: 'Bem-estar',
-      color: '#932d6f',
-    },
-    price: 'R$ 50',
-    isPaid: true,
-  },
-  {
-    id: '3',
-    name: 'Festa Sapatão',
-    description: 'Festa exclusiva com DJ, open bar e muita diversão',
-    date: '20 Dez',
-    fullDate: '20 de Dezembro, 2024',
-    time: '22h00',
-    location: 'Club Arco-Íris - Rua da Festa, 789',
-    participants: '120/150 participantes',
-    imageUrl: 'https://images.unsplash.com/photo-1561057160-ce83b1bd72f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZ2J0JTIwcHJpZGUlMjBjZWxlYnJhdGlvbnxlbnwxfHx8fDE3Njc4MzM5NDF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    category: {
-      label: 'Festa',
-      color: '#FF6B7A',
-    },
-    price: 'R$ 30',
-    isPaid: true,
-  },
-  {
-    id: '4',
-    name: 'Roda de Conversa',
-    description: 'Debate sobre representatividade e visibilidade lésbica',
-    date: '22 Dez',
-    fullDate: '22 de Dezembro, 2024',
-    time: '18h00',
-    location: 'Biblioteca Plural - Rua do Conhecimento, 45',
-    participants: '15/25 participantes',
-    imageUrl: 'https://images.unsplash.com/photo-1628977613138-dcfede720de7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxib29rc3RvcmUlMjBsaWJyYXJ5fGVufDF8fHx8MTc2NzgwMDU2Nnww&ixlib=rb-4.1.0&q=80&w=1080',
-    category: {
-      label: 'Cultura',
-      color: '#932d6f',
-    },
-    price: 'Gratuito',
-    isPaid: false,
-  },
-];
 
 interface EventosProps {
   onNavigate: (page: string) => void;
 }
 
 export function Eventos({ onNavigate }: EventosProps) {
+  const { events, loading, error } = useEvents();
   const [activeCategory, setActiveCategory] = useState('Todos');
+
+  // Formatar data para exibição
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const month = months[date.getMonth()];
+    return `${day} ${month}`;
+  };
+
+  const formatFullDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+  };
+
+  // Filtrar eventos por categoria
+  const filteredEvents = useMemo(() => {
+    let filtered = events;
+
+    // Filtro por categoria (simplificado)
+    if (activeCategory === 'Gratuitos') {
+      filtered = filtered.filter((event) => !event.price || event.price === 0);
+    }
+    // Outros filtros (Hoje, Semana) podem ser implementados aqui
+
+    return filtered;
+  }, [events, activeCategory]);
+
+  // Converter Event para formato do EventCardExpanded
+  const eventsForCards = useMemo(() => {
+    return filteredEvents.map((event) => ({
+      id: event.id,
+      name: event.name,
+      description: event.description || 'Sem descrição',
+      date: event.date ? formatDate(event.date) : 'Data não informada',
+      fullDate: event.date ? formatFullDate(event.date) : 'Data não informada',
+      time: event.time || 'Horário não informado',
+      location: event.location || 'Local não informado',
+      participants: `${event.participants || 0} participantes`,
+      imageUrl: event.imageUrl || event.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+      category: {
+        label: event.category || 'Evento',
+        color: '#932d6f',
+      },
+      price: event.price && event.price > 0 ? `R$ ${event.price.toFixed(2)}` : 'Gratuito',
+      isPaid: event.price ? event.price > 0 : false,
+    }));
+  }, [filteredEvents]);
 
   return (
     <div className="min-h-screen bg-muted">
@@ -104,16 +83,38 @@ export function Eventos({ onNavigate }: EventosProps) {
             />
           </div>
 
+          {/* Loading */}
+          {loading && (
+            <div className="px-5 py-12 text-center">
+              <p className="text-muted-foreground">Carregando eventos...</p>
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <div className="px-5 py-12 text-center">
+              <p className="text-red-500">Erro ao carregar eventos: {error.message}</p>
+            </div>
+          )}
+
           {/* Events List */}
-          <div className="px-5 space-y-4 pb-6">
-            {mockEvents.map((event) => (
-              <EventCardExpanded 
-                key={event.id} 
-                {...event} 
-                onClick={() => onNavigate('event-details')}
-              />
-            ))}
-          </div>
+          {!loading && !error && (
+            <div className="px-5 space-y-4 pb-6">
+              {eventsForCards.length > 0 ? (
+                eventsForCards.map((event) => (
+                  <EventCardExpanded 
+                    key={event.id} 
+                    {...event} 
+                    onClick={() => onNavigate('event-details')}
+                  />
+                ))
+              ) : (
+                <div className="py-12 text-center">
+                  <p className="text-muted-foreground">Nenhum evento encontrado</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Bottom Navigation fixo */}

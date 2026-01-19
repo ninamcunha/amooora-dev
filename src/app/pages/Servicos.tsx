@@ -1,99 +1,60 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, MapPin, Star, Plus } from 'lucide-react';
 import { Header } from '../components/Header';
 import { BottomNav } from '../components/BottomNav';
+import { useServices } from '../hooks/useServices';
 
 const categories = ['Todos', 'Costura', 'Marcenaria', 'Pintura', 'Reparos', 'Bem-estar', 'Beleza', 'Outros'];
-
-const mockServices = [
-  {
-    id: '1',
-    title: 'Costureira Profissional',
-    name: 'Ana Paula Santos',
-    description: 'Conserto de roupas, ajustes, customizações e criação de peças sob medida. Atendimento personalizado e cuidadoso.',
-    location: 'Vila Madalena, São Paulo',
-    rating: 4.9,
-    reviews: 127,
-    price: 'A partir de R$ 50',
-    category: 'Costura',
-    isHighlight: true,
-    imageUrl: 'https://images.unsplash.com/photo-1753162659622-371949a713ec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHNld2luZyUyMHRhaWxvcnxlbnwxfHx8fDE3Njc4OTkyODJ8MA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: '2',
-    title: 'Marceneira & Restauração',
-    name: 'Juliana Oliveira',
-    description: 'Móveis planejados, restauração de móveis antigos e trabalhos em madeira. Projetos personalizados para seu espaço.',
-    location: 'Pinheiros, São Paulo',
-    rating: 5.0,
-    reviews: 89,
-    price: 'A partir de R$ 200',
-    category: 'Marcenaria',
-    isHighlight: false,
-    imageUrl: 'https://images.unsplash.com/photo-1754747197676-478943a4a185?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGNhcnBlbnRlciUyMHdvb2R3b3JrfGVufDF8fHx8MTc2Nzg5OTI4Mnww&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: '3',
-    title: 'Pintora Residencial',
-    name: 'Camila Ferreira',
-    description: 'Pintura de ambientes internos e externos, texturas decorativas e acabamentos especiais com qualidade.',
-    location: 'Moema, São Paulo',
-    rating: 4.8,
-    reviews: 64,
-    price: 'R$ 80/m²',
-    category: 'Pintura',
-    isHighlight: false,
-    imageUrl: 'https://images.unsplash.com/photo-1635098996137-5d96d2df90b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBhaW50ZXIlMjBwYWludGluZ3xlbnwxfHx8fDE3Njc4OTkyODN8MA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: '4',
-    title: 'Faz Tudo & Reparos',
-    name: 'Roberta Lima',
-    description: 'Instalações elétricas básicas, consertos domésticos, montagem de móveis e pequenos reparos em geral.',
-    location: 'Perdizes, São Paulo',
-    rating: 4.7,
-    reviews: 93,
-    price: 'A partir de R$ 100',
-    category: 'Reparos',
-    isHighlight: false,
-    imageUrl: 'https://images.unsplash.com/photo-1602052793312-b99c2a9ee797?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGhhbmR5bWFuJTIwdG9vbHN8ZW58MXx8fHwxNzY3ODk5MjgzfDA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: '5',
-    title: 'Massoterapia & Bem-estar',
-    name: 'Fernanda Costa',
-    description: 'Massagens terapêuticas, relaxantes e drenagem linfática. Atendimento em domicílio ou no consultório.',
-    location: 'Jardins, São Paulo',
-    rating: 4.9,
-    reviews: 156,
-    price: 'R$ 120/sessão',
-    category: 'Bem-estar',
-    isHighlight: true,
-    imageUrl: 'https://images.unsplash.com/photo-1598901986949-f593ff2a31a6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXNzYWdlJTIwdGhlcmFweSUyMHdlbGxuZXNzfGVufDF8fHx8MTc2Nzg2MDIyN3ww&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: '6',
-    title: 'Cabeleireira & Colorista',
-    name: 'Patricia Mendes',
-    description: 'Cortes modernos, coloração, mechas, hidratação e tratamentos capilares. Atendimento afirmativo e acolhedor.',
-    location: 'Centro, São Paulo',
-    rating: 5.0,
-    reviews: 201,
-    price: 'A partir de R$ 80',
-    category: 'Beleza',
-    isHighlight: false,
-    imageUrl: 'https://images.unsplash.com/photo-1493775379751-a6c3940f3cbc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGhhaXJkcmVzc2VyJTIwc2Fsb258ZW58MXx8fHwxNzY3ODk5Mjg0fDA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-];
 
 interface ServicosProps {
   onNavigate: (page: string) => void;
 }
 
 export function Servicos({ onNavigate }: ServicosProps) {
+  const { services, loading, error } = useServices();
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
+
+  // Filtrar serviços por categoria e busca
+  const filteredServices = useMemo(() => {
+    let filtered = services;
+
+    // Filtro por categoria
+    if (activeCategory !== 'Todos') {
+      filtered = filtered.filter((service) => service.category === activeCategory);
+    }
+
+    // Filtro por busca
+    if (searchTerm.trim()) {
+      const query = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (service) =>
+          service.name.toLowerCase().includes(query) ||
+          service.description?.toLowerCase().includes(query) ||
+          service.provider?.toLowerCase().includes(query)
+      );
+    }
+
+    return filtered;
+  }, [services, activeCategory, searchTerm]);
+
+  // Converter Service para formato do card
+  const servicesForCards = useMemo(() => {
+    return filteredServices.map((service) => ({
+      id: service.id,
+      title: service.name,
+      name: service.provider || 'Prestador não informado',
+      description: service.description || 'Sem descrição',
+      location: 'Localização não informada',
+      rating: service.rating || 0,
+      reviews: 0, // Será implementado quando houver reviews
+      price: service.price ? `R$ ${service.price.toFixed(2)}` : 'A consultar',
+      category: service.category,
+      isHighlight: false,
+      imageUrl: service.imageUrl || service.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+    }));
+  }, [filteredServices]);
 
   return (
     <div className="min-h-screen bg-muted">
@@ -158,9 +119,25 @@ export function Servicos({ onNavigate }: ServicosProps) {
             </button>
           </div>
 
+          {/* Loading */}
+          {loading && (
+            <div className="px-5 py-12 text-center">
+              <p className="text-muted-foreground">Carregando serviços...</p>
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <div className="px-5 py-12 text-center">
+              <p className="text-red-500">Erro ao carregar serviços: {error.message}</p>
+            </div>
+          )}
+
           {/* Services/Events List */}
-          <div className="px-5 space-y-4 pb-6">
-            {mockServices.map((service) => (
+          {!loading && !error && (
+            <div className="px-5 space-y-4 pb-6">
+              {servicesForCards.length > 0 ? (
+                servicesForCards.map((service) => (
               <div
                 key={service.id}
                 className="bg-white rounded-2xl border-2 border-primary/20 shadow-sm overflow-hidden hover:shadow-md transition-shadow"
@@ -229,8 +206,14 @@ export function Servicos({ onNavigate }: ServicosProps) {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+                ))
+              ) : (
+                <div className="py-12 text-center">
+                  <p className="text-muted-foreground">Nenhum serviço encontrado</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Bottom Navigation fixo */}

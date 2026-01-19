@@ -68,6 +68,64 @@ export const getServiceById = async (id: string): Promise<Service | null> => {
   }
 };
 
+export const createService = async (serviceData: {
+  name: string;
+  description: string;
+  image: string;
+  category: string;
+  categorySlug: string;
+  price?: number;
+  provider?: string;
+}): Promise<Service> => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id;
+
+    const { data, error } = await supabase
+      .from('services')
+      .insert({
+        name: serviceData.name,
+        description: serviceData.description,
+        image: serviceData.image,
+        category: serviceData.category,
+        category_slug: serviceData.categorySlug,
+        price: serviceData.price || null,
+        provider: serviceData.provider || null,
+        created_by: userId || null,
+        rating: 0,
+        review_count: 0,
+        is_active: true,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erro ao criar serviço:', error);
+      throw new Error(`Erro ao criar serviço: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Erro ao criar serviço: nenhum dado retornado');
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      image: data.image,
+      imageUrl: data.image,
+      price: data.price ? Number(data.price) : undefined,
+      category: data.category,
+      categorySlug: data.category_slug,
+      rating: Number(data.rating) || 0,
+      provider: data.provider || undefined,
+    };
+  } catch (error) {
+    console.error('Erro ao criar serviço:', error);
+    throw error;
+  }
+};
+
 export const getServicesByCategory = async (categorySlug: string): Promise<Service[]> => {
   try {
     const { data, error } = await supabase
