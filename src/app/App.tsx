@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Splash } from './pages/Splash';
 import { Welcome } from './pages/Welcome';
 import { Cadastro } from './pages/Cadastro';
 import { Home } from './pages/Home';
@@ -17,7 +16,7 @@ import { ServiceCategoryList } from './pages/ServiceCategoryList';
 import { CreateReview } from './pages/CreateReview';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('splash');
+  const [currentPage, setCurrentPage] = useState('welcome');
   const [previousPage, setPreviousPage] = useState('home');
 
   const handleNavigate = (page: string) => {
@@ -27,8 +26,6 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'splash':
-        return <Splash onComplete={() => setCurrentPage('welcome')} />;
       case 'welcome':
         return <Welcome onNavigate={handleNavigate} />;
       case 'register':

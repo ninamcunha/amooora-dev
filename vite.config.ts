@@ -16,4 +16,21 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    port: 5173,
+    host: true, // Permite acesso de qualquer IP
+    open: true, // Abre automaticamente no navegador
+    hmr: {
+      // Hot Module Replacement para atualizações instantâneas
+      overlay: true, // Mostra erros sobrepostos na tela
+    },
+    watch: {
+      // Observa mudanças em todos os arquivos relevantes
+      usePolling: false, // Usa polling no Windows se necessário
+    },
+  },
+  // Configuração para desenvolvimento mais rápido
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
+  },
 })
