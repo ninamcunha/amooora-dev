@@ -138,7 +138,14 @@ export default function App() {
       case 'services':
         return <Servicos onNavigate={handleNavigate} />;
       case 'service-details':
-        return <ServiceDetails onNavigate={handleNavigate} onBack={() => setCurrentPage('services')} />;
+        return <ServiceDetails 
+          serviceId={selectedServiceId}
+          onNavigate={handleNavigate} 
+          onBack={() => {
+            setCurrentPage('services');
+            setSelectedServiceId(undefined);
+          }} 
+        />;
       case 'service-category-terapia':
         return <ServiceCategoryList category="terapia" onNavigate={handleNavigate} onBack={() => setCurrentPage('home')} />;
       case 'service-category-advocacia':

@@ -103,6 +103,15 @@ export const getServices = async (): Promise<Service[]> => {
 
 export const getServiceById = async (id: string): Promise<Service | null> => {
   try {
+    // Validar se o ID é um UUID válido
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      console.warn(`⚠️ ID inválido (não é UUID): ${id}`);
+      return null;
+    }
+
+    console.log(`🔍 Buscando serviço pelo ID: ${id}`);
+    
     const { data, error } = await supabase
       .from('services')
       .select('*')
@@ -111,13 +120,52 @@ export const getServiceById = async (id: string): Promise<Service | null> => {
 
     if (error) {
       if (error.code === 'PGRST116') {
+        console.log('⚠️ Serviço não encontrado (PGRST116)');
         return null;
       }
-      console.error('Erro ao buscar serviço:', error);
+      
+      console.error('❌ Erro detalhado ao buscar serviço:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
+      
+      // Se for erro de RLS, tentar buscar sem filtro single (retornar array e pegar primeiro)
+      if (error.code === '42501' || error.message?.includes('row-level security')) {
+        console.warn('⚠️ Erro de RLS detectado, tentando fallback...');
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('services')
+          .select('*')
+          .eq('id', id);
+        
+        if (!fallbackError && fallbackData && fallbackData.length > 0) {
+          console.log('✅ Serviço encontrado via fallback');
+          const service = fallbackData[0];
+          return {
+            id: service.id,
+            name: service.name,
+            description: service.description,
+            image: service.image,
+            imageUrl: service.image,
+            price: service.price ? Number(service.price) : undefined,
+            category: service.category,
+            categorySlug: service.category_slug,
+            rating: Number(service.rating) || 0,
+            provider: service.provider || undefined,
+          };
+        }
+      }
+      
       throw new Error(`Erro ao buscar serviço: ${error.message}`);
     }
 
-    if (!data) return null;
+    if (!data) {
+      console.log('⚠️ Serviço não encontrado (data vazio)');
+      return null;
+    }
+
+    console.log(`✅ Serviço encontrado: ${data.name}`);
 
     return {
       id: data.id,
@@ -132,7 +180,31 @@ export const getServiceById = async (id: string): Promise<Service | null> => {
       provider: data.provider || undefined,
     };
   } catch (error) {
-    console.error('Erro ao buscar serviço:', error);
+    console.error('❌ Erro ao buscar serviço:', error);
+    // Tentar fallback final: buscar todos os serviços e filtrar manualmente
+    try {
+      const { data: allServices } = await supabase.from('services').select('*');
+      if (allServices && allServices.length > 0) {
+        const service = allServices.find(s => s.id === id);
+        if (service) {
+          console.warn('⚠️ Serviço encontrado via fallback final');
+          return {
+            id: service.id,
+            name: service.name,
+            description: service.description,
+            image: service.image,
+            imageUrl: service.image,
+            price: service.price ? Number(service.price) : undefined,
+            category: service.category,
+            categorySlug: service.category_slug,
+            rating: Number(service.rating) || 0,
+            provider: service.provider || undefined,
+          };
+        }
+      }
+    } catch (fallbackError) {
+      console.error('❌ Erro no fallback final:', fallbackError);
+    }
     throw error;
   }
 };
