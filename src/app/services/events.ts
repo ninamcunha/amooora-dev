@@ -3,6 +3,8 @@ import { supabase } from '../../lib/supabase';
 
 export const getEvents = async (): Promise<Event[]> => {
   try {
+    console.log('Buscando eventos do Supabase...');
+    
     const { data, error } = await supabase
       .from('events')
       .select('*')
@@ -11,9 +13,23 @@ export const getEvents = async (): Promise<Event[]> => {
       .order('date', { ascending: true });
 
     if (error) {
-      console.error('Erro ao buscar eventos:', error);
+      console.error('Erro detalhado ao buscar eventos:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
+      
+      // Se for erro de RLS, retornar array vazio em vez de quebrar
+      if (error.code === '42501' || error.message?.includes('row-level security')) {
+        console.warn('Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
+        return [];
+      }
+      
       throw new Error(`Erro ao buscar eventos: ${error.message}`);
     }
+
+    console.log(`Eventos encontrados: ${data?.length || 0}`);
 
     return (data || []).map((event) => ({
       id: event.id,
@@ -30,7 +46,9 @@ export const getEvents = async (): Promise<Event[]> => {
     }));
   } catch (error) {
     console.error('Erro ao buscar eventos:', error);
-    throw error;
+    // Retornar array vazio em vez de quebrar a aplicação
+    console.warn('Retornando array vazio devido a erro na busca de eventos');
+    return [];
   }
 };
 

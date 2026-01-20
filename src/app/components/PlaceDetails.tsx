@@ -44,8 +44,13 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
       <div className="min-h-screen bg-muted">
         <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
           <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-muted-foreground">Carregando local...</p>
+          <div className="flex-1 flex flex-col items-center justify-center px-4">
+            <p className="text-muted-foreground mb-2">Carregando local...</p>
+            {!placeId && (
+              <p className="text-xs text-muted-foreground text-center">
+                Aguarde enquanto buscamos as informações
+              </p>
+            )}
           </div>
         </div>
       </div>

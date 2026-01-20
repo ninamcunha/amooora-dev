@@ -3,6 +3,8 @@ import { supabase } from '../../lib/supabase';
 
 export const getPlaces = async (): Promise<Place[]> => {
   try {
+    console.log('Buscando locais do Supabase...');
+    
     const { data, error } = await supabase
       .from('places')
       .select('*')
@@ -10,9 +12,23 @@ export const getPlaces = async (): Promise<Place[]> => {
       .order('rating', { ascending: false });
 
     if (error) {
-      console.error('Erro ao buscar locais:', error);
+      console.error('Erro detalhado ao buscar locais:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
+      
+      // Se for erro de RLS, retornar array vazio em vez de quebrar
+      if (error.code === '42501' || error.message?.includes('row-level security')) {
+        console.warn('Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
+        return [];
+      }
+      
       throw new Error(`Erro ao buscar locais: ${error.message}`);
     }
+
+    console.log(`Locais encontrados: ${data?.length || 0}`);
 
     // Mapear dados do banco para o tipo Place
     return (data || []).map((place) => ({
@@ -32,7 +48,9 @@ export const getPlaces = async (): Promise<Place[]> => {
     }));
   } catch (error) {
     console.error('Erro ao buscar locais:', error);
-    throw error;
+    // Retornar array vazio em vez de quebrar a aplicação
+    console.warn('Retornando array vazio devido a erro na busca de locais');
+    return [];
   }
 };
 

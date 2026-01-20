@@ -3,6 +3,8 @@ import { supabase } from '../../lib/supabase';
 
 export const getServices = async (): Promise<Service[]> => {
   try {
+    console.log('Buscando serviços do Supabase...');
+    
     const { data, error } = await supabase
       .from('services')
       .select('*')
@@ -10,9 +12,23 @@ export const getServices = async (): Promise<Service[]> => {
       .order('rating', { ascending: false });
 
     if (error) {
-      console.error('Erro ao buscar serviços:', error);
+      console.error('Erro detalhado ao buscar serviços:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
+      
+      // Se for erro de RLS, retornar array vazio em vez de quebrar
+      if (error.code === '42501' || error.message?.includes('row-level security')) {
+        console.warn('Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
+        return [];
+      }
+      
       throw new Error(`Erro ao buscar serviços: ${error.message}`);
     }
+
+    console.log(`Serviços encontrados: ${data?.length || 0}`);
 
     return (data || []).map((service) => ({
       id: service.id,
@@ -28,7 +44,9 @@ export const getServices = async (): Promise<Service[]> => {
     }));
   } catch (error) {
     console.error('Erro ao buscar serviços:', error);
-    throw error;
+    // Retornar array vazio em vez de quebrar a aplicação
+    console.warn('Retornando array vazio devido a erro na busca de serviços');
+    return [];
   }
 };
 
