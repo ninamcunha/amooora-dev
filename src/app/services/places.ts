@@ -117,6 +117,15 @@ export const createPlace = async (placeData: {
 
 export const getPlaceById = async (id: string): Promise<Place | null> => {
   try {
+    // Validar se o ID é um UUID válido
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      console.warn(`ID inválido (não é UUID): ${id}`);
+      return null; // Retornar null em vez de lançar erro
+    }
+
+    console.log(`Buscando local pelo ID: ${id}`);
+    
     const { data, error } = await supabase
       .from('places')
       .select('*')
@@ -125,13 +134,24 @@ export const getPlaceById = async (id: string): Promise<Place | null> => {
 
     if (error) {
       if (error.code === 'PGRST116') {
+        console.log('Local não encontrado');
         return null; // Não encontrado
       }
-      console.error('Erro ao buscar local:', error);
+      console.error('Erro detalhado ao buscar local:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      });
       throw new Error(`Erro ao buscar local: ${error.message}`);
     }
 
-    if (!data) return null;
+    if (!data) {
+      console.log('Local não encontrado (data vazio)');
+      return null;
+    }
+
+    console.log(`Local encontrado: ${data.name}`);
 
     // Mapear dados do banco para o tipo Place
     return {

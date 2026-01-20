@@ -5,70 +5,8 @@ import { PlaceCard } from '../components/PlaceCard';
 import { EventCard } from '../components/EventCard';
 import { ServiceCard } from '../components/ServiceCard';
 import { BottomNav } from '../components/BottomNav';
-
-// Mock data
-const places = [
-  {
-    id: '1',
-    name: 'Café da Vila',
-    category: 'Café',
-    rating: 4.8,
-    reviewCount: 124,
-    distance: '0.5 km',
-    imageUrl: 'https://images.unsplash.com/photo-1521017432531-fbd92d768814?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2ZmZWUlMjBzaG9wJTIwaW50ZXJpb3J8ZW58MXx8fHwxNzY3NzY4MzY5fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    isSafe: true,
-  },
-  {
-    id: '2',
-    name: 'Bar Liberdade',
-    category: 'Bar',
-    rating: 4.9,
-    reviewCount: 89,
-    distance: '1.2 km',
-    imageUrl: 'https://images.unsplash.com/photo-1694165823915-3e5a4c881d65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYXIlMjByZXN0YXVyYW50JTIwbmlnaHR8ZW58MXx8fHwxNzY3ODMwOTQxfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    isSafe: true,
-  },
-  {
-    id: '3',
-    name: 'Livraria Plural',
-    category: 'Livraria',
-    rating: 4.7,
-    reviewCount: 156,
-    distance: '2.1 km',
-    imageUrl: 'https://images.unsplash.com/photo-1628977613138-dcfede720de7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxib29rc3RvcmUlMjBsaWJyYXJ5fGVufDF8fHx8MTc2NzgwMDU2Nnww&ixlib=rb-4.1.0&q=80&w=1080',
-    isSafe: true,
-  },
-];
-
-const events = [
-  {
-    id: '1',
-    name: 'Sarau Lésbico',
-    date: '15 Dez',
-    time: '19:00',
-    location: 'Centro Cultural',
-    participants: 45,
-    imageUrl: 'https://images.unsplash.com/photo-1759658697230-cfae8940f0f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnQlMjBwb2V0cnklMjBnYXRoZXJpbmd8ZW58MXx8fHwxNzY3ODMwOTQyfDA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: '2',
-    name: 'Noite de Música',
-    date: '18 Dez',
-    time: '21:00',
-    location: 'Bar Liberdade',
-    participants: 62,
-    imageUrl: 'https://images.unsplash.com/photo-1743791022256-40413c5f019b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwbXVzaWMlMjBldmVudHxlbnwxfHx8fDE3Njc3ODU5Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-  {
-    id: '3',
-    name: 'Encontro Literário',
-    date: '20 Dez',
-    time: '16:00',
-    location: 'Livraria Plural',
-    participants: 28,
-    imageUrl: 'https://images.unsplash.com/photo-1628977613138-dcfede720de7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxib29rc3RvcmUlMjBsaWJyYXJ5fGVufDF8fHx8MTc2NzgwMDU2Nnww&ixlib=rb-4.1.0&q=80&w=1080',
-  },
-];
+import { usePlaces } from '../hooks/usePlaces';
+import { useEvents } from '../hooks/useEvents';
 
 const services = [
   { id: '1', name: 'Terapia', icon: MessageCircle, color: '#932d6f' },
@@ -82,6 +20,13 @@ interface HomeProps {
 }
 
 export function Home({ onNavigate }: HomeProps) {
+  // Buscar dados reais do Supabase
+  const { places, loading: loadingPlaces } = usePlaces();
+  const { events, loading: loadingEvents } = useEvents();
+
+  // Limitar a 3 locais e 3 eventos para exibição na home
+  const limitedPlaces = places.slice(0, 3);
+  const limitedEvents = events.slice(0, 3);
   const handleServiceClick = (serviceName: string) => {
     const categoryMap: { [key: string]: string } = {
       'Terapia': 'terapia',
@@ -113,13 +58,25 @@ export function Home({ onNavigate }: HomeProps) {
               onViewAll={() => onNavigate('places')}
             />
             <div className="space-y-4">
-              {places.map((place) => (
-                <PlaceCard 
-                  key={place.id} 
-                  {...place} 
-                  onClick={() => onNavigate(`place-details:${place.id}`)}
-                />
-              ))}
+              {loadingPlaces ? (
+                <p className="text-center text-muted-foreground text-sm py-4">Carregando locais...</p>
+              ) : limitedPlaces.length > 0 ? (
+                limitedPlaces.map((place) => (
+                  <PlaceCard 
+                    key={place.id}
+                    name={place.name}
+                    category={place.category}
+                    rating={place.rating}
+                    reviewCount={place.reviewCount || 0}
+                    distance={place.distance || 'Distância não disponível'}
+                    imageUrl={place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
+                    isSafe={place.isSafe}
+                    onClick={() => onNavigate(`place-details:${place.id}`)}
+                  />
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground text-sm py-4">Nenhum local encontrado</p>
+              )}
             </div>
           </section>
 
@@ -131,13 +88,32 @@ export function Home({ onNavigate }: HomeProps) {
               onViewAll={() => onNavigate('events')}
             />
             <div>
-              {events.map((event) => (
-                <EventCard 
-                  key={event.id} 
-                  {...event} 
-                  onClick={() => onNavigate('event-details')}
-                />
-              ))}
+              {loadingEvents ? (
+                <p className="text-center text-muted-foreground text-sm py-4">Carregando eventos...</p>
+              ) : limitedEvents.length > 0 ? (
+                limitedEvents.map((event) => {
+                  // Formatar data para exibição
+                  const eventDate = new Date(event.date);
+                  const day = eventDate.getDate().toString().padStart(2, '0');
+                  const month = eventDate.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
+                  const time = event.time || eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                  
+                  return (
+                    <EventCard 
+                      key={event.id}
+                      name={event.name}
+                      date={`${day} ${month}`}
+                      time={time || 'Horário não disponível'}
+                      location={event.location}
+                      participants={event.participants || 0}
+                      imageUrl={event.imageUrl || event.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
+                      onClick={() => onNavigate('event-details')}
+                    />
+                  );
+                })
+              ) : (
+                <p className="text-center text-muted-foreground text-sm py-4">Nenhum evento encontrado</p>
+              )}
             </div>
           </section>
 
