@@ -117,7 +117,7 @@ export function Home({ onNavigate }: HomeProps) {
                 <PlaceCard 
                   key={place.id} 
                   {...place} 
-                  onClick={() => onNavigate('place-details')}
+                  onClick={() => onNavigate(`place-details:${place.id}`)}
                 />
               ))}
             </div>

@@ -171,7 +171,7 @@ export function Locais({ onNavigate }: LocaisProps) {
                   <PlaceCardExpanded 
                     key={place.id} 
                     {...place} 
-                    onClick={() => onNavigate('place-details')}
+                    onClick={() => onNavigate(`place-details:${place.id}`)}
                   />
                 ))
               ) : (

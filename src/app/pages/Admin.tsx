@@ -1,10 +1,20 @@
-import { ArrowLeft, UserPlus, MapPin, Calendar, Scissors } from 'lucide-react';
+import { ArrowLeft, UserPlus, MapPin, Calendar, Scissors, LogOut } from 'lucide-react';
+import { signOut } from '../../lib/auth';
 
 interface AdminProps {
   onNavigate: (page: string) => void;
 }
 
 export function Admin({ onNavigate }: AdminProps) {
+  const handleLogout = async () => {
+    await signOut();
+    // Navegar para welcome e recarregar para limpar o estado
+    onNavigate('welcome');
+    // Pequeno delay antes de recarregar para garantir que a navegação aconteça
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  };
   const adminMenuItems = [
     {
       id: 'admin-cadastrar-usuario',
@@ -39,19 +49,25 @@ export function Admin({ onNavigate }: AdminProps) {
   return (
     <div className="min-h-screen bg-muted">
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl">
-        {/* Header */}
-        <div className="px-5 py-4 flex items-center justify-between border-b border-border">
-          <button
-            onClick={() => onNavigate('home')}
-            className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
-          </button>
-          <h1 className="font-semibold text-lg text-primary">
-            Painel Administrativo
-          </h1>
-          <div className="w-10" /> {/* Spacer */}
-        </div>
+             {/* Header */}
+             <div className="px-5 py-4 flex items-center justify-between border-b border-border">
+               <button
+                 onClick={() => onNavigate('home')}
+                 className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
+               >
+                 <ArrowLeft className="w-5 h-5 text-foreground" />
+               </button>
+               <h1 className="font-semibold text-lg text-primary">
+                 Painel Administrativo
+               </h1>
+               <button
+                 onClick={handleLogout}
+                 className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
+                 title="Sair"
+               >
+                 <LogOut className="w-5 h-5 text-foreground" />
+               </button>
+             </div>
 
         {/* Content */}
         <div className="px-5 py-6 space-y-4">

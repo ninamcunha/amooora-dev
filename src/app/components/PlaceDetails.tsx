@@ -1,7 +1,8 @@
-import { Heart, Star, Check, Share2, Flag, UserPlus, ArrowLeft } from 'lucide-react';
+import { Heart, Star, Check, Share2, Flag, UserPlus, ArrowLeft, MapPin } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
+import { usePlace } from '../hooks/usePlaces';
 
 interface Review {
   id: string;
@@ -13,29 +14,16 @@ interface Review {
 }
 
 interface PlaceDetailsProps {
+  placeId?: string;
   onNavigate?: (page: string) => void;
   onBack?: () => void;
 }
 
-export function PlaceDetails({ onNavigate, onBack }: PlaceDetailsProps) {
-  const reviews: Review[] = [
-    {
-      id: '1',
-      author: 'Ana Paula',
-      avatar: 'https://images.unsplash.com/photo-1594318223885-20dc4b889f9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwc21pbGluZ3xlbnwxfHx8fDE3Njc4ODgxMTB8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      date: 'há 3 dias',
-      rating: 4,
-      comment: 'A massa estava excelente e a atmosfera estava perfeita.'
-    },
-    {
-      id: '2',
-      author: 'Joana Faria',
-      avatar: 'https://images.unsplash.com/photo-1609091289242-735df7a2207a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGNhc3VhbCUyMHBvcnRyYWl0fGVufDF8fHx8MTc2Nzk2ODEwMXww&ixlib=rb-4.1.0&q=80&w=1080',
-      date: 'há 3 dias',
-      rating: 4,
-      comment: 'Uma experiência gastronômica encantadora que te leva à Itália a cada mordida.'
-    }
-  ];
+export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps) {
+  const { place, loading, error } = usePlace(placeId);
+
+  // Mock de reviews (será substituído quando implementarmos reviews do Supabase)
+  const reviews: Review[] = [];
 
   const renderStars = (rating: number) => {
     return (
@@ -49,6 +37,39 @@ export function PlaceDetails({ onNavigate, onBack }: PlaceDetailsProps) {
       </div>
     );
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-muted">
+        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+          <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-muted-foreground">Carregando local...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !place) {
+    return (
+      <div className="min-h-screen bg-muted">
+        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+          <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
+          <div className="flex-1 flex items-center justify-center px-4">
+            <div className="text-center">
+              <p className="text-red-500 mb-2">Erro ao carregar local</p>
+              <p className="text-sm text-muted-foreground">
+                {error?.message || 'Local não encontrado'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted">
@@ -64,25 +85,25 @@ export function PlaceDetails({ onNavigate, onBack }: PlaceDetailsProps) {
               {/* Foto principal */}
               <div className="flex-1 rounded-xl overflow-hidden">
                 <ImageWithFallback
-                  src="https://images.unsplash.com/photo-1567600175325-3573c56bee05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3p5JTIwcmVzdGF1cmFudCUyMGludGVyaW9yfGVufDF8fHx8MTc2NzkwMjI4MHww&ixlib=rb-4.1.0&q=80&w=1080"
-                  alt="Foto principal do local"
+                  src={place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
+                  alt={place.name}
                   className="w-full h-full object-cover"
                 />
               </div>
               
-              {/* Fotos menores */}
+              {/* Fotos menores - usando a mesma imagem por enquanto */}
               <div className="flex flex-col gap-1 w-[130px]">
                 <div className="flex-1 rounded-xl overflow-hidden">
                   <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1766812782166-e243111f703d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpdGFsaWFuJTIwcmVzdGF1cmFudCUyMGRpbmluZ3xlbnwxfHx8fDE3Njc5MDQzNzR8MA&ixlib=rb-4.1.0&q=80&w=1080"
-                    alt="Foto 2"
+                    src={place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
+                    alt={place.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="flex-1 rounded-xl overflow-hidden">
                   <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1760982192590-de2b005bb4d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwYmFyJTIwYW1iaWFuY2V8ZW58MXx8fHwxNzY3OTkyOTcwfDA&ixlib=rb-4.1.0&q=80&w=1080"
-                    alt="Foto 3"
+                    src={place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
+                    alt={place.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -95,29 +116,43 @@ export function PlaceDetails({ onNavigate, onBack }: PlaceDetailsProps) {
             {/* Categoria e Favoritar */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1 text-[#932d6f] font-bold text-sm">
-                <span>$$</span>
-                <span>·</span>
-                <span>Italiano</span>
-                <span>·</span>
-                <span>30-40 mins</span>
+                <span>{place.category}</span>
+                {place.isSafe && (
+                  <>
+                    <span>·</span>
+                    <span>Seguro</span>
+                  </>
+                )}
               </div>
               <button className="p-1">
-                <Heart className="w-6 h-6 fill-[#932d6f] text-[#932d6f]" />
+                <Heart className="w-6 h-6 text-gray-300 hover:fill-[#932d6f] hover:text-[#932d6f] transition-colors" />
               </button>
             </div>
 
             {/* Nome */}
-            <h2 className="text-3xl font-bold text-black mb-2">Café da Vila</h2>
+            <h2 className="text-3xl font-bold text-black mb-2">{place.name}</h2>
 
             {/* Descrição */}
-            <p className="text-gray-500 text-sm leading-relaxed mb-3">
-              Bella Cucina é um restaurante italiano renomado, conhecido por suas autênticas massas e ambiente acolhedor. Bella Cucina é um restaurante italiano renomado, conhecido por suas autênticas massas e ambiente acolhedor.
-            </p>
+            {place.description && (
+              <p className="text-gray-500 text-sm leading-relaxed mb-3">
+                {place.description}
+              </p>
+            )}
+
+            {/* Endereço */}
+            {place.address && (
+              <div className="flex items-start gap-2 mb-3">
+                <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                <span className="text-sm text-muted-foreground">{place.address}</span>
+              </div>
+            )}
 
             {/* Avaliação */}
             <div className="flex items-center gap-2 pt-2">
               <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
-              <span className="font-bold text-black text-lg">4.5 (200)</span>
+              <span className="font-bold text-black text-lg">
+                {place.rating.toFixed(1)} ({place.reviewCount || 0})
+              </span>
             </div>
           </div>
 
