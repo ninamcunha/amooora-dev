@@ -195,7 +195,7 @@ export function Servicos({ onNavigate }: ServicosProps) {
                   {/* Action Buttons */}
                   <div className="flex gap-3">
                     <button 
-                      onClick={() => onNavigate('service-details')}
+                      onClick={() => onNavigate(`service-details:${service.id}`)}
                       className="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-full font-medium shadow-md hover:shadow-lg transition-shadow"
                     >
                       Ver Detalhes

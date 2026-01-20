@@ -27,6 +27,7 @@ export default function App() {
   const [previousPage, setPreviousPage] = useState('home');
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>(undefined);
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
   // Verificar se o usuário é admin quando há sessão
@@ -94,7 +95,7 @@ export default function App() {
   const handleNavigate = (page: string) => {
     setPreviousPage(currentPage);
     
-    // Verificar se a página contém um ID (formato: 'place-details:id' ou 'event-details:id')
+    // Verificar se a página contém um ID (formato: 'place-details:id', 'event-details:id' ou 'service-details:id')
     if (page.startsWith('place-details:')) {
       const placeId = page.split(':')[1];
       setSelectedPlaceId(placeId);
@@ -103,6 +104,10 @@ export default function App() {
       const eventId = page.split(':')[1];
       setSelectedEventId(eventId);
       setCurrentPage('event-details');
+    } else if (page.startsWith('service-details:')) {
+      const serviceId = page.split(':')[1];
+      setSelectedServiceId(serviceId);
+      setCurrentPage('service-details');
     } else {
       setCurrentPage(page);
     }

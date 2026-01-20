@@ -2,6 +2,7 @@ import { Heart, Star, Share2, Flag, Phone, MessageCircle, Clock, DollarSign, Che
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
+import { useService } from '../hooks/useServices';
 
 interface Review {
   id: string;
@@ -13,40 +14,61 @@ interface Review {
 }
 
 interface ServiceDetailsProps {
+  serviceId?: string;
   onNavigate?: (page: string) => void;
   onBack?: () => void;
 }
 
-export function ServiceDetails({ onNavigate, onBack }: ServiceDetailsProps) {
-  const service = {
-    name: 'Dra. Marina Silva - Psicoterapia',
-    category: 'Psicologia',
-    description: 'Psicóloga especializada em atendimento à comunidade LGBTQIA+, com foco em questões de identidade, relacionamentos e saúde mental. Atendimento presencial e online.',
-    price: '$$$$',
-    priceValue: 'R$ 150 - R$ 250',
-    phone: '(11) 98765-4321',
-    whatsapp: '5511987654321',
-    email: 'contato@marinapsi.com.br',
-    address: 'Av. Paulista, 1000 - São Paulo/SP',
-    rating: 4.8,
-    reviewCount: 89,
-    images: [
-      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwc3ljaG9sb2dpc3QlMjB3b21lbnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1551836022-4c4c79ecde51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0aGVyYXB5JTIwb2ZmaWNlJTIwcm9vbXxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3Vuc2VsaW5nJTIwc2Vzc2lvbnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    ],
-    specialties: [
-      'Terapia LGBTQIA+',
-      'Ansiedade',
-      'Depressão',
-      'Relacionamentos',
-      'Identidade de Gênero',
-    ],
-    hours: [
-      { day: 'Segunda a Sexta', time: '09:00 - 18:00' },
-      { day: 'Sábado', time: '09:00 - 13:00' },
-    ],
-    verified: true,
+export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetailsProps) {
+  const { service, loading, error } = useService(serviceId);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-muted">
+        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+          <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
+          <div className="flex-1 flex flex-col items-center justify-center px-4">
+            <p className="text-muted-foreground mb-2">Carregando serviço...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !service) {
+    return (
+      <div className="min-h-screen bg-muted">
+        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+          <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
+          <div className="flex-1 flex items-center justify-center px-4">
+            <div className="text-center">
+              <p className="text-red-500 mb-2">Erro ao carregar serviço</p>
+              <p className="text-sm text-muted-foreground">
+                {error?.message || 'Serviço não encontrado'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Dados formatados para exibição
+  const displayService = {
+    name: service.name,
+    category: service.category || 'Serviço',
+    description: service.description || 'Sem descrição disponível.',
+    price: service.price && service.price > 0 ? `R$ ${service.price.toFixed(2)}` : 'A consultar',
+    priceValue: service.price && service.price > 0 ? `R$ ${service.price.toFixed(2)}` : 'Valor a consultar',
+    provider: service.provider || 'Prestador não informado',
+    rating: service.rating || 0,
+    reviewCount: 0, // Não temos esse campo no banco ainda
+    image: service.image || service.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+    images: service.image || service.imageUrl 
+      ? [service.image || service.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem']
+      : ['https://via.placeholder.com/400x300?text=Sem+Imagem'],
   };
 
   const reviews: Review[] = [
@@ -91,12 +113,17 @@ export function ServiceDetails({ onNavigate, onBack }: ServiceDetailsProps) {
     );
   };
 
+  // Reviews mockadas por enquanto (será implementado depois)
+  const reviews: Review[] = [];
+
   const handleWhatsApp = () => {
-    window.open(`https://wa.me/${service.whatsapp}`, '_blank');
+    // WhatsApp não está disponível nos dados do Supabase ainda
+    // window.open(`https://wa.me/${service.whatsapp}`, '_blank');
   };
 
   const handleCall = () => {
-    window.open(`tel:${service.phone}`, '_blank');
+    // Telefone não está disponível nos dados do Supabase ainda
+    // window.open(`tel:${service.phone}`, '_blank');
   };
 
   return (
@@ -110,11 +137,11 @@ export function ServiceDetails({ onNavigate, onBack }: ServiceDetailsProps) {
           {/* Galeria de Fotos */}
           <div className="relative">
             <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              {service.images.map((image, index) => (
+              {displayService.images.map((image, index) => (
                 <div key={index} className="w-full flex-shrink-0 snap-start">
                   <ImageWithFallback
                     src={image}
-                    alt={`${service.name} - ${index + 1}`}
+                    alt={`${displayService.name} - ${index + 1}`}
                     className="w-full h-64 object-cover"
                   />
                 </div>
@@ -122,7 +149,7 @@ export function ServiceDetails({ onNavigate, onBack }: ServiceDetailsProps) {
             </div>
             {/* Indicador de Fotos */}
             <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
-              {service.images.map((_, index) => (
+              {displayService.images.map((_, index) => (
                 <div
                   key={index}
                   className="w-1.5 h-1.5 rounded-full bg-white/80"
@@ -137,27 +164,21 @@ export function ServiceDetails({ onNavigate, onBack }: ServiceDetailsProps) {
 
           {/* Informações Principais */}
           <div className="bg-white px-4 py-5 border-b border-gray-100">
-            {/* Categoria e Verificação */}
+            {/* Categoria */}
             <div className="flex items-center gap-2 mb-2">
               <span className="px-3 py-1 bg-[#932d6f]/10 text-[#932d6f] rounded-full text-xs font-medium">
-                {service.category}
+                {displayService.category}
               </span>
-              {service.verified && (
-                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
-                  <Check className="w-3 h-3" />
-                  Verificado
-                </span>
-              )}
             </div>
 
             {/* Nome do Serviço */}
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {service.name}
+              {displayService.name}
             </h1>
 
             {/* Descrição */}
             <p className="text-gray-700 text-sm leading-relaxed mb-4">
-              {service.description}
+              {displayService.description}
             </p>
 
             {/* Rating e Preço */}
@@ -165,63 +186,20 @@ export function ServiceDetails({ onNavigate, onBack }: ServiceDetailsProps) {
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
                 <span className="font-bold text-black text-lg">
-                  {service.rating} ({service.reviewCount})
+                  {displayService.rating} ({displayService.reviewCount})
                 </span>
               </div>
               <div className="flex flex-col items-end">
-                <div className="text-[#932d6f] font-bold text-lg">{service.price}</div>
-                <div className="text-xs text-gray-500">{service.priceValue}</div>
+                <div className="text-[#932d6f] font-bold text-lg">{displayService.price}</div>
+                <div className="text-xs text-gray-500">{displayService.provider}</div>
               </div>
             </div>
           </div>
 
-          {/* Especialidades */}
+          {/* Prestador */}
           <div className="bg-[#fffbfa] px-4 py-4 border-b border-gray-100">
-            <h3 className="text-base font-bold text-gray-900 mb-3">Especialidades</h3>
-            <div className="flex flex-wrap gap-2">
-              {service.specialties.map((specialty, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1.5 bg-white border border-[#932d6f]/20 text-gray-700 rounded-full text-xs font-medium"
-                >
-                  {specialty}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Informações de Contato */}
-          <div className="bg-white px-4 py-4 border-b border-gray-100">
-            <h3 className="text-base font-bold text-gray-900 mb-3">Informações de Contato</h3>
-            <div className="space-y-3">
-              {/* Endereço */}
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-700">{service.address}</p>
-                </div>
-              </div>
-
-              {/* Telefone */}
-              <div className="flex items-start gap-3">
-                <Phone className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm text-gray-700">{service.phone}</p>
-                </div>
-              </div>
-
-              {/* Horário */}
-              <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  {service.hours.map((hour, index) => (
-                    <p key={index} className="text-sm text-gray-700">
-                      <span className="font-medium">{hour.day}:</span> {hour.time}
-                    </p>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <h3 className="text-base font-bold text-gray-900 mb-2">Prestador</h3>
+            <p className="text-sm text-gray-700">{displayService.provider}</p>
           </div>
 
           {/* Botões de Ação Principal */}
@@ -229,14 +207,18 @@ export function ServiceDetails({ onNavigate, onBack }: ServiceDetailsProps) {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={handleWhatsApp}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366] text-white rounded-xl font-semibold text-sm hover:bg-[#22c55e] transition-colors shadow-sm"
+                disabled
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl font-semibold text-sm cursor-not-allowed"
+                title="WhatsApp não disponível"
               >
                 <MessageCircle className="w-5 h-5" />
                 WhatsApp
               </button>
               <button
                 onClick={handleCall}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-[#932d6f] text-white rounded-xl font-semibold text-sm hover:bg-[#7d2660] transition-colors shadow-sm"
+                disabled
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl font-semibold text-sm cursor-not-allowed"
+                title="Telefone não disponível"
               >
                 <Phone className="w-5 h-5" />
                 Ligar
@@ -272,7 +254,8 @@ export function ServiceDetails({ onNavigate, onBack }: ServiceDetailsProps) {
             </div>
 
             {/* Lista de Reviews */}
-            {reviews.map((review) => (
+            {reviews.length > 0 ? (
+              reviews.map((review) => (
               <div key={review.id} className="px-4 py-4 border-b border-gray-100">
                 {/* Header do Review */}
                 <div className="flex items-center gap-3 mb-2">
