@@ -96,33 +96,8 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
     priceValue: mockService.priceValue as string,
   };
 
-  // Reviews mockadas
-  const reviews: Review[] = displayService.reviewCount > 0 ? [
-    {
-      id: '1',
-      author: 'Beatriz Alves',
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      date: 'há 2 semanas',
-      rating: 5,
-      comment: 'Profissional incrível! Me sinto muito acolhida e segura durante as sessões. Recomendo demais!',
-    },
-    {
-      id: '2',
-      author: 'Julia Costa',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      date: 'há 1 mês',
-      rating: 5,
-      comment: 'A Dra. Marina é super empática e entende bem as questões da comunidade. Mudou minha vida!',
-    },
-    {
-      id: '3',
-      author: 'Fernanda Lima',
-      avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      date: 'há 2 meses',
-      rating: 4,
-      comment: 'Ótima profissional, ambiente acolhedor. Único ponto é que às vezes é difícil conseguir horário.',
-    },
-  ] : [];
+  // Reviews vazias por enquanto (será implementado depois)
+  const reviews: Review[] = [];
 
   const renderStars = (rating: number) => {
     return (
