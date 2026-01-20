@@ -71,32 +71,8 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
       : ['https://via.placeholder.com/400x300?text=Sem+Imagem'],
   };
 
-  const reviews: Review[] = [
-    {
-      id: '1',
-      author: 'Beatriz Alves',
-      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      date: 'há 2 semanas',
-      rating: 5,
-      comment: 'Profissional incrível! Me sinto muito acolhida e segura durante as sessões. Recomendo demais!',
-    },
-    {
-      id: '2',
-      author: 'Julia Costa',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      date: 'há 1 mês',
-      rating: 5,
-      comment: 'A Dra. Marina é super empática e entende bem as questões da comunidade. Mudou minha vida!',
-    },
-    {
-      id: '3',
-      author: 'Fernanda Lima',
-      avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      date: 'há 2 meses',
-      rating: 4,
-      comment: 'Ótima profissional, ambiente acolhedor. Único ponto é que às vezes é difícil conseguir horário.',
-    },
-  ];
+  // Reviews mockadas por enquanto (será implementado depois)
+  const reviews: Review[] = [];
 
   const renderStars = (rating: number) => {
     return (
@@ -112,9 +88,6 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
       </div>
     );
   };
-
-  // Reviews mockadas por enquanto (será implementado depois)
-  const reviews: Review[] = [];
 
   const handleWhatsApp = () => {
     // WhatsApp não está disponível nos dados do Supabase ainda
@@ -256,29 +229,34 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
             {/* Lista de Reviews */}
             {reviews.length > 0 ? (
               reviews.map((review) => (
-              <div key={review.id} className="px-4 py-4 border-b border-gray-100">
-                {/* Header do Review */}
-                <div className="flex items-center gap-3 mb-2">
-                  <img 
-                    src={review.avatar} 
-                    alt={review.author}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-gray-900 text-sm">{review.author}</h4>
-                    <p className="text-xs text-gray-500">Avaliação postada {review.date}</p>
+                <div key={review.id} className="px-4 py-4 border-b border-gray-100">
+                  {/* Header do Review */}
+                  <div className="flex items-center gap-3 mb-2">
+                    <img 
+                      src={review.avatar} 
+                      alt={review.author}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-900 text-sm">{review.author}</h4>
+                      <p className="text-xs text-gray-500">Avaliação postada {review.date}</p>
+                    </div>
                   </div>
-                </div>
 
-                {/* Avaliação com Estrelas */}
-                <div className="mb-2">
-                  {renderStars(review.rating)}
-                </div>
+                  {/* Avaliação com Estrelas */}
+                  <div className="mb-2">
+                    {renderStars(review.rating)}
+                  </div>
 
-                {/* Comentário */}
-                <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                  {/* Comentário */}
+                  <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-8 text-center">
+                <p className="text-sm text-muted-foreground">Nenhuma avaliação disponível ainda</p>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
