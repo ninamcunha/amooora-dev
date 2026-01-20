@@ -36,41 +36,27 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
     );
   }
 
-  // Dados mockados como fallback quando não há serviço do Supabase
-  const mockService = {
-    name: 'Dra. Marina Silva - Psicoterapia',
-    category: 'Psicologia',
-    description: 'Psicóloga especializada em atendimento à comunidade LGBTQIA+, com foco em questões de identidade, relacionamentos e saúde mental. Atendimento presencial e online.',
-    price: '$$$$',
-    priceValue: 'R$ 150 - R$ 250',
-    phone: '(11) 98765-4321',
-    whatsapp: '5511987654321',
-    email: 'contato@marinapsi.com.br',
-    address: 'Av. Paulista, 1000 - São Paulo/SP',
-    rating: 4.8,
-    reviewCount: 89,
-    provider: 'Dra. Marina Silva',
-    images: [
-      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwc3ljaG9sb2dpc3QlMjB3b21lbnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1551836022-4c4c79ecde51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0aGVyYXB5JTIwb2ZmaWNlJTIwcm9vbXxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3Vuc2VsaW5nJTIwc2Vzc2lvbnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    ],
-    specialties: [
-      'Terapia LGBTQIA+',
-      'Ansiedade',
-      'Depressão',
-      'Relacionamentos',
-      'Identidade de Gênero',
-    ],
-    hours: [
-      { day: 'Segunda a Sexta', time: '09:00 - 18:00' },
-      { day: 'Sábado', time: '09:00 - 13:00' },
-    ],
-    verified: true,
-  };
+  // Se não houver serviço do Supabase, exibir erro
+  if (!service) {
+    return (
+      <div className="min-h-screen bg-muted">
+        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+          <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
+          <div className="flex-1 flex items-center justify-center px-4">
+            <div className="text-center">
+              <p className="text-red-500 mb-2">Erro ao carregar serviço</p>
+              <p className="text-sm text-muted-foreground">
+                {error?.message || 'Serviço não encontrado'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // Usar dados reais do Supabase ou fallback para mock
-  const displayService = service ? {
+  // Dados formatados para exibição (sempre do Supabase)
+  const displayService = {
     name: service.name,
     category: service.category || 'Serviço',
     description: service.description || 'Sem descrição disponível.',
@@ -78,22 +64,17 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
     priceValue: service.price && service.price > 0 ? `R$ ${service.price.toFixed(2)}` : 'Valor a consultar',
     provider: service.provider || 'Prestador não informado',
     rating: service.rating || 0,
-    reviewCount: 0,
+    reviewCount: 0, // Não temos esse campo no banco ainda
     images: service.image || service.imageUrl 
       ? [service.image || service.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem']
       : ['https://via.placeholder.com/400x300?text=Sem+Imagem'],
-    // Campos adicionais do mock (opcionais)
+    // Campos opcionais que não existem no banco ainda
     phone: undefined as string | undefined,
     whatsapp: undefined as string | undefined,
     address: undefined as string | undefined,
     specialties: [] as string[],
     hours: [] as Array<{ day: string; time: string }>,
     verified: false,
-  } : {
-    // Fallback para dados mockados quando não há serviço do Supabase
-    ...mockService,
-    price: mockService.price as string,
-    priceValue: mockService.priceValue as string,
   };
 
   // Reviews vazias por enquanto (será implementado depois)
