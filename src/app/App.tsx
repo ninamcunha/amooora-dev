@@ -26,6 +26,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
   const [previousPage, setPreviousPage] = useState('home');
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>(undefined);
+  const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
   // Verificar se o usuário é admin quando há sessão
@@ -93,11 +94,15 @@ export default function App() {
   const handleNavigate = (page: string) => {
     setPreviousPage(currentPage);
     
-    // Verificar se a página contém um ID (formato: 'place-details:id')
+    // Verificar se a página contém um ID (formato: 'place-details:id' ou 'event-details:id')
     if (page.startsWith('place-details:')) {
       const placeId = page.split(':')[1];
       setSelectedPlaceId(placeId);
       setCurrentPage('place-details');
+    } else if (page.startsWith('event-details:')) {
+      const eventId = page.split(':')[1];
+      setSelectedEventId(eventId);
+      setCurrentPage('event-details');
     } else {
       setCurrentPage(page);
     }
@@ -140,7 +145,16 @@ export default function App() {
       case 'events':
         return <Eventos onNavigate={handleNavigate} />;
       case 'event-details':
-        return <EventDetails onNavigate={handleNavigate} onBack={() => setCurrentPage('events')} />;
+        return (
+          <EventDetails 
+            eventId={selectedEventId}
+            onNavigate={handleNavigate} 
+            onBack={() => {
+              setCurrentPage(previousPage === 'events' ? 'events' : 'home');
+              setSelectedEventId(undefined);
+            }} 
+          />
+        );
       case 'community':
         return <Comunidade onNavigate={handleNavigate} />;
       case 'profile':

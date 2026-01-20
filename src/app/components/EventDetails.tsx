@@ -3,74 +3,85 @@ import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
+import { useEvent } from '../hooks/useEvents';
 
 interface EventDetailsProps {
+  eventId?: string;
   onNavigate?: (page: string) => void;
   onBack?: () => void;
 }
 
-export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
+export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps) {
+  const { event, loading, error } = useEvent(eventId);
   const [isGoing, setIsGoing] = useState(false);
   const [isInterested, setIsInterested] = useState(false);
 
-  const event = {
-    id: '1',
-    name: 'Sarau Lésbico - Noite de Poesia e Música',
-    description: 'Uma noite especial dedicada à arte e cultura sáfica! Venha compartilhar suas poesias, cantar, tocar ou simplesmente apreciar talentos incríveis da nossa comunidade. Espaço seguro, acolhedor e cheio de afeto. Traga seu coração aberto e sua arte!',
-    date: '15 Jan 2026',
-    dayOfWeek: 'Quinta-feira',
-    startTime: '19:00',
-    endTime: '23:00',
-    location: 'Centro Cultural da Diversidade',
-    address: 'Rua Augusta, 1230 - Consolação, São Paulo/SP',
-    organizer: {
-      name: 'Coletivo Sapatão',
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      verified: true,
-    },
-    images: [
-      'https://images.unsplash.com/photo-1759658697230-cfae8940f0f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcnQlMjBwb2V0cnklMjBnYXRoZXJpbmd8ZW58MXx8fHwxNjc3ODMwOTQyfDA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb25jZXJ0JTIwbXVzaWMlMjBldmVudHxlbnwxfHx8fDE3Njc3ODU5Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxjb25jZXJ0JTIwbXVzaWMlMjBldmVudHxlbnwxfHx8fDE3Njc3ODU5Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    ],
-    goingCount: 45,
-    interestedCount: 89,
-    price: 'Entrada Solidária',
-    priceDetails: 'Contribuição consciente - sugestão R$ 10',
-    tags: ['Cultura', 'Poesia', 'Música', 'Arte', 'Comunidade'],
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-muted">
+        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+          <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
+          <div className="flex-1 flex flex-col items-center justify-center px-4">
+            <p className="text-muted-foreground mb-2">Carregando evento...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !event) {
+    return (
+      <div className="min-h-screen bg-muted">
+        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+          <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
+          <div className="flex-1 flex items-center justify-center px-4">
+            <div className="text-center">
+              <p className="text-red-500 mb-2">Erro ao carregar evento</p>
+              <p className="text-sm text-muted-foreground">
+                {error?.message || 'Evento não encontrado'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Formatar data do evento
+  const eventDate = new Date(event.date);
+  const dayOfWeek = eventDate.toLocaleDateString('pt-BR', { weekday: 'long' });
+  const formattedDate = eventDate.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const startTime = event.time || eventDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  
+  // Imagens do evento
+  const eventImages = event.image || event.imageUrl 
+    ? [event.image || event.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem']
+    : ['https://via.placeholder.com/400x300?text=Sem+Imagem'];
+
+  // Dados formatados para exibição
+  const displayEvent = {
+    name: event.name,
+    description: event.description || 'Sem descrição disponível.',
+    date: formattedDate,
+    dayOfWeek: dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1),
+    startTime: startTime,
+    endTime: '', // Não temos esse campo no banco ainda
+    location: event.location || 'Local não informado',
+    address: '', // Não temos esse campo no banco ainda
+    price: event.price && event.price > 0 ? `R$ ${event.price.toFixed(2)}` : 'Gratuito',
+    priceDetails: event.price && event.price > 0 ? 'Ingresso pago' : 'Entrada gratuita',
+    goingCount: event.participants || 0,
+    interestedCount: 0, // Não temos esse campo no banco ainda
+    category: event.category || 'Evento',
+    images: eventImages,
+    tags: [event.category || 'Evento'], // Usar categoria como tag por enquanto
     rules: [
       'Espaço seguro e livre de LGBTfobia',
-      'Respeito às artistas e participantes',
-      'Proibido fotografar sem consentimento',
-      'Bebidas alcoólicas apenas para maiores de 18 anos',
+      'Respeito aos participantes',
     ],
-    attendees: [
-      {
-        id: '1',
-        name: 'Mariana Silva',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      },
-      {
-        id: '2',
-        name: 'Julia Costa',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      },
-      {
-        id: '3',
-        name: 'Beatriz Alves',
-        avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      },
-      {
-        id: '4',
-        name: 'Fernanda Lima',
-        avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      },
-      {
-        id: '5',
-        name: 'Amanda Santos',
-        avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwc3ljaG9sb2dpc3QlMjB3b21lbnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      },
-    ],
+    attendees: [], // Lista vazia por enquanto - será implementado depois
   };
 
   const handleGoingClick = () => {
@@ -98,11 +109,11 @@ export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
           {/* Galeria de Fotos */}
           <div className="relative">
             <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
-              {event.images.map((image, index) => (
+              {displayEvent.images.map((image, index) => (
                 <div key={index} className="w-full flex-shrink-0 snap-start">
                   <ImageWithFallback
                     src={image}
-                    alt={`${event.name} - ${index + 1}`}
+                    alt={`${displayEvent.name} - ${index + 1}`}
                     className="w-full h-64 object-cover"
                   />
                 </div>
@@ -110,7 +121,7 @@ export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
             </div>
             {/* Indicador de Fotos */}
             <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
-              {event.images.map((_, index) => (
+              {displayEvent.images.map((_, index) => (
                 <div
                   key={index}
                   className="w-1.5 h-1.5 rounded-full bg-white/80"
@@ -127,12 +138,12 @@ export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
           <div className="bg-white px-4 py-5">
             {/* Nome do Evento */}
             <h1 className="text-2xl font-bold text-gray-900 mb-3">
-              {event.name}
+              {displayEvent.name}
             </h1>
 
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-4">
-              {event.tags.map((tag, index) => (
+              {displayEvent.tags.map((tag, index) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-[#932d6f]/10 text-[#932d6f] rounded-full text-xs font-medium"
@@ -142,27 +153,9 @@ export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
               ))}
             </div>
 
-            {/* Organizador */}
-            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
-              <img
-                src={event.organizer.avatar}
-                alt={event.organizer.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              <div className="flex-1">
-                <p className="text-sm text-gray-500">Organizado por</p>
-                <div className="flex items-center gap-1">
-                  <p className="font-semibold text-gray-900">{event.organizer.name}</p>
-                  {event.organizer.verified && (
-                    <CheckCircle className="w-4 h-4 text-[#932d6f]" />
-                  )}
-                </div>
-              </div>
-            </div>
-
             {/* Descrição */}
             <p className="text-gray-700 text-sm leading-relaxed mb-4">
-              {event.description}
+              {displayEvent.description}
             </p>
           </div>
 
@@ -173,15 +166,15 @@ export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
               <div className="flex items-start gap-3">
                 <Calendar className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-gray-900">{event.date}</p>
-                  <p className="text-sm text-gray-600">{event.dayOfWeek}</p>
+                  <p className="font-semibold text-gray-900">{displayEvent.date}</p>
+                  <p className="text-sm text-gray-600">{displayEvent.dayOfWeek}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-900">
-                    {event.startTime} - {event.endTime}
+                    {displayEvent.startTime}
                   </p>
                   <p className="text-sm text-gray-600">Horário de Brasília</p>
                 </div>
@@ -195,8 +188,10 @@ export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
             <div className="flex items-start gap-3 mb-3">
               <MapPin className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-gray-900">{event.location}</p>
-                <p className="text-sm text-gray-600">{event.address}</p>
+                <p className="font-semibold text-gray-900">{displayEvent.location}</p>
+                {displayEvent.address && (
+                  <p className="text-sm text-gray-600">{displayEvent.address}</p>
+                )}
               </div>
             </div>
             {/* Mapa Placeholder */}
@@ -220,8 +215,8 @@ export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
             <h3 className="text-base font-bold text-gray-900 mb-2">Ingresso</h3>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-bold text-lg text-[#932d6f]">{event.price}</p>
-                <p className="text-sm text-gray-600">{event.priceDetails}</p>
+                <p className="font-bold text-lg text-[#932d6f]">{displayEvent.price}</p>
+                <p className="text-sm text-gray-600">{displayEvent.priceDetails}</p>
               </div>
             </div>
           </div>
@@ -232,42 +227,24 @@ export function EventDetails({ onNavigate, onBack }: EventDetailsProps) {
               <h3 className="text-base font-bold text-gray-900">Participantes</h3>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Users className="w-4 h-4" />
-                <span>{event.goingCount} confirmadas</span>
+                <span>{displayEvent.goingCount} confirmadas</span>
               </div>
-            </div>
-
-            {/* Avatares dos Participantes */}
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex -space-x-2">
-                {event.attendees.map((attendee) => (
-                  <img
-                    key={attendee.id}
-                    src={attendee.avatar}
-                    alt={attendee.name}
-                    className="w-10 h-10 rounded-full border-2 border-white object-cover"
-                    title={attendee.name}
-                  />
-                ))}
-              </div>
-              {event.goingCount > event.attendees.length && (
-                <span className="text-sm text-gray-600">
-                  + {event.goingCount - event.attendees.length} outras pessoas
-                </span>
-              )}
             </div>
 
             {/* Contador de Interessadas */}
-            <div className="text-sm text-gray-600">
-              <Heart className="w-4 h-4 inline mr-1" />
-              {event.interestedCount} pessoas interessadas
-            </div>
+            {displayEvent.interestedCount > 0 && (
+              <div className="text-sm text-gray-600">
+                <Heart className="w-4 h-4 inline mr-1" />
+                {displayEvent.interestedCount} pessoas interessadas
+              </div>
+            )}
           </div>
 
           {/* Regras do Evento */}
           <div className="bg-[#fffbfa] px-4 py-4 border-b border-gray-100">
             <h3 className="text-base font-bold text-gray-900 mb-3">Regras e Orientações</h3>
             <ul className="space-y-2">
-              {event.rules.map((rule, index) => (
+              {displayEvent.rules.map((rule, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
                   <span className="text-[#932d6f] mt-1">•</span>
                   <span>{rule}</span>

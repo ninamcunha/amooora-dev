@@ -105,7 +105,7 @@ export function Eventos({ onNavigate }: EventosProps) {
                   <EventCardExpanded 
                     key={event.id} 
                     {...event} 
-                    onClick={() => onNavigate('event-details')}
+                    onClick={() => onNavigate(`event-details:${event.id}`)}
                   />
                 ))
               ) : (

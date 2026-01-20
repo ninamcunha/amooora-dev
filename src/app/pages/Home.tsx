@@ -107,7 +107,7 @@ export function Home({ onNavigate }: HomeProps) {
                       location={event.location}
                       participants={event.participants || 0}
                       imageUrl={event.imageUrl || event.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
-                      onClick={() => onNavigate('event-details')}
+                      onClick={() => onNavigate(`event-details:${event.id}`)}
                     />
                   );
                 })
