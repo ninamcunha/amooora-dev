@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Welcome } from './pages/Welcome';
+import { Login } from './pages/Login';
 import { Cadastro } from './pages/Cadastro';
 import { Home } from './pages/Home';
 import { Locais } from './pages/Locais';
@@ -117,6 +118,8 @@ export default function App() {
     switch (currentPage) {
       case 'welcome':
         return <Welcome onNavigate={handleNavigate} />;
+      case 'login':
+        return <Login onNavigate={handleNavigate} />;
       case 'register':
         return <Cadastro onNavigate={handleNavigate} />;
       case 'home':

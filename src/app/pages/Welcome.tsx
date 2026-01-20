@@ -162,7 +162,7 @@ export function Welcome({ onNavigate }: WelcomeProps) {
           {/* Buttons */}
           <div className="space-y-4">
             <button
-              onClick={() => onNavigate('home')}
+              onClick={() => onNavigate('login')}
               className="w-full bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg"
             >
               Entrar
