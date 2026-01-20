@@ -68,7 +68,6 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         setIsAdminAuthenticated(false);
-        setIsCheckingAuth(false);
       } else if (session?.user) {
         try {
           const { data: profile } = await supabase
