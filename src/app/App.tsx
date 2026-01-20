@@ -27,16 +27,50 @@ export default function App() {
   const [previousPage, setPreviousPage] = useState('home');
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>(undefined);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Verificar se o usuário é admin ao carregar a página
+  // Verificar se o usuário é admin quando há sessão
   useEffect(() => {
     const checkAdminAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        if (session?.user) {
-          // Verificar se o usuário é admin
+        // Se não houver sessão, não é admin
+        if (!session || !session.user || sessionError) {
+          setIsAdminAuthenticated(false);
+          return;
+        }
+
+        // Verificar se o usuário é admin
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('is_admin, role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profileError) {
+          // Se o perfil não existe ou erro, não é admin
+          console.log('Perfil não encontrado:', profileError);
+          setIsAdminAuthenticated(false);
+        } else {
+          const isAdmin = profile?.is_admin === true || profile?.role === 'admin';
+          setIsAdminAuthenticated(isAdmin);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar autenticação admin:', error);
+        setIsAdminAuthenticated(false);
+      }
+    };
+
+    // Verificar apenas uma vez ao carregar
+    checkAdminAuth();
+
+    // Listener para mudanças na sessão
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        setIsAdminAuthenticated(false);
+        setIsCheckingAuth(false);
+      } else if (session?.user) {
+        try {
           const { data: profile } = await supabase
             .from('profiles')
             .select('is_admin, role')
@@ -45,32 +79,10 @@ export default function App() {
 
           const isAdmin = profile?.is_admin === true || profile?.role === 'admin';
           setIsAdminAuthenticated(isAdmin);
-        } else {
+        } catch (error) {
+          console.error('Erro ao verificar admin após mudança de sessão:', error);
           setIsAdminAuthenticated(false);
         }
-      } catch (error) {
-        console.error('Erro ao verificar autenticação admin:', error);
-        setIsAdminAuthenticated(false);
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-
-    checkAdminAuth();
-
-    // Listener para mudanças na sessão
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_OUT') {
-        setIsAdminAuthenticated(false);
-      } else if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_admin, role')
-          .eq('id', session.user.id)
-          .single();
-
-        const isAdmin = profile?.is_admin === true || profile?.role === 'admin';
-        setIsAdminAuthenticated(isAdmin);
       }
     });
 
@@ -139,30 +151,30 @@ export default function App() {
       case 'settings':
         return <Configuracoes onBack={() => setCurrentPage('profile')} />;
       case 'admin':
-        // Se ainda estiver verificando, mostrar loading
-        if (isCheckingAuth) {
-          return (
-            <div className="min-h-screen bg-muted flex items-center justify-center">
-              <p className="text-muted-foreground">Verificando autenticação...</p>
-            </div>
-          );
-        }
-        // Se não estiver autenticado, mostrar login
+        // Se não estiver autenticado como admin, mostrar login
         if (!isAdminAuthenticated) {
           return (
             <AdminLogin
               onNavigate={handleNavigate}
               onLoginSuccess={async () => {
                 // Verificar novamente após login
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session?.user) {
-                  const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('is_admin, role')
-                    .eq('id', session.user.id)
-                    .single();
-                  const isAdmin = profile?.is_admin === true || profile?.role === 'admin';
-                  setIsAdminAuthenticated(isAdmin);
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  if (session?.user) {
+                    const { data: profile, error: profileError } = await supabase
+                      .from('profiles')
+                      .select('is_admin, role')
+                      .eq('id', session.user.id)
+                      .single();
+                    
+                    if (!profileError && profile) {
+                      const isAdmin = profile.is_admin === true || profile.role === 'admin';
+                      setIsAdminAuthenticated(isAdmin);
+                    }
+                  }
+                } catch (error) {
+                  console.error('Erro ao verificar admin após login:', error);
+                  setIsAdminAuthenticated(false);
                 }
               }}
             />
