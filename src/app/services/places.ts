@@ -3,8 +3,33 @@ import { supabase } from '../../lib/supabase';
 
 export const getPlaces = async (): Promise<Place[]> => {
   try {
-    console.log('Buscando locais do Supabase...');
+    console.log('🔍 Buscando locais do Supabase...');
+    console.log('🔗 URL:', import.meta.env.VITE_SUPABASE_URL);
     
+    // Primeiro, tentar buscar TODOS os locais (sem filtro is_safe) para diagnóstico
+    const { data: allData, error: allError } = await supabase
+      .from('places')
+      .select('*');
+    
+    if (allError) {
+      console.error('❌ Erro ao buscar TODOS os locais (sem filtros):', {
+        message: allError.message,
+        code: allError.code,
+        details: allError.details,
+        hint: allError.hint,
+      });
+    } else {
+      console.log(`📊 Total de locais no banco (sem filtros): ${allData?.length || 0}`);
+      if (allData && allData.length > 0) {
+        console.log('📋 Exemplo de local encontrado:', {
+          id: allData[0].id,
+          name: allData[0].name,
+          is_safe: allData[0].is_safe,
+        });
+      }
+    }
+    
+    // Agora buscar com o filtro is_safe
     const { data, error } = await supabase
       .from('places')
       .select('*')
@@ -12,7 +37,7 @@ export const getPlaces = async (): Promise<Place[]> => {
       .order('rating', { ascending: false });
 
     if (error) {
-      console.error('Erro detalhado ao buscar locais:', {
+      console.error('❌ Erro detalhado ao buscar locais (com filtro is_safe=true):', {
         message: error.message,
         code: error.code,
         details: error.details,
@@ -21,14 +46,19 @@ export const getPlaces = async (): Promise<Place[]> => {
       
       // Se for erro de RLS, retornar array vazio em vez de quebrar
       if (error.code === '42501' || error.message?.includes('row-level security')) {
-        console.warn('Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
+        console.warn('⚠️ Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
         return [];
       }
       
       throw new Error(`Erro ao buscar locais: ${error.message}`);
     }
 
-    console.log(`Locais encontrados: ${data?.length || 0}`);
+    console.log(`✅ Locais encontrados (com filtro is_safe=true): ${data?.length || 0}`);
+    
+    if (data && data.length === 0 && allData && allData.length > 0) {
+      console.warn('⚠️ ATENÇÃO: Existem locais no banco, mas nenhum tem is_safe=true!');
+      console.log('💡 Solução: Verifique o campo is_safe na tabela places no Supabase.');
+    }
 
     // Mapear dados do banco para o tipo Place
     return (data || []).map((place) => ({

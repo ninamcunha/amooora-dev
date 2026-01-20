@@ -3,8 +3,32 @@ import { supabase } from '../../lib/supabase';
 
 export const getServices = async (): Promise<Service[]> => {
   try {
-    console.log('Buscando serviços do Supabase...');
+    console.log('🔍 Buscando serviços do Supabase...');
     
+    // Primeiro, tentar buscar TODOS os serviços (sem filtro is_active) para diagnóstico
+    const { data: allData, error: allError } = await supabase
+      .from('services')
+      .select('*');
+    
+    if (allError) {
+      console.error('❌ Erro ao buscar TODOS os serviços (sem filtros):', {
+        message: allError.message,
+        code: allError.code,
+        details: allError.details,
+        hint: allError.hint,
+      });
+    } else {
+      console.log(`📊 Total de serviços no banco (sem filtros): ${allData?.length || 0}`);
+      if (allData && allData.length > 0) {
+        console.log('📋 Exemplo de serviço encontrado:', {
+          id: allData[0].id,
+          name: allData[0].name,
+          is_active: allData[0].is_active,
+        });
+      }
+    }
+    
+    // Agora buscar com o filtro is_active
     const { data, error } = await supabase
       .from('services')
       .select('*')
@@ -12,7 +36,7 @@ export const getServices = async (): Promise<Service[]> => {
       .order('rating', { ascending: false });
 
     if (error) {
-      console.error('Erro detalhado ao buscar serviços:', {
+      console.error('❌ Erro detalhado ao buscar serviços (com filtro is_active=true):', {
         message: error.message,
         code: error.code,
         details: error.details,
@@ -21,14 +45,19 @@ export const getServices = async (): Promise<Service[]> => {
       
       // Se for erro de RLS, retornar array vazio em vez de quebrar
       if (error.code === '42501' || error.message?.includes('row-level security')) {
-        console.warn('Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
+        console.warn('⚠️ Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
         return [];
       }
       
       throw new Error(`Erro ao buscar serviços: ${error.message}`);
     }
 
-    console.log(`Serviços encontrados: ${data?.length || 0}`);
+    console.log(`✅ Serviços encontrados (com filtro is_active=true): ${data?.length || 0}`);
+    
+    if (data && data.length === 0 && allData && allData.length > 0) {
+      console.warn('⚠️ ATENÇÃO: Existem serviços no banco, mas nenhum tem is_active=true!');
+      console.log('💡 Solução: Verifique o campo is_active na tabela services no Supabase.');
+    }
 
     return (data || []).map((service) => ({
       id: service.id,

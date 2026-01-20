@@ -3,17 +3,45 @@ import { supabase } from '../../lib/supabase';
 
 export const getEvents = async (): Promise<Event[]> => {
   try {
-    console.log('Buscando eventos do Supabase...');
+    console.log('🔍 Buscando eventos do Supabase...');
+    const today = new Date().toISOString();
+    console.log('📅 Data de hoje para filtro:', today);
     
+    // Primeiro, tentar buscar TODOS os eventos (sem filtros) para diagnóstico
+    const { data: allData, error: allError } = await supabase
+      .from('events')
+      .select('*');
+    
+    if (allError) {
+      console.error('❌ Erro ao buscar TODOS os eventos (sem filtros):', {
+        message: allError.message,
+        code: allError.code,
+        details: allError.details,
+        hint: allError.hint,
+      });
+    } else {
+      console.log(`📊 Total de eventos no banco (sem filtros): ${allData?.length || 0}`);
+      if (allData && allData.length > 0) {
+        console.log('📋 Exemplo de evento encontrado:', {
+          id: allData[0].id,
+          name: allData[0].name,
+          is_active: allData[0].is_active,
+          date: allData[0].date,
+          date_is_future: allData[0].date >= today,
+        });
+      }
+    }
+    
+    // Agora buscar com os filtros is_active e date
     const { data, error } = await supabase
       .from('events')
       .select('*')
       .eq('is_active', true)
-      .gte('date', new Date().toISOString()) // Apenas eventos futuros
+      .gte('date', today) // Apenas eventos futuros
       .order('date', { ascending: true });
 
     if (error) {
-      console.error('Erro detalhado ao buscar eventos:', {
+      console.error('❌ Erro detalhado ao buscar eventos (com filtros):', {
         message: error.message,
         code: error.code,
         details: error.details,
@@ -22,14 +50,22 @@ export const getEvents = async (): Promise<Event[]> => {
       
       // Se for erro de RLS, retornar array vazio em vez de quebrar
       if (error.code === '42501' || error.message?.includes('row-level security')) {
-        console.warn('Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
+        console.warn('⚠️ Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
         return [];
       }
       
       throw new Error(`Erro ao buscar eventos: ${error.message}`);
     }
 
-    console.log(`Eventos encontrados: ${data?.length || 0}`);
+    console.log(`✅ Eventos encontrados (is_active=true E date>=hoje): ${data?.length || 0}`);
+    
+    if (data && data.length === 0 && allData && allData.length > 0) {
+      console.warn('⚠️ ATENÇÃO: Existem eventos no banco, mas nenhum passa pelos filtros!');
+      const activeCount = allData.filter(e => e.is_active === true).length;
+      const futureCount = allData.filter(e => e.date >= today).length;
+      console.log(`💡 Diagnóstico: ${activeCount} ativos, ${futureCount} futuros`);
+      console.log('💡 Solução: Verifique os campos is_active e date na tabela events no Supabase.');
+    }
 
     return (data || []).map((event) => ({
       id: event.id,
