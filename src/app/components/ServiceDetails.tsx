@@ -36,27 +36,41 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
     );
   }
 
-  // Error state
-  if (error || !service) {
-    return (
-      <div className="min-h-screen bg-muted">
-        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
-          <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
-          <div className="flex-1 flex items-center justify-center px-4">
-            <div className="text-center">
-              <p className="text-red-500 mb-2">Erro ao carregar serviço</p>
-              <p className="text-sm text-muted-foreground">
-                {error?.message || 'Serviço não encontrado'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Dados mockados como fallback quando não há serviço do Supabase
+  const mockService = {
+    name: 'Dra. Marina Silva - Psicoterapia',
+    category: 'Psicologia',
+    description: 'Psicóloga especializada em atendimento à comunidade LGBTQIA+, com foco em questões de identidade, relacionamentos e saúde mental. Atendimento presencial e online.',
+    price: '$$$$',
+    priceValue: 'R$ 150 - R$ 250',
+    phone: '(11) 98765-4321',
+    whatsapp: '5511987654321',
+    email: 'contato@marinapsi.com.br',
+    address: 'Av. Paulista, 1000 - São Paulo/SP',
+    rating: 4.8,
+    reviewCount: 89,
+    provider: 'Dra. Marina Silva',
+    images: [
+      'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwc3ljaG9sb2dpc3QlMjB3b21lbnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      'https://images.unsplash.com/photo-1551836022-4c4c79ecde51?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0aGVyYXB5JTIwb2ZmaWNlJTIwcm9vbXxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+      'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3Vuc2VsaW5nJTIwc2Vzc2lvbnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    ],
+    specialties: [
+      'Terapia LGBTQIA+',
+      'Ansiedade',
+      'Depressão',
+      'Relacionamentos',
+      'Identidade de Gênero',
+    ],
+    hours: [
+      { day: 'Segunda a Sexta', time: '09:00 - 18:00' },
+      { day: 'Sábado', time: '09:00 - 13:00' },
+    ],
+    verified: true,
+  };
 
-  // Dados formatados para exibição
-  const displayService = {
+  // Usar dados reais do Supabase ou fallback para mock
+  const displayService = service ? {
     name: service.name,
     category: service.category || 'Serviço',
     description: service.description || 'Sem descrição disponível.',
@@ -64,15 +78,51 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
     priceValue: service.price && service.price > 0 ? `R$ ${service.price.toFixed(2)}` : 'Valor a consultar',
     provider: service.provider || 'Prestador não informado',
     rating: service.rating || 0,
-    reviewCount: 0, // Não temos esse campo no banco ainda
-    image: service.image || service.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+    reviewCount: 0,
     images: service.image || service.imageUrl 
       ? [service.image || service.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem']
       : ['https://via.placeholder.com/400x300?text=Sem+Imagem'],
+    // Campos adicionais do mock (opcionais)
+    phone: undefined as string | undefined,
+    whatsapp: undefined as string | undefined,
+    address: undefined as string | undefined,
+    specialties: [] as string[],
+    hours: [] as Array<{ day: string; time: string }>,
+    verified: false,
+  } : {
+    // Fallback para dados mockados quando não há serviço do Supabase
+    ...mockService,
+    price: mockService.price as string,
+    priceValue: mockService.priceValue as string,
   };
 
-  // Reviews mockadas por enquanto (será implementado depois)
-  const reviews: Review[] = [];
+  // Reviews mockadas
+  const reviews: Review[] = displayService.reviewCount > 0 ? [
+    {
+      id: '1',
+      author: 'Beatriz Alves',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
+      date: 'há 2 semanas',
+      rating: 5,
+      comment: 'Profissional incrível! Me sinto muito acolhida e segura durante as sessões. Recomendo demais!',
+    },
+    {
+      id: '2',
+      author: 'Julia Costa',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
+      date: 'há 1 mês',
+      rating: 5,
+      comment: 'A Dra. Marina é super empática e entende bem as questões da comunidade. Mudou minha vida!',
+    },
+    {
+      id: '3',
+      author: 'Fernanda Lima',
+      avatar: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
+      date: 'há 2 meses',
+      rating: 4,
+      comment: 'Ótima profissional, ambiente acolhedor. Único ponto é que às vezes é difícil conseguir horário.',
+    },
+  ] : [];
 
   const renderStars = (rating: number) => {
     return (
@@ -90,13 +140,15 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
   };
 
   const handleWhatsApp = () => {
-    // WhatsApp não está disponível nos dados do Supabase ainda
-    // window.open(`https://wa.me/${service.whatsapp}`, '_blank');
+    if (displayService.whatsapp) {
+      window.open(`https://wa.me/${displayService.whatsapp}`, '_blank');
+    }
   };
 
   const handleCall = () => {
-    // Telefone não está disponível nos dados do Supabase ainda
-    // window.open(`tel:${service.phone}`, '_blank');
+    if (displayService.phone) {
+      window.open(`tel:${displayService.phone}`, '_blank');
+    }
   };
 
   return (
@@ -137,11 +189,17 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
 
           {/* Informações Principais */}
           <div className="bg-white px-4 py-5 border-b border-gray-100">
-            {/* Categoria */}
+            {/* Categoria e Verificação */}
             <div className="flex items-center gap-2 mb-2">
               <span className="px-3 py-1 bg-[#932d6f]/10 text-[#932d6f] rounded-full text-xs font-medium">
                 {displayService.category}
               </span>
+              {displayService.verified && (
+                <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  Verificado
+                </span>
+              )}
             </div>
 
             {/* Nome do Serviço */}
@@ -169,29 +227,90 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
             </div>
           </div>
 
-          {/* Prestador */}
-          <div className="bg-[#fffbfa] px-4 py-4 border-b border-gray-100">
-            <h3 className="text-base font-bold text-gray-900 mb-2">Prestador</h3>
-            <p className="text-sm text-gray-700">{displayService.provider}</p>
-          </div>
+          {/* Especialidades */}
+          {displayService.specialties && displayService.specialties.length > 0 && (
+            <div className="bg-[#fffbfa] px-4 py-4 border-b border-gray-100">
+              <h3 className="text-base font-bold text-gray-900 mb-3">Especialidades</h3>
+              <div className="flex flex-wrap gap-2">
+                {displayService.specialties.map((specialty, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1.5 bg-white border border-[#932d6f]/20 text-gray-700 rounded-full text-xs font-medium"
+                  >
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Informações de Contato */}
+          {(displayService.address || displayService.phone || displayService.hours) && (
+            <div className="bg-white px-4 py-4 border-b border-gray-100">
+              <h3 className="text-base font-bold text-gray-900 mb-3">Informações de Contato</h3>
+              <div className="space-y-3">
+                {/* Endereço */}
+                {displayService.address && (
+                  <div className="flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-700">{displayService.address}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Telefone */}
+                {displayService.phone && (
+                  <div className="flex items-start gap-3">
+                    <Phone className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm text-gray-700">{displayService.phone}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Horário */}
+                {displayService.hours && displayService.hours.length > 0 && (
+                  <div className="flex items-start gap-3">
+                    <Clock className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      {displayService.hours.map((hour, index) => (
+                        <p key={index} className="text-sm text-gray-700">
+                          <span className="font-medium">{hour.day}:</span> {hour.time}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Botões de Ação Principal */}
           <div className="bg-[#fffbfa] px-4 py-4 border-b border-gray-100">
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={handleWhatsApp}
-                disabled
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl font-semibold text-sm cursor-not-allowed"
-                title="WhatsApp não disponível"
+                disabled={!displayService.whatsapp}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-colors ${
+                  displayService.whatsapp
+                    ? 'bg-[#25D366] text-white hover:bg-[#22c55e] shadow-sm'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                title={displayService.whatsapp ? 'Abrir WhatsApp' : 'WhatsApp não disponível'}
               >
                 <MessageCircle className="w-5 h-5" />
                 WhatsApp
               </button>
               <button
                 onClick={handleCall}
-                disabled
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-300 text-gray-500 rounded-xl font-semibold text-sm cursor-not-allowed"
-                title="Telefone não disponível"
+                disabled={!displayService.phone}
+                className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-colors ${
+                  displayService.phone
+                    ? 'bg-[#932d6f] text-white hover:bg-[#7d2660] shadow-sm'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                title={displayService.phone ? 'Ligar' : 'Telefone não disponível'}
               >
                 <Phone className="w-5 h-5" />
                 Ligar
