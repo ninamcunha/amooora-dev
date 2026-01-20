@@ -40,12 +40,12 @@ export function Header({ onNavigate, showBackButton, onBack }: HeaderProps) {
             </span>
           </button>
 
-          {/* Botão de Comunidade/Pessoas */}
+          {/* Botão de Perfil */}
           <button 
-            onClick={() => onNavigate?.('community')}
+            onClick={() => onNavigate?.('profile')}
             className="w-10 h-10 rounded-full bg-[#FF6B7A] flex items-center justify-center hover:bg-[#ff5766] transition-colors"
           >
-            <Users className="w-5 h-5 text-white" />
+            <UserPen className="w-5 h-5 text-white" />
           </button>
         </div>
       </div>

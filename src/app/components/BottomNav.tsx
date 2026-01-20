@@ -8,10 +8,10 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { id: 'home', label: 'Home', icon: Home },
-  { id: 'places', label: 'Locais', icon: MapPin }, // ← Edite aqui
+  { id: 'places', label: 'Locais', icon: MapPin },
   { id: 'services', label: 'Serviços', icon: Scissors },
   { id: 'events', label: 'Eventos', icon: Calendar },
-  { id: 'community', label: 'Comunidade', icon: Users },
+  { id: 'profile', label: 'Perfil', icon: User },
 ];
 
 interface BottomNavProps {
