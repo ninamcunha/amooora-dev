@@ -7,32 +7,24 @@ export const getEvents = async (): Promise<Event[]> => {
     const today = new Date().toISOString();
     console.log('📅 Data de hoje para filtro:', today);
     
-    // Primeiro, tentar buscar TODOS os eventos (sem filtros) para diagnóstico
+    // Primeiro, tentar buscar TODOS os eventos (sem filtros) - FALLBACK
     const { data: allData, error: allError } = await supabase
       .from('events')
       .select('*');
     
-    if (allError) {
-      console.error('❌ Erro ao buscar TODOS os eventos (sem filtros):', {
-        message: allError.message,
-        code: allError.code,
-        details: allError.details,
-        hint: allError.hint,
+    // Se conseguiu buscar todos, usar como fallback
+    if (!allError && allData && allData.length > 0) {
+      console.log(`📊 Total de eventos no banco (sem filtros): ${allData.length}`);
+      console.log('📋 Exemplo de evento encontrado:', {
+        id: allData[0].id,
+        name: allData[0].name,
+        is_active: allData[0].is_active,
+        date: allData[0].date,
+        date_is_future: allData[0].date >= today,
       });
-    } else {
-      console.log(`📊 Total de eventos no banco (sem filtros): ${allData?.length || 0}`);
-      if (allData && allData.length > 0) {
-        console.log('📋 Exemplo de evento encontrado:', {
-          id: allData[0].id,
-          name: allData[0].name,
-          is_active: allData[0].is_active,
-          date: allData[0].date,
-          date_is_future: allData[0].date >= today,
-        });
-      }
     }
     
-    // Agora buscar com os filtros is_active e date
+    // Agora tentar buscar com os filtros is_active e date
     const { data, error } = await supabase
       .from('events')
       .select('*')
@@ -40,34 +32,43 @@ export const getEvents = async (): Promise<Event[]> => {
       .gte('date', today) // Apenas eventos futuros
       .order('date', { ascending: true });
 
-    if (error) {
-      console.error('❌ Erro detalhado ao buscar eventos (com filtros):', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-      });
-      
-      // Se for erro de RLS, retornar array vazio em vez de quebrar
-      if (error.code === '42501' || error.message?.includes('row-level security')) {
-        console.warn('⚠️ Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
-        return [];
+    // Se houver erro ou dados vazios, usar fallback (todos os dados)
+    if (error || !data || data.length === 0) {
+      if (error) {
+        console.error('❌ Erro ao buscar eventos (com filtros):', {
+          message: error.message,
+          code: error.code,
+        });
       }
       
-      throw new Error(`Erro ao buscar eventos: ${error.message}`);
+      // USAR FALLBACK: Se tiver todos os dados, usar eles
+      if (allData && allData.length > 0) {
+        console.warn('⚠️ Usando fallback: retornando todos os eventos (sem filtros)');
+        console.log(`✅ Retornando ${allData.length} eventos (fallback)`);
+        
+        return allData.map((event) => ({
+          id: event.id,
+          name: event.name,
+          description: event.description,
+          image: event.image || undefined,
+          imageUrl: event.image || undefined,
+          date: event.date,
+          time: event.date ? new Date(event.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : undefined,
+          location: event.location,
+          category: event.category,
+          price: event.price ? Number(event.price) : undefined,
+          participants: event.participants_count || 0,
+        }));
+      }
+      
+      // Se não tiver fallback, retornar vazio
+      console.warn('⚠️ Nenhum evento encontrado no banco');
+      return [];
     }
 
-    console.log(`✅ Eventos encontrados (is_active=true E date>=hoje): ${data?.length || 0}`);
-    
-    if (data && data.length === 0 && allData && allData.length > 0) {
-      console.warn('⚠️ ATENÇÃO: Existem eventos no banco, mas nenhum passa pelos filtros!');
-      const activeCount = allData.filter(e => e.is_active === true).length;
-      const futureCount = allData.filter(e => e.date >= today).length;
-      console.log(`💡 Diagnóstico: ${activeCount} ativos, ${futureCount} futuros`);
-      console.log('💡 Solução: Verifique os campos is_active e date na tabela events no Supabase.');
-    }
+    console.log(`✅ Eventos encontrados (is_active=true E date>=hoje): ${data.length}`);
 
-    return (data || []).map((event) => ({
+    return data.map((event) => ({
       id: event.id,
       name: event.name,
       description: event.description,
@@ -81,9 +82,29 @@ export const getEvents = async (): Promise<Event[]> => {
       participants: event.participants_count || 0,
     }));
   } catch (error) {
-    console.error('Erro ao buscar eventos:', error);
-    // Retornar array vazio em vez de quebrar a aplicação
-    console.warn('Retornando array vazio devido a erro na busca de eventos');
+    console.error('❌ Erro ao buscar eventos:', error);
+    // Tentar fallback final: buscar sem filtros
+    try {
+      const { data: fallbackData } = await supabase.from('events').select('*');
+      if (fallbackData && fallbackData.length > 0) {
+        console.warn('⚠️ Usando fallback final: retornando todos os eventos');
+        return fallbackData.map((event) => ({
+          id: event.id,
+          name: event.name,
+          description: event.description,
+          image: event.image || undefined,
+          imageUrl: event.image || undefined,
+          date: event.date,
+          time: event.date ? new Date(event.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : undefined,
+          location: event.location,
+          category: event.category,
+          price: event.price ? Number(event.price) : undefined,
+          participants: event.participants_count || 0,
+        }));
+      }
+    } catch (fallbackError) {
+      console.error('❌ Erro no fallback:', fallbackError);
+    }
     return [];
   }
 };

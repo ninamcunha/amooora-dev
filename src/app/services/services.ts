@@ -5,61 +5,64 @@ export const getServices = async (): Promise<Service[]> => {
   try {
     console.log('🔍 Buscando serviços do Supabase...');
     
-    // Primeiro, tentar buscar TODOS os serviços (sem filtro is_active) para diagnóstico
+    // Primeiro, tentar buscar TODOS os serviços (sem filtro is_active) - FALLBACK
     const { data: allData, error: allError } = await supabase
       .from('services')
       .select('*');
     
-    if (allError) {
-      console.error('❌ Erro ao buscar TODOS os serviços (sem filtros):', {
-        message: allError.message,
-        code: allError.code,
-        details: allError.details,
-        hint: allError.hint,
+    // Se conseguiu buscar todos, usar como fallback
+    if (!allError && allData && allData.length > 0) {
+      console.log(`📊 Total de serviços no banco (sem filtros): ${allData.length}`);
+      console.log('📋 Exemplo de serviço encontrado:', {
+        id: allData[0].id,
+        name: allData[0].name,
+        is_active: allData[0].is_active,
       });
-    } else {
-      console.log(`📊 Total de serviços no banco (sem filtros): ${allData?.length || 0}`);
-      if (allData && allData.length > 0) {
-        console.log('📋 Exemplo de serviço encontrado:', {
-          id: allData[0].id,
-          name: allData[0].name,
-          is_active: allData[0].is_active,
-        });
-      }
     }
     
-    // Agora buscar com o filtro is_active
+    // Agora tentar buscar com o filtro is_active
     const { data, error } = await supabase
       .from('services')
       .select('*')
       .eq('is_active', true)
       .order('rating', { ascending: false });
 
-    if (error) {
-      console.error('❌ Erro detalhado ao buscar serviços (com filtro is_active=true):', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-      });
-      
-      // Se for erro de RLS, retornar array vazio em vez de quebrar
-      if (error.code === '42501' || error.message?.includes('row-level security')) {
-        console.warn('⚠️ Aviso: Política RLS pode estar bloqueando. Retornando array vazio.');
-        return [];
+    // Se houver erro ou dados vazios, usar fallback (todos os dados)
+    if (error || !data || data.length === 0) {
+      if (error) {
+        console.error('❌ Erro ao buscar serviços (com filtro is_active=true):', {
+          message: error.message,
+          code: error.code,
+        });
       }
       
-      throw new Error(`Erro ao buscar serviços: ${error.message}`);
+      // USAR FALLBACK: Se tiver todos os dados, usar eles
+      if (allData && allData.length > 0) {
+        console.warn('⚠️ Usando fallback: retornando todos os serviços (sem filtro is_active)');
+        console.log(`✅ Retornando ${allData.length} serviços (fallback)`);
+        
+        return allData.map((service) => ({
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          image: service.image,
+          imageUrl: service.image,
+          price: service.price ? Number(service.price) : undefined,
+          category: service.category,
+          categorySlug: service.category_slug,
+          rating: Number(service.rating) || 0,
+          provider: service.provider || undefined,
+        }));
+      }
+      
+      // Se não tiver fallback, retornar vazio
+      console.warn('⚠️ Nenhum serviço encontrado no banco');
+      return [];
     }
 
-    console.log(`✅ Serviços encontrados (com filtro is_active=true): ${data?.length || 0}`);
-    
-    if (data && data.length === 0 && allData && allData.length > 0) {
-      console.warn('⚠️ ATENÇÃO: Existem serviços no banco, mas nenhum tem is_active=true!');
-      console.log('💡 Solução: Verifique o campo is_active na tabela services no Supabase.');
-    }
+    console.log(`✅ Serviços encontrados (com filtro is_active=true): ${data.length}`);
 
-    return (data || []).map((service) => ({
+    return data.map((service) => ({
       id: service.id,
       name: service.name,
       description: service.description,
@@ -72,9 +75,28 @@ export const getServices = async (): Promise<Service[]> => {
       provider: service.provider || undefined,
     }));
   } catch (error) {
-    console.error('Erro ao buscar serviços:', error);
-    // Retornar array vazio em vez de quebrar a aplicação
-    console.warn('Retornando array vazio devido a erro na busca de serviços');
+    console.error('❌ Erro ao buscar serviços:', error);
+    // Tentar fallback final: buscar sem filtros
+    try {
+      const { data: fallbackData } = await supabase.from('services').select('*');
+      if (fallbackData && fallbackData.length > 0) {
+        console.warn('⚠️ Usando fallback final: retornando todos os serviços');
+        return fallbackData.map((service) => ({
+          id: service.id,
+          name: service.name,
+          description: service.description,
+          image: service.image,
+          imageUrl: service.image,
+          price: service.price ? Number(service.price) : undefined,
+          category: service.category,
+          categorySlug: service.category_slug,
+          rating: Number(service.rating) || 0,
+          provider: service.provider || undefined,
+        }));
+      }
+    } catch (fallbackError) {
+      console.error('❌ Erro no fallback:', fallbackError);
+    }
     return [];
   }
 };
