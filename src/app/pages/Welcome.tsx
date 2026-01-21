@@ -1,4 +1,4 @@
-import logoAmooora from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
+import logoHome from "../../assets/logo-home.png";
 
 interface WelcomeProps {
   onNavigate: (page: string) => void;
@@ -13,7 +13,7 @@ export function Welcome({ onNavigate }: WelcomeProps) {
           {/* Logo Amooora */}
           <div className="flex justify-center mb-12">
             <img
-              src={logoAmooora}
+              src={logoHome}
               alt="Amooora - Um mundo inteiro de acolhimento e liberdade"
               className="h-28 w-auto max-w-[280px]"
             />
