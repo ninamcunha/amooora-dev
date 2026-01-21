@@ -1,4 +1,4 @@
-import { Home, MapPin, Calendar, Users, User, Briefcase, Scissors } from 'lucide-react';
+import { Home, MapPin, Calendar, Users, Scissors } from 'lucide-react';
 
 type NavItem = {
   id: string;
@@ -11,7 +11,7 @@ const navItems: NavItem[] = [
   { id: 'places', label: 'Locais', icon: MapPin },
   { id: 'services', label: 'Serviços', icon: Scissors },
   { id: 'events', label: 'Eventos', icon: Calendar },
-  { id: 'profile', label: 'Perfil', icon: User },
+  { id: 'community', label: 'Comunidade', icon: Users },
 ];
 
 interface BottomNavProps {
