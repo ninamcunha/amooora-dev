@@ -26,6 +26,8 @@ export default function App() {
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
 
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+
   const handleNavigate = (page: string) => {
     setPreviousPage(currentPage);
     
@@ -42,7 +44,13 @@ export default function App() {
       const serviceId = page.split(':')[1];
       setSelectedServiceId(serviceId);
       setCurrentPage('service-details');
+    } else if (page.startsWith('services:')) {
+      // Formato: 'services:Categoria' - navegar para serviços com categoria pré-selecionada
+      const category = page.split(':')[1];
+      setSelectedCategory(category);
+      setCurrentPage('services');
     } else {
+      setSelectedCategory(undefined); // Limpar categoria ao navegar para outras páginas
       setCurrentPage(page);
     }
   };
@@ -67,7 +75,7 @@ export default function App() {
       case 'create-review':
         return <CreateReview onNavigate={handleNavigate} />;
       case 'services':
-        return <Servicos onNavigate={handleNavigate} />;
+        return <Servicos onNavigate={handleNavigate} initialCategory={selectedCategory} />;
       case 'service-details':
         return <ServiceDetails 
           serviceId={selectedServiceId}

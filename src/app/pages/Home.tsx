@@ -80,9 +80,10 @@ export function Home({ onNavigate }: HomeProps) {
     }));
   }, [services]);
 
-  const handleServiceClick = (categorySlug: string) => {
-    if (categorySlug) {
-      onNavigate(`service-category-${categorySlug}`);
+  const handleServiceClick = (categoryName: string) => {
+    // Navegar para página de serviços com a categoria pré-selecionada
+    if (categoryName) {
+      onNavigate(`services:${categoryName}`);
     } else {
       // Fallback para navegação geral
       onNavigate('services');

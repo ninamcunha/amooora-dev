@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryFilter } from '../components/CategoryFilter';
@@ -11,13 +11,21 @@ const categories = ['Todos', 'Costura', 'Marcenaria', 'Pintura', 'Reparos', 'Bem
 
 interface ServicosProps {
   onNavigate: (page: string) => void;
+  initialCategory?: string;
 }
 
-export function Servicos({ onNavigate }: ServicosProps) {
+export function Servicos({ onNavigate, initialCategory }: ServicosProps) {
   const { services, loading, error } = useServices();
   const { isAdmin } = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [activeCategory, setActiveCategory] = useState(initialCategory || 'Todos');
+
+  // Aplicar categoria inicial quando a página carregar
+  useEffect(() => {
+    if (initialCategory && categories.includes(initialCategory)) {
+      setActiveCategory(initialCategory);
+    }
+  }, [initialCategory]);
 
   // Filtrar serviços por categoria e busca
   const filteredServices = useMemo(() => {
