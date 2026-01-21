@@ -11,10 +11,19 @@ export const usePlaces = () => {
     const loadPlaces = async () => {
       try {
         setLoading(true);
-        const data = await getPlaces();
-        setPlaces(data);
+        setError(null);
+        
+        // Timeout de segurança para evitar loading infinito
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Timeout ao carregar locais')), 10000);
+        });
+        
+        const data = await Promise.race([getPlaces(), timeoutPromise]);
+        setPlaces(data || []);
       } catch (err) {
+        console.error('❌ Erro no hook usePlaces:', err);
         setError(err instanceof Error ? err : new Error('Erro ao carregar locais'));
+        setPlaces([]); // Garantir que places seja array vazio em caso de erro
       } finally {
         setLoading(false);
       }

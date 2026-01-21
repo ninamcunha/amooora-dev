@@ -11,10 +11,19 @@ export const useServices = () => {
     const loadServices = async () => {
       try {
         setLoading(true);
-        const data = await getServices();
-        setServices(data);
+        setError(null);
+        
+        // Timeout de segurança para evitar loading infinito
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Timeout ao carregar serviços')), 10000);
+        });
+        
+        const data = await Promise.race([getServices(), timeoutPromise]);
+        setServices(data || []);
       } catch (err) {
+        console.error('❌ Erro no hook useServices:', err);
         setError(err instanceof Error ? err : new Error('Erro ao carregar serviços'));
+        setServices([]); // Garantir que services seja array vazio em caso de erro
       } finally {
         setLoading(false);
       }

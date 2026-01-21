@@ -11,10 +11,19 @@ export const useEvents = () => {
     const loadEvents = async () => {
       try {
         setLoading(true);
-        const data = await getEvents();
-        setEvents(data);
+        setError(null);
+        
+        // Timeout de segurança para evitar loading infinito
+        const timeoutPromise = new Promise<never>((_, reject) => {
+          setTimeout(() => reject(new Error('Timeout ao carregar eventos')), 10000);
+        });
+        
+        const data = await Promise.race([getEvents(), timeoutPromise]);
+        setEvents(data || []);
       } catch (err) {
+        console.error('❌ Erro no hook useEvents:', err);
         setError(err instanceof Error ? err : new Error('Erro ao carregar eventos'));
+        setEvents([]); // Garantir que events seja array vazio em caso de erro
       } finally {
         setLoading(false);
       }
