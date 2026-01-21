@@ -35,8 +35,8 @@ const categoryIconMap: { [key: string]: LucideIcon } = {
   // Adicionar mais mapeamentos conforme necessário
 };
 
-// Cores padrão
-const DEFAULT_COLOR = '#932d6f';
+// Cores padrão - usar variáveis do tema
+const DEFAULT_COLOR = '#932d6f'; // Primary (roxo)
 
 interface HomeProps {
   onNavigate: (page: string) => void;

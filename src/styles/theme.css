@@ -10,9 +10,9 @@
   --popover-foreground: oklch(0.145 0 0);
   
   /* Amooora Colors */
-  --primary: #932d6f;
+  --primary: #932d6f; /* Roxo - Cor Primária */
   --primary-foreground: #ffffff;
-  --secondary: #932d6f;
+  --secondary: #D97757; /* Laranja - Cor Secundária */
   --secondary-foreground: #ffffff;
   --accent: #FF6B7A;
   --accent-foreground: #ffffff;

@@ -34,7 +34,7 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
         {/* Botões à direita */}
         <div className="flex items-center gap-2">
           {/* Botão de Notificação com badge */}
-          <button className="relative w-10 h-10 rounded-full bg-[#932d6f] flex items-center justify-center hover:bg-[#7d2660] transition-colors">
+          <button className="relative w-10 h-10 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors">
             <Bell className="w-5 h-5 text-white" />
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
               3
@@ -53,7 +53,7 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
           {/* Botão de Perfil */}
           <button 
             onClick={() => onNavigate?.('profile')}
-            className="w-10 h-10 rounded-full bg-[#FF6B7A] flex items-center justify-center hover:bg-[#ff5766] transition-colors"
+            className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/90 transition-colors"
           >
             <UserPen className="w-5 h-5 text-white" />
           </button>
