@@ -56,88 +56,105 @@ DROP POLICY IF EXISTS "Public can delete profiles" ON profiles;
 -- =====================================================
 
 -- PLACES: SELECT público, INSERT/UPDATE/DELETE apenas para autenticados
+-- Usar CREATE OR REPLACE ou remover antes de criar
+DROP POLICY IF EXISTS "Public SELECT places" ON places;
 CREATE POLICY "Public SELECT places"
 ON places FOR SELECT
 TO public
 USING (true);
 
+DROP POLICY IF EXISTS "Authenticated INSERT places" ON places;
 CREATE POLICY "Authenticated INSERT places"
 ON places FOR INSERT
 TO authenticated
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated UPDATE places" ON places;
 CREATE POLICY "Authenticated UPDATE places"
 ON places FOR UPDATE
 TO authenticated
 USING (true)
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated DELETE places" ON places;
 CREATE POLICY "Authenticated DELETE places"
 ON places FOR DELETE
 TO authenticated
 USING (true);
 
 -- SERVICES: SELECT público, INSERT/UPDATE/DELETE apenas para autenticados
+DROP POLICY IF EXISTS "Public SELECT services" ON services;
 CREATE POLICY "Public SELECT services"
 ON services FOR SELECT
 TO public
 USING (true);
 
+DROP POLICY IF EXISTS "Authenticated INSERT services" ON services;
 CREATE POLICY "Authenticated INSERT services"
 ON services FOR INSERT
 TO authenticated
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated UPDATE services" ON services;
 CREATE POLICY "Authenticated UPDATE services"
 ON services FOR UPDATE
 TO authenticated
 USING (true)
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated DELETE services" ON services;
 CREATE POLICY "Authenticated DELETE services"
 ON services FOR DELETE
 TO authenticated
 USING (true);
 
 -- EVENTS: SELECT público, INSERT/UPDATE/DELETE apenas para autenticados
+DROP POLICY IF EXISTS "Public SELECT events" ON events;
 CREATE POLICY "Public SELECT events"
 ON events FOR SELECT
 TO public
 USING (true);
 
+DROP POLICY IF EXISTS "Authenticated INSERT events" ON events;
 CREATE POLICY "Authenticated INSERT events"
 ON events FOR INSERT
 TO authenticated
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated UPDATE events" ON events;
 CREATE POLICY "Authenticated UPDATE events"
 ON events FOR UPDATE
 TO authenticated
 USING (true)
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated DELETE events" ON events;
 CREATE POLICY "Authenticated DELETE events"
 ON events FOR DELETE
 TO authenticated
 USING (true);
 
 -- PROFILES: SELECT público, INSERT/UPDATE/DELETE apenas para autenticados
+DROP POLICY IF EXISTS "Public SELECT profiles" ON profiles;
 CREATE POLICY "Public SELECT profiles"
 ON profiles FOR SELECT
 TO public
 USING (true);
 
+DROP POLICY IF EXISTS "Authenticated INSERT profiles" ON profiles;
 CREATE POLICY "Authenticated INSERT profiles"
 ON profiles FOR INSERT
 TO authenticated
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated UPDATE profiles" ON profiles;
 CREATE POLICY "Authenticated UPDATE profiles"
 ON profiles FOR UPDATE
 TO authenticated
 USING (true)
 WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Authenticated DELETE profiles" ON profiles;
 CREATE POLICY "Authenticated DELETE profiles"
 ON profiles FOR DELETE
 TO authenticated
