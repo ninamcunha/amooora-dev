@@ -7,6 +7,7 @@ import { useEvent } from '../hooks/useEvents';
 import { useEventReviews } from '../hooks/useReviews';
 import { Review } from '../types';
 import { calculateAverageRating } from '../services/reviews';
+import { shareContent, getShareUrl, getShareText } from '../utils/share';
 
 interface EventDetailsProps {
   eventId?: string;
@@ -19,6 +20,22 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useEventReviews(eventId);
   const [isGoing, setIsGoing] = useState(false);
   const [isInterested, setIsInterested] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
+
+  const handleShare = async () => {
+    if (!event || !eventId) return;
+    
+    const shared = await shareContent({
+      title: event.name,
+      text: getShareText('event', event.name),
+      url: getShareUrl('event', eventId),
+    });
+
+    if (shared) {
+      setShareSuccess(true);
+      setTimeout(() => setShareSuccess(false), 2000);
+    }
+  };
 
   // Converter reviews reais para o formato esperado
   const reviews: Review[] = realReviews.map(review => ({
@@ -332,9 +349,12 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
           {/* Botões de Ação Secundários */}
           <div className="bg-white px-4 py-3 border-b border-gray-100">
             <div className="flex gap-2 overflow-x-auto">
-              <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors">
+              <button 
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+              >
                 <Share2 className="w-4 h-4" />
-                Compartilhar
+                {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
               </button>
               <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors">
                 <Flag className="w-4 h-4" />

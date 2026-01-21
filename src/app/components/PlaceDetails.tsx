@@ -8,6 +8,7 @@ import { usePlace } from '../hooks/usePlaces';
 import { usePlaceReviews } from '../hooks/useReviews';
 import { Review } from '../types';
 import { calculateAverageRating } from '../services/reviews';
+import { shareContent, getShareUrl, getShareText } from '../utils/share';
 
 interface ReviewWithReplies extends Review {
   likes?: number;
@@ -28,6 +29,22 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
   const [replyText, setReplyText] = useState('');
   
   const favorite = placeId ? isFavorite('places', placeId) : false;
+  const [shareSuccess, setShareSuccess] = useState(false);
+
+  const handleShare = async () => {
+    if (!place || !placeId) return;
+    
+    const shared = await shareContent({
+      title: place.name,
+      text: getShareText('place', place.name),
+      url: getShareUrl('place', placeId),
+    });
+
+    if (shared) {
+      setShareSuccess(true);
+      setTimeout(() => setShareSuccess(false), 2000);
+    }
+  };
 
   // Converter reviews reais para o formato esperado
   const reviews: ReviewWithReplies[] = realReviews.map(review => ({
@@ -208,9 +225,12 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
                       <Check className="w-4 h-4" />
                       Já fui
                     </button>
-              <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap">
+              <button 
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+              >
                 <Share2 className="w-4 h-4" />
-                Compartilhar
+                {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
               </button>
               <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap">
                 <Flag className="w-4 h-4" />

@@ -10,11 +10,13 @@ import { EditarPerfil } from './pages/EditarPerfil';
 import { Configuracoes } from './pages/Configuracoes';
 import { Notificacoes } from './pages/Notificacoes';
 import { PostDetails } from './pages/PostDetails';
+import { MeusFavoritos } from './pages/MeusFavoritos';
 import { PlaceDetails } from './components/PlaceDetails';
 import { ServiceDetails } from './components/ServiceDetails';
 import { EventDetails } from './components/EventDetails';
 import { ServiceCategoryList } from './pages/ServiceCategoryList';
 import { CreateReview } from './pages/CreateReview';
+import { GlobalSearch } from './components/GlobalSearch';
 import { Admin } from './pages/Admin';
 import { AdminCadastro } from './pages/AdminCadastro';
 import { AdminCadastrarLocal } from './pages/AdminCadastrarLocal';
@@ -24,6 +26,7 @@ import { AdminCadastrarEvento } from './pages/AdminCadastrarEvento';
 export default function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
   const [previousPage, setPreviousPage] = useState('home');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>(undefined);
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
@@ -70,6 +73,8 @@ export default function App() {
         setSelectedEventId(itemId);
       }
       setCurrentPage('create-review');
+    } else if (page === 'search') {
+      setIsSearchOpen(true);
     } else {
       setSelectedCategory(undefined); // Limpar categoria ao navegar para outras páginas
       setCurrentPage(page);
@@ -177,6 +182,8 @@ export default function App() {
         return <Configuracoes onBack={() => setCurrentPage('profile')} />;
       case 'notifications':
         return <Notificacoes onNavigate={handleNavigate} />;
+      case 'favoritos':
+        return <MeusFavoritos onNavigate={handleNavigate} />;
       case 'admin':
         return <Admin onNavigate={handleNavigate} />;
       case 'admin-cadastrar-usuario':
@@ -192,5 +199,14 @@ export default function App() {
     }
   };
 
-  return renderPage();
+  return (
+    <>
+      {renderPage()}
+      <GlobalSearch 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+        onNavigate={handleNavigate}
+      />
+    </>
+  );
 }

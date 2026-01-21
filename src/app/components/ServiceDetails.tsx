@@ -1,4 +1,5 @@
 import { Heart, Star, Share2, Flag, Phone, MessageCircle, Clock, Check, MapPin } from 'lucide-react';
+import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
@@ -6,6 +7,7 @@ import { useService } from '../hooks/useServices';
 import { useServiceReviews } from '../hooks/useReviews';
 import { calculateAverageRating } from '../services/reviews';
 import { Review } from '../types';
+import { shareContent, getShareUrl, getShareText } from '../utils/share';
 
 
 interface ServiceDetailsProps {
@@ -17,6 +19,22 @@ interface ServiceDetailsProps {
 export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetailsProps) {
   const { service, loading, error } = useService(serviceId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useServiceReviews(serviceId);
+  const [shareSuccess, setShareSuccess] = useState(false);
+
+  const handleShare = async () => {
+    if (!service || !serviceId) return;
+    
+    const shared = await shareContent({
+      title: service.name,
+      text: getShareText('service', service.name),
+      url: getShareUrl('service', serviceId),
+    });
+
+    if (shared) {
+      setShareSuccess(true);
+      setTimeout(() => setShareSuccess(false), 2000);
+    }
+  };
 
   // Loading state
   if (loading) {
@@ -298,9 +316,12 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
                       <Star className="w-4 h-4" />
                       Avaliar
                     </button>
-              <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap">
+              <button 
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+              >
                 <Share2 className="w-4 h-4" />
-                Compartilhar
+                {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
               </button>
               <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap">
                 <Flag className="w-4 h-4" />
