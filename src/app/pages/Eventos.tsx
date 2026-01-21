@@ -35,11 +35,40 @@ export function Eventos({ onNavigate }: EventosProps) {
   const filteredEvents = useMemo(() => {
     let filtered = events;
 
-    // Filtro por categoria (simplificado)
-    if (activeCategory === 'Gratuitos') {
-      filtered = filtered.filter((event) => !event.price || event.price === 0);
+    // Aplicar filtros baseados na categoria selecionada
+    if (activeCategory === 'Todos') {
+      // Mostrar todos os eventos (sem filtro)
+      filtered = events;
+    } else if (activeCategory === 'Hoje') {
+      // Filtrar apenas eventos de hoje
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      filtered = events.filter((event) => {
+        if (!event.date) return false;
+        const eventDate = new Date(event.date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate >= today && eventDate < tomorrow;
+      });
+    } else if (activeCategory === 'Semana') {
+      // Filtrar eventos da semana (próximos 7 dias)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const nextWeek = new Date(today);
+      nextWeek.setDate(nextWeek.getDate() + 7);
+      
+      filtered = events.filter((event) => {
+        if (!event.date) return false;
+        const eventDate = new Date(event.date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate >= today && eventDate < nextWeek;
+      });
+    } else if (activeCategory === 'Gratuitos') {
+      // Filtrar apenas eventos gratuitos
+      filtered = events.filter((event) => !event.price || event.price === 0);
     }
-    // Outros filtros (Hoje, Semana) podem ser implementados aqui
 
     return filtered;
   }, [events, activeCategory]);
