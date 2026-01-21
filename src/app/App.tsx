@@ -16,7 +16,6 @@ import { ServiceDetails } from './components/ServiceDetails';
 import { EventDetails } from './components/EventDetails';
 import { ServiceCategoryList } from './pages/ServiceCategoryList';
 import { CreateReview } from './pages/CreateReview';
-import { GlobalSearch } from './components/GlobalSearch';
 import { Admin } from './pages/Admin';
 import { AdminCadastro } from './pages/AdminCadastro';
 import { AdminCadastrarLocal } from './pages/AdminCadastrarLocal';
@@ -26,7 +25,6 @@ import { AdminCadastrarEvento } from './pages/AdminCadastrarEvento';
 export default function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
   const [previousPage, setPreviousPage] = useState('home');
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>(undefined);
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
@@ -197,14 +195,5 @@ export default function App() {
     }
   };
 
-  return (
-    <>
-      {renderPage()}
-      <GlobalSearch 
-        isOpen={isSearchOpen} 
-        onClose={() => setIsSearchOpen(false)} 
-        onNavigate={handleNavigate}
-      />
-    </>
-  );
+  return renderPage();
 }
