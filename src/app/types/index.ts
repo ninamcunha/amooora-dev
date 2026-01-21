@@ -35,6 +35,11 @@ export interface Service {
   categorySlug: string;
   rating: number;
   provider?: string;
+  phone?: string;
+  whatsapp?: string;
+  address?: string;
+  specialties?: string[];
+  hours?: Record<string, string>;
 }
 
 export interface Event {
@@ -45,6 +50,7 @@ export interface Event {
   imageUrl?: string;
   date: string;
   time?: string;
+  endTime?: string;
   location: string;
   category: string;
   price?: number;

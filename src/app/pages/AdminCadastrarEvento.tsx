@@ -148,11 +148,19 @@ export function AdminCadastrarEvento({ onNavigate }: AdminCadastrarEventoProps) 
       const dateTime = `${formData.date}T${formData.time}:00`;
       const isoDate = new Date(dateTime).toISOString();
 
+      // Preparar end_time se fornecido
+      let endTimeValue: string | undefined = undefined;
+      if (formData.endTime) {
+        const endDateTime = `${formData.date}T${formData.endTime}:00`;
+        endTimeValue = new Date(endDateTime).toISOString();
+      }
+
       await createEvent({
         name: formData.name,
         description: formData.description,
         image: imageUrl,
         date: isoDate,
+        endTime: endTimeValue,
         location: formData.address ? `${formData.location} - ${formData.address}` : formData.location,
         category: formData.category,
         price: formData.price ? Number(formData.price) : undefined,

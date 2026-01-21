@@ -81,10 +81,21 @@ export const createEvent = async (eventData: {
   location: string;
   category: string;
   price?: number;
+  endTime?: string; // ISO string para horário de término
 }): Promise<Event> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     const userId = user?.id;
+
+    // Preparar end_time: se fornecido, combinar com a data do evento
+    let endTimeValue: string | null = null;
+    if (eventData.endTime) {
+      // Se endTime é apenas hora (HH:MM), combinar com a data do evento
+      const eventDate = new Date(eventData.date);
+      const [hours, minutes] = eventData.endTime.split(':');
+      eventDate.setHours(parseInt(hours || '0', 10), parseInt(minutes || '0', 10), 0, 0);
+      endTimeValue = eventDate.toISOString();
+    }
 
     const { data, error } = await supabase
       .from('events')
@@ -93,6 +104,7 @@ export const createEvent = async (eventData: {
         description: eventData.description,
         image: eventData.image || null,
         date: eventData.date,
+        end_time: endTimeValue,
         location: eventData.location,
         category: eventData.category,
         price: eventData.price || null,
