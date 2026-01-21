@@ -22,7 +22,6 @@ interface PlaceDetailsProps {
 export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps) {
   const { place, loading, error } = usePlace(placeId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = usePlaceReviews(placeId);
-  const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
 
