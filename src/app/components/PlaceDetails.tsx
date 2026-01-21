@@ -293,8 +293,8 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
           </div>
         </div>
 
-        {/* Campo de Comentário Fixo */}
-        <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-border px-4 py-3">
+        {/* Campo de Comentário Fixo - Posicionado acima do BottomNav */}
+        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-border px-4 py-3 z-40">
           <div className="flex items-center gap-3">
             <ImageWithFallback
               src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080"
@@ -347,8 +347,8 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
           </div>
         </div>
 
-        {/* Navegação inferior */}
-        <BottomNav />
+        {/* Navegação inferior - z-index maior para ficar acima */}
+        <BottomNav activeItem="places" onItemClick={onNavigate} />
       </div>
     </div>
   );
