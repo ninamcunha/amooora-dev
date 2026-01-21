@@ -262,7 +262,7 @@ export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {
         <Header onNavigate={onNavigate} isAdmin={isAdmin} showBackButton onBack={onBack} />
         
         {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto pb-32">
+        <div className="flex-1 overflow-y-auto pb-32 pt-24">
           {/* Post Principal */}
           <div className="bg-white rounded-2xl mx-5 mt-6 p-4 shadow-sm border border-border/50">
             {/* Header: Avatar, nome e badge */}

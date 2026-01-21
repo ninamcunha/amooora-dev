@@ -234,7 +234,7 @@ export function ServiceCategoryList({ category, onNavigate, onBack }: ServiceCat
         <Header onNavigate={onNavigate} showBackButton onBack={onBack} />
 
         {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto pb-24">
+        <div className="flex-1 overflow-y-auto pb-24 pt-24">
           {/* Título da Categoria */}
           <div className="bg-gradient-to-br from-[#A84B8E] to-[#8B3A7A] px-5 py-6">
             <h1 className="text-2xl font-bold text-white text-center mb-2">

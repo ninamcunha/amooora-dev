@@ -143,7 +143,7 @@ export function Notificacoes({ onNavigate }: NotificacoesProps) {
         <Header onNavigate={onNavigate} isAdmin={isAdmin} showBackButton onBack={() => onNavigate('home')} />
         
         {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto pb-24">
+        <div className="flex-1 overflow-y-auto pb-24 pt-24">
           {/* Page Header */}
           <div className="px-5 pt-6 pb-4">
             <div className="flex items-center justify-between mb-4">

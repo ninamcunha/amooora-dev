@@ -10,8 +10,8 @@ interface HeaderProps {
 
 export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: HeaderProps) {
   return (
-    <header className="px-5 py-4 bg-white border-b border-gray-100">
-      <div className="flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 max-w-md mx-auto">
+      <div className="flex items-center justify-between px-5 py-4">
         {/* Botão voltar à esquerda (se showBackButton) */}
         {showBackButton && (
           <button 

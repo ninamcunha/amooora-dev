@@ -136,8 +136,8 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
         {/* Header fixo */}
         <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
 
-        {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto pb-24">
+        {/* Conteúdo scrollável - padding-top para compensar header fixo */}
+        <div className="flex-1 overflow-y-auto pb-24 pt-24">
           {/* Galeria de Fotos */}
           <div className="p-4">
             <div className="flex gap-1 h-[200px]">

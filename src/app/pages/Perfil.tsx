@@ -217,8 +217,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
         {/* Header fixo */}
         <Header onNavigate={onNavigate} isAdmin={isAdmin} />
 
-        {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto pb-24">
+        {/* Conteúdo scrollável - padding-top para compensar header fixo */}
+        <div className="flex-1 overflow-y-auto pb-24 pt-24">
           {/* Cabeçalho do Perfil com Gradiente */}
           <div className="relative bg-gradient-to-br from-[#A84B8E] to-[#8B3A7A] pt-6 pb-6 px-5">
             <div className="flex items-center gap-4">

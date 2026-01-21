@@ -95,8 +95,8 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
         {/* Header fixo */}
         <Header onNavigate={onNavigate} isAdmin={isAdmin} />
         
-        {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto pb-24">
+        {/* Conteúdo scrollável - padding-top para compensar header fixo */}
+        <div className="flex-1 overflow-y-auto pb-24 pt-24">
           {/* Page Header */}
           <div className="px-5 pt-6 pb-4">
             <h1 className="text-2xl font-semibold text-primary mb-4">Comunidade</h1>

@@ -97,8 +97,8 @@ export function Home({ onNavigate }: HomeProps) {
         {/* Header fixo */}
         <Header onNavigate={onNavigate} isAdmin={isAdmin} />
         
-        {/* Main content com scroll */}
-        <main className="flex-1 overflow-y-auto px-5 py-6 space-y-8 pb-24">
+        {/* Main content com scroll - padding-top para compensar header fixo */}
+        <main className="flex-1 overflow-y-auto px-5 py-6 space-y-8 pb-24 pt-24">
           {/* Seção: Lugares Seguros Próximos */}
           <section>
             <SectionHeader 

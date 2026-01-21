@@ -133,7 +133,7 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
         <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
 
         {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto pb-24">
+        <div className="flex-1 overflow-y-auto pb-24 pt-24">
           {/* Galeria de Fotos */}
           <div className="relative">
             <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide">
