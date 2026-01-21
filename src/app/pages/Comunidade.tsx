@@ -139,7 +139,11 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
                 return true;
               })
               .map((post) => (
-                <CommunityPostCard key={post.id} {...post} />
+                <CommunityPostCard 
+                  key={post.id} 
+                  {...post} 
+                  onClick={() => onNavigate(`post-details:${post.id}`)}
+                />
               ))}
           </div>
         </div>

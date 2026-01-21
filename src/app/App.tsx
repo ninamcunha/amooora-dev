@@ -9,6 +9,7 @@ import { Perfil } from './pages/Perfil';
 import { EditarPerfil } from './pages/EditarPerfil';
 import { Configuracoes } from './pages/Configuracoes';
 import { Notificacoes } from './pages/Notificacoes';
+import { PostDetails } from './pages/PostDetails';
 import { PlaceDetails } from './components/PlaceDetails';
 import { ServiceDetails } from './components/ServiceDetails';
 import { EventDetails } from './components/EventDetails';
@@ -26,6 +27,7 @@ export default function App() {
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>(undefined);
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
+  const [selectedPostId, setSelectedPostId] = useState<string | undefined>(undefined);
 
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
 
@@ -50,6 +52,10 @@ export default function App() {
       const category = page.split(':')[1];
       setSelectedCategory(category);
       setCurrentPage('services');
+    } else if (page.startsWith('post-details:')) {
+      const postId = page.split(':')[1];
+      setSelectedPostId(postId);
+      setCurrentPage('post-details');
     } else {
       setSelectedCategory(undefined); // Limpar categoria ao navegar para outras páginas
       setCurrentPage(page);
@@ -109,6 +115,17 @@ export default function App() {
         );
       case 'community':
         return <Comunidade onNavigate={handleNavigate} />;
+      case 'post-details':
+        return (
+          <PostDetails 
+            postId={selectedPostId || ''}
+            onNavigate={handleNavigate}
+            onBack={() => {
+              setCurrentPage('community');
+              setSelectedPostId(undefined);
+            }}
+          />
+        );
       case 'profile':
         return <Perfil onNavigate={handleNavigate} />;
       case 'edit-profile':

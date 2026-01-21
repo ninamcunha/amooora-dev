@@ -4,6 +4,7 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Tag } from './Tag';
 
 interface CommunityPostCardProps {
+  id?: string;
   author: {
     name: string;
     avatarUrl: string;
@@ -18,9 +19,11 @@ interface CommunityPostCardProps {
   likes: number;
   replies: number;
   isTrending?: boolean;
+  onClick?: () => void;
 }
 
 export function CommunityPostCard({
+  id,
   author,
   timeAgo,
   title,
@@ -29,6 +32,7 @@ export function CommunityPostCard({
   likes,
   replies,
   isTrending = false,
+  onClick,
 }: CommunityPostCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
@@ -43,7 +47,10 @@ export function CommunityPostCard({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm border border-border/50 hover:shadow-md transition-shadow">
+    <div 
+      onClick={onClick}
+      className="bg-white rounded-2xl p-4 shadow-sm border border-border/50 hover:shadow-md transition-shadow cursor-pointer"
+    >
       {/* Header: Avatar, nome e badge */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
@@ -80,7 +87,13 @@ export function CommunityPostCard({
           />
           <span className="text-sm font-medium">{likeCount}</span>
         </button>
-        <button className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            // TODO: Navegar para página de detalhes do post quando implementado
+          }}
+          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
+        >
           <MessageCircle className="w-5 h-5" />
           <span className="text-sm">{replies} respostas</span>
         </button>
