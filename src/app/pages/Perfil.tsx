@@ -159,7 +159,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
           </div>
 
           {/* Stats Cards */}
-          <div className="px-5 -mt-6 mb-6 relative z-10">
+          <div className="px-5 mt-4 mb-6 relative z-10">
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-white rounded-2xl p-4 shadow-md text-center">
                 <Calendar className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
