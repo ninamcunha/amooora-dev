@@ -6,9 +6,10 @@
 -- =====================================================
 
 -- =====================================================
--- 0. CRIAR COLUNA author_name SE NÃO EXISTIR
+-- 0. PREPARAR TABELA REVIEWS PARA REVIEWS SEM LOGIN
 -- =====================================================
 
+-- Criar coluna author_name se não existir
 DO $$ 
 BEGIN
     IF NOT EXISTS (
@@ -24,6 +25,27 @@ BEGIN
         RAISE NOTICE 'Coluna author_name criada com sucesso!';
     ELSE
         RAISE NOTICE 'Coluna author_name já existe.';
+    END IF;
+END $$;
+
+-- Tornar user_id nullable se ainda não for (permite reviews sem login)
+DO $$ 
+BEGIN
+    -- Verificar se user_id é NOT NULL
+    IF EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public'
+        AND table_name = 'reviews' 
+        AND column_name = 'user_id'
+        AND is_nullable = 'NO'
+    ) THEN
+        ALTER TABLE public.reviews 
+        ALTER COLUMN user_id DROP NOT NULL;
+        
+        RAISE NOTICE 'Coluna user_id agora permite valores NULL (reviews sem login habilitadas)!';
+    ELSE
+        RAISE NOTICE 'Coluna user_id já permite valores NULL.';
     END IF;
 END $$;
 
