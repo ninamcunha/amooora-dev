@@ -1,4 +1,5 @@
-import { Heart, Star, Check, Share2, Flag, UserPlus, ArrowLeft, MapPin } from 'lucide-react';
+import { Heart, Star, Check, Share2, Flag, UserPlus, ArrowLeft, MapPin, MessageCircle, Send } from 'lucide-react';
+import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
@@ -11,6 +12,8 @@ interface Review {
   date: string;
   rating: number;
   comment: string;
+  likes?: number;
+  replies?: Review[];
 }
 
 interface PlaceDetailsProps {
@@ -21,9 +24,60 @@ interface PlaceDetailsProps {
 
 export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps) {
   const { place, loading, error } = usePlace(placeId);
+  const [newComment, setNewComment] = useState('');
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
 
-  // Mock de reviews (será substituído quando implementarmos reviews do Supabase)
-  const reviews: Review[] = [];
+  // Mock de reviews com exemplos (será substituído quando implementarmos reviews do Supabase)
+  const [reviews, setReviews] = useState<Review[]>([
+    {
+      id: '1',
+      author: 'Ana Costa',
+      avatar: 'https://images.unsplash.com/photo-1650784854945-264d5b0b6b07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwd29tYW4lMjBwcm9mZXNzaW9uYWx8ZW58MXx8fHwxNzY3ODM0MTA4fDA&ixlib=rb-4.1.0&q=80&w=1080',
+      date: '2 dias atrás',
+      rating: 5,
+      comment: 'Lugar incrível! Ambiente super acolhedor e seguro. A comida é deliciosa e o atendimento é impecável. Recomendo muito!',
+      likes: 12,
+      replies: [
+        {
+          id: '1-1',
+          author: 'Maria Silva',
+          avatar: 'https://images.unsplash.com/photo-1594318223885-20dc4b889f9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwc21pbGV8ZW58MXx8fHwxNzY3Nzg5MjA2fDA&ixlib=rb-4.1.0&q=80&w=1080',
+          date: '1 dia atrás',
+          rating: 0,
+          comment: 'Concordo totalmente! Fui lá semana passada e amei.',
+          likes: 3,
+        },
+      ],
+    },
+    {
+      id: '2',
+      author: 'Julia Ferreira',
+      avatar: 'https://images.unsplash.com/photo-1617931928012-3d65dcfffee2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXRpbmElMjB3b21hbiUyMGhhcHB5fGVufDF8fHwxNzY3ODM0MTA4fDA&ixlib=rb-4.1.0&q=80&w=1080',
+      date: '5 dias atrás',
+      rating: 4,
+      comment: 'Ótimo lugar! O ambiente é muito acolhedor e o cardápio tem opções veganas deliciosas. Única coisa que faltou foi mais espaço para sentar, mas vale a pena esperar.',
+      likes: 8,
+    },
+    {
+      id: '3',
+      author: 'Camila Souza',
+      avatar: 'https://images.unsplash.com/photo-1589553009868-c7b2bb474531?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzY3NzU0NDQ2fDA&ixlib=rb-4.1.0&q=80&w=1080',
+      date: '1 semana atrás',
+      rating: 5,
+      comment: 'Melhor lugar da região! Ambiente super seguro e inclusivo. A equipe é toda LGBTQIA+ friendly e o atendimento é nota 10. Já voltei várias vezes!',
+      likes: 15,
+    },
+    {
+      id: '4',
+      author: 'Patricia Lima',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
+      date: '2 semanas atrás',
+      rating: 4,
+      comment: 'Lugar muito bom! A decoração é linda e o ambiente é super acolhedor. Recomendo para encontros e eventos. O único ponto negativo é que pode ficar barulhento nos finais de semana.',
+      likes: 6,
+    },
+  ]);
 
   const renderStars = (rating: number) => {
     return (
@@ -187,41 +241,225 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
           </div>
 
           {/* Seção de Comentários */}
-          <div className="mt-6 pb-6">
-            <div className="px-4 pb-3">
-              <h3 className="text-lg font-bold text-gray-900">Comentários</h3>
+          <div className="mt-6 pb-32">
+            <div className="px-4 pb-3 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">
+                Comentários ({reviews.length})
+              </h3>
             </div>
 
             {/* Lista de Reviews */}
-            {reviews.map((review) => (
-              <div key={review.id} className="px-4 py-4 border-b border-gray-100">
-                {/* Header do Review */}
-                <div className="flex items-center gap-3 mb-2">
-                  <img 
-                    src={review.avatar} 
-                    alt={review.author}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-gray-900 text-sm">{review.author}</h4>
-                    <p className="text-xs text-gray-500">Review postado {review.date}</p>
-                  </div>
-                </div>
-
-                {/* Avaliação com Estrelas */}
-                <div className="mb-2">
-                  {renderStars(review.rating)}
-                </div>
-
-                {/* Comentário */}
-                <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+            {reviews.length > 0 ? (
+              reviews.map((review) => (
+                <ReviewItem 
+                  key={review.id} 
+                  review={review}
+                  onReply={(id) => setReplyingTo(replyingTo === id ? null : id)}
+                  replyingTo={replyingTo}
+                  replyText={replyText}
+                  onReplyTextChange={setReplyText}
+                  onSendReply={(id) => {
+                    if (replyText.trim()) {
+                      const newReply: Review = {
+                        id: `reply-${Date.now()}`,
+                        author: 'Você',
+                        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
+                        date: 'Agora',
+                        rating: 0,
+                        comment: replyText,
+                        likes: 0,
+                      };
+                      setReviews(reviews.map(r => 
+                        r.id === id 
+                          ? { ...r, replies: [...(r.replies || []), newReply] }
+                          : r
+                      ));
+                      setReplyText('');
+                      setReplyingTo(null);
+                    }
+                  }}
+                />
+              ))
+            ) : (
+              <div className="px-4 py-12 text-center">
+                <p className="text-muted-foreground">Nenhum comentário ainda</p>
               </div>
-            ))}
+            )}
+          </div>
+        </div>
+
+        {/* Campo de Comentário Fixo */}
+        <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-border px-4 py-3">
+          <div className="flex items-center gap-3">
+            <ImageWithFallback
+              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080"
+              alt="Seu avatar"
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            />
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Escreva um comentário..."
+              className="flex-1 px-4 py-2 bg-muted rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && newComment.trim()) {
+                  const review: Review = {
+                    id: `new-${Date.now()}`,
+                    author: 'Você',
+                    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
+                    date: 'Agora',
+                    rating: 5,
+                    comment: newComment,
+                    likes: 0,
+                  };
+                  setReviews([review, ...reviews]);
+                  setNewComment('');
+                }
+              }}
+            />
+            <button
+              onClick={() => {
+                if (newComment.trim()) {
+                  const review: Review = {
+                    id: `new-${Date.now()}`,
+                    author: 'Você',
+                    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
+                    date: 'Agora',
+                    rating: 5,
+                    comment: newComment,
+                    likes: 0,
+                  };
+                  setReviews([review, ...reviews]);
+                  setNewComment('');
+                }
+              }}
+              disabled={!newComment.trim()}
+              className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Send className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
         {/* Navegação inferior */}
         <BottomNav />
+      </div>
+    </div>
+  );
+}
+
+// Componente para renderizar um review com suporte a respostas
+function ReviewItem({ 
+  review, 
+  onReply, 
+  replyingTo, 
+  replyText, 
+  onReplyTextChange, 
+  onSendReply,
+  isReply = false 
+}: { 
+  review: Review; 
+  onReply: (id: string) => void;
+  replyingTo: string | null;
+  replyText: string;
+  onReplyTextChange: (text: string) => void;
+  onSendReply: (id: string) => void;
+  isReply?: boolean;
+}) {
+  return (
+    <div className={isReply ? 'ml-12 mt-3' : ''}>
+      <div className="px-4 py-4 border-b border-gray-100">
+        {/* Header do Review */}
+        <div className="flex items-center gap-3 mb-2">
+          <ImageWithFallback
+            src={review.avatar}
+            alt={review.author}
+            className={`${isReply ? 'w-8 h-8' : 'w-10 h-10'} rounded-full object-cover flex-shrink-0`}
+          />
+          <div className="flex-1">
+            <h4 className="font-bold text-gray-900 text-sm">{review.author}</h4>
+            <p className="text-xs text-gray-500">{review.date}</p>
+          </div>
+        </div>
+
+        {/* Avaliação com Estrelas (apenas para comentários principais) */}
+        {!isReply && review.rating > 0 && (
+          <div className="mb-2">
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, index) => (
+                <Star 
+                  key={index}
+                  className={`w-3.5 h-3.5 ${index < review.rating ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-300'}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Comentário */}
+        <p className="text-sm text-gray-700 leading-relaxed mb-2">{review.comment}</p>
+
+        {/* Ações: Curtir e Responder */}
+        <div className="flex items-center gap-4 mt-2">
+          {review.likes !== undefined && (
+            <button className="flex items-center gap-1.5 text-muted-foreground hover:text-accent transition-colors">
+              <Heart className="w-4 h-4" />
+              <span className="text-xs">{review.likes}</span>
+            </button>
+          )}
+          {!isReply && (
+            <button
+              onClick={() => onReply(review.id)}
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Responder
+            </button>
+          )}
+        </div>
+
+        {/* Campo de resposta */}
+        {replyingTo === review.id && !isReply && (
+          <div className="mt-3 flex gap-2">
+            <input
+              type="text"
+              value={replyText}
+              onChange={(e) => onReplyTextChange(e.target.value)}
+              placeholder="Escreva uma resposta..."
+              className="flex-1 px-3 py-2 text-sm bg-muted rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  onSendReply(review.id);
+                }
+              }}
+            />
+            <button
+              onClick={() => onSendReply(review.id)}
+              className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Enviar
+            </button>
+          </div>
+        )}
+
+        {/* Respostas aninhadas */}
+        {review.replies && review.replies.length > 0 && (
+          <div className="mt-3">
+            {review.replies.map((reply) => (
+              <ReviewItem
+                key={reply.id}
+                review={reply}
+                onReply={onReply}
+                replyingTo={replyingTo}
+                replyText={replyText}
+                onReplyTextChange={onReplyTextChange}
+                onSendReply={onSendReply}
+                isReply={true}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
