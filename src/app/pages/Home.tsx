@@ -1,4 +1,6 @@
-import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles } from 'lucide-react';
+import { useMemo } from 'react';
+import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles, Briefcase, Stethoscope, GraduationCap, ShoppingBag, UtensilsCrossed, Palette, Dumbbell, Music, BookOpen, Camera, Car, Home, UserCheck, Building2 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SectionHeader } from '../components/SectionHeader';
 import { PlaceCard } from '../components/PlaceCard';
@@ -7,14 +9,34 @@ import { ServiceCard } from '../components/ServiceCard';
 import { BottomNav } from '../components/BottomNav';
 import { usePlaces } from '../hooks/usePlaces';
 import { useEvents } from '../hooks/useEvents';
+import { useServices } from '../hooks/useServices';
 import { useAdmin } from '../hooks/useAdmin';
 
-const services = [
-  { id: '1', name: 'Terapia', icon: MessageCircle, color: '#932d6f' },
-  { id: '2', name: 'Advocacia', icon: Scale, color: '#932d6f' },
-  { id: '3', name: 'Saúde', icon: Heart, color: '#932d6f' },
-  { id: '4', name: 'Carreira', icon: Sparkles, color: '#932d6f' },
-];
+// Mapeamento de categorias para ícones
+const categoryIconMap: { [key: string]: LucideIcon } = {
+  'Terapia': MessageCircle,
+  'Advocacia': Scale,
+  'Saúde': Heart,
+  'Carreira': Briefcase,
+  'Saude': Heart,
+  'Beleza': Sparkles,
+  'Educação': GraduationCap,
+  'Comércio': ShoppingBag,
+  'Alimentação': UtensilsCrossed,
+  'Arte': Palette,
+  'Esporte': Dumbbell,
+  'Música': Music,
+  'Livros': BookOpen,
+  'Fotografia': Camera,
+  'Transporte': Car,
+  'Construção': Home,
+  'Recursos Humanos': UserCheck,
+  'Negócios': Building2,
+  // Adicionar mais mapeamentos conforme necessário
+};
+
+// Cores padrão
+const DEFAULT_COLOR = '#932d6f';
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -24,22 +46,64 @@ export function Home({ onNavigate }: HomeProps) {
   // Buscar dados reais do Supabase
   const { places, loading: loadingPlaces } = usePlaces();
   const { events, loading: loadingEvents } = useEvents();
+  const { services, loading: loadingServices } = useServices();
   const { isAdmin } = useAdmin();
 
   // Limitar a 3 locais e 3 eventos para exibição na home
   const limitedPlaces = places.slice(0, 3);
   const limitedEvents = events.slice(0, 3);
-  const handleServiceClick = (serviceName: string) => {
-    const categoryMap: { [key: string]: string } = {
-      'Terapia': 'terapia',
-      'Advocacia': 'advocacia',
-      'Saúde': 'saude',
-      'Carreira': 'carreira',
-    };
+
+  // Agrupar serviços por categoria e pegar as 4 mais comuns
+  const topCategories = useMemo(() => {
+    if (!services || services.length === 0) {
+      // Fallback para categorias padrão se não houver serviços
+      return [
+        { id: '1', name: 'Terapia', icon: MessageCircle, color: DEFAULT_COLOR, count: 0 },
+        { id: '2', name: 'Advocacia', icon: Scale, color: DEFAULT_COLOR, count: 0 },
+        { id: '3', name: 'Saúde', icon: Heart, color: DEFAULT_COLOR, count: 0 },
+        { id: '4', name: 'Carreira', icon: Sparkles, color: DEFAULT_COLOR, count: 0 },
+      ];
+    }
+
+    // Agrupar por categoria
+    const categoryCount: { [key: string]: number } = {};
+    const categorySlugs: { [key: string]: string } = {};
     
-    const category = categoryMap[serviceName];
-    if (category) {
-      onNavigate(`service-category-${category}`);
+    services.forEach((service) => {
+      const category = service.category || 'Outros';
+      categoryCount[category] = (categoryCount[category] || 0) + 1;
+      if (service.categorySlug) {
+        categorySlugs[category] = service.categorySlug;
+      }
+    });
+
+    // Converter para array e ordenar por quantidade (maior para menor)
+    const sortedCategories = Object.entries(categoryCount)
+      .map(([category, count]) => ({
+        category,
+        count,
+        slug: categorySlugs[category] || category.toLowerCase().replace(/\s+/g, '-'),
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 4); // Pegar top 4
+
+    // Mapear para formato do ServiceCard
+    return sortedCategories.map((item, index) => ({
+      id: `category-${index + 1}`,
+      name: item.category,
+      icon: categoryIconMap[item.category] || Scissors, // Ícone padrão se não encontrado
+      color: DEFAULT_COLOR,
+      count: item.count,
+      slug: item.slug,
+    }));
+  }, [services]);
+
+  const handleServiceClick = (categorySlug: string) => {
+    if (categorySlug) {
+      onNavigate(`service-category-${categorySlug}`);
+    } else {
+      // Fallback para navegação geral
+      onNavigate('services');
     }
   };
 
@@ -124,12 +188,28 @@ export function Home({ onNavigate }: HomeProps) {
             <SectionHeader 
               icon={<Scissors className="w-5 h-5" />}
               title="Serviços para Você"
-              onViewAll={() => console.log('Ver todos serviços')}
+              onViewAll={() => onNavigate('services')}
             />
             <div className="grid grid-cols-2 gap-3">
-              {services.map((service) => (
-                <ServiceCard key={service.id} {...service} onClick={() => handleServiceClick(service.name)} />
-              ))}
+              {loadingServices ? (
+                <div className="col-span-2 text-center text-muted-foreground text-sm py-4">
+                  Carregando serviços...
+                </div>
+              ) : topCategories.length > 0 ? (
+                topCategories.map((category) => (
+                  <ServiceCard 
+                    key={category.id} 
+                    name={category.name}
+                    icon={category.icon}
+                    color={category.color}
+                    onClick={() => handleServiceClick(category.slug || category.name.toLowerCase())}
+                  />
+                ))
+              ) : (
+                <div className="col-span-2 text-center text-muted-foreground text-sm py-4">
+                  Nenhum serviço encontrado
+                </div>
+              )}
             </div>
           </section>
         </main>
