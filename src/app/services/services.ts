@@ -173,6 +173,11 @@ export const getServiceById = async (id: string): Promise<Service | null> => {
       categorySlug: data.category_slug,
       rating: Number(data.rating) || 0,
       provider: data.provider || undefined,
+      phone: data.phone || undefined,
+      whatsapp: data.whatsapp || undefined,
+      address: data.address || undefined,
+      specialties: data.specialties ? (Array.isArray(data.specialties) ? data.specialties : []) : undefined,
+      hours: data.hours || undefined,
     };
   } catch (error) {
     console.error('❌ Erro ao buscar serviço:', error);
@@ -194,6 +199,11 @@ export const getServiceById = async (id: string): Promise<Service | null> => {
             categorySlug: service.category_slug,
             rating: Number(service.rating) || 0,
             provider: service.provider || undefined,
+            phone: service.phone || undefined,
+            whatsapp: service.whatsapp || undefined,
+            address: service.address || undefined,
+            specialties: service.specialties ? (Array.isArray(service.specialties) ? service.specialties : []) : undefined,
+            hours: service.hours || undefined,
           };
         }
       }
@@ -273,6 +283,11 @@ export const createService = async (serviceData: {
       categorySlug: data.category_slug,
       rating: Number(data.rating) || 0,
       provider: data.provider || undefined,
+      phone: data.phone || undefined,
+      whatsapp: data.whatsapp || undefined,
+      address: data.address || undefined,
+      specialties: data.specialties ? (Array.isArray(data.specialties) ? data.specialties : []) : undefined,
+      hours: data.hours || undefined,
     };
   } catch (error) {
     console.error('Erro ao criar serviço:', error);

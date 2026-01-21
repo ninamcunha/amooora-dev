@@ -61,6 +61,7 @@ export const getEvents = async (): Promise<Event[]> => {
           imageUrl: event.image || undefined,
           date: event.date,
           time: event.date ? new Date(event.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : undefined,
+          endTime: event.end_time || undefined,
           location: event.location,
           category: event.category,
           price: event.price ? Number(event.price) : undefined,
