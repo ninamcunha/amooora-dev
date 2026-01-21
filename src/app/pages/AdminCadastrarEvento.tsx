@@ -21,6 +21,7 @@ export function AdminCadastrarEvento({ onNavigate }: AdminCadastrarEventoProps) 
     image: '',
     date: '',
     time: '',
+    endTime: '', // Horário de término
     location: '',
     address: '',
     category: '',
@@ -167,6 +168,7 @@ export function AdminCadastrarEvento({ onNavigate }: AdminCadastrarEventoProps) 
           image: '',
           date: '',
           time: '',
+          endTime: '',
           location: '',
           address: '',
           category: '',
@@ -314,29 +316,31 @@ export function AdminCadastrarEvento({ onNavigate }: AdminCadastrarEventoProps) 
             )}
           </div>
 
-          {/* Data e Hora */}
+          {/* Data */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+              <Calendar className="w-4 h-4 text-primary" />
+              Data *
+            </label>
+            <input
+              type="date"
+              value={formData.date}
+              onChange={(e) => handleChange('date', e.target.value)}
+              className={`w-full px-4 py-3 bg-muted rounded-xl border ${
+                errors.date ? 'border-red-500' : 'border-transparent'
+              } focus:border-secondary focus:outline-none transition-colors`}
+            />
+            {errors.date && (
+              <p className="text-xs text-red-500 mt-1">{errors.date}</p>
+            )}
+          </div>
+
+          {/* Horários: Início e Término */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
-                <Calendar className="w-4 h-4 text-primary" />
-                Data *
-              </label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleChange('date', e.target.value)}
-                className={`w-full px-4 py-3 bg-muted rounded-xl border ${
-                  errors.date ? 'border-red-500' : 'border-transparent'
-                } focus:border-secondary focus:outline-none transition-colors`}
-              />
-              {errors.date && (
-                <p className="text-xs text-red-500 mt-1">{errors.date}</p>
-              )}
-            </div>
-            <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
                 <Clock className="w-4 h-4 text-primary" />
-                Horário *
+                Horário Início *
               </label>
               <input
                 type="time"
@@ -349,6 +353,18 @@ export function AdminCadastrarEvento({ onNavigate }: AdminCadastrarEventoProps) 
               {errors.time && (
                 <p className="text-xs text-red-500 mt-1">{errors.time}</p>
               )}
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+                <Clock className="w-4 h-4 text-primary" />
+                Horário Término
+              </label>
+              <input
+                type="time"
+                value={formData.endTime}
+                onChange={(e) => handleChange('endTime', e.target.value)}
+                className="w-full px-4 py-3 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors"
+              />
             </div>
           </div>
 

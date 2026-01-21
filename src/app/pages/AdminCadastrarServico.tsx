@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Scissors, Image, FileText, Tag, DollarSign, User, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
+import { ArrowLeft, Scissors, Image, FileText, Tag, DollarSign, User, AlertCircle, CheckCircle, Upload, X, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { createService } from '../services/services';
 import { uploadImage } from '../../lib/storage';
 
@@ -23,6 +23,17 @@ export function AdminCadastrarServico({ onNavigate }: AdminCadastrarServicoProps
     categorySlug: '',
     price: '',
     provider: '',
+    phone: '',
+    whatsapp: '',
+    address: '',
+    specialties: '', // Vírgula separada ou JSON
+    hoursMonday: '',
+    hoursTuesday: '',
+    hoursWednesday: '',
+    hoursThursday: '',
+    hoursFriday: '',
+    hoursSaturday: '',
+    hoursSunday: '',
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -150,6 +161,21 @@ export function AdminCadastrarServico({ onNavigate }: AdminCadastrarServicoProps
         imageUrl = uploadResult.url;
       }
 
+      // Processar especialidades (separadas por vírgula)
+      const specialtiesArray = formData.specialties 
+        ? formData.specialties.split(',').map(s => s.trim()).filter(s => s)
+        : undefined;
+      
+      // Processar horários
+      const hours: Record<string, string> = {};
+      if (formData.hoursMonday) hours.monday = formData.hoursMonday;
+      if (formData.hoursTuesday) hours.tuesday = formData.hoursTuesday;
+      if (formData.hoursWednesday) hours.wednesday = formData.hoursWednesday;
+      if (formData.hoursThursday) hours.thursday = formData.hoursThursday;
+      if (formData.hoursFriday) hours.friday = formData.hoursFriday;
+      if (formData.hoursSaturday) hours.saturday = formData.hoursSaturday;
+      if (formData.hoursSunday) hours.sunday = formData.hoursSunday;
+
       await createService({
         name: formData.name,
         description: formData.description,
@@ -158,6 +184,11 @@ export function AdminCadastrarServico({ onNavigate }: AdminCadastrarServicoProps
         categorySlug: formData.categorySlug,
         price: formData.price ? Number(formData.price) : undefined,
         provider: formData.provider || undefined,
+        phone: formData.phone || undefined,
+        whatsapp: formData.whatsapp || undefined,
+        address: formData.address || undefined,
+        specialties: specialtiesArray?.join(', ') || undefined,
+        hours: Object.keys(hours).length > 0 ? hours : undefined,
       });
 
       setSuccessMessage('Serviço cadastrado com sucesso no Supabase!');
@@ -172,6 +203,17 @@ export function AdminCadastrarServico({ onNavigate }: AdminCadastrarServicoProps
           categorySlug: '',
           price: '',
           provider: '',
+          phone: '',
+          whatsapp: '',
+          address: '',
+          specialties: '',
+          hoursMonday: '',
+          hoursTuesday: '',
+          hoursWednesday: '',
+          hoursThursday: '',
+          hoursFriday: '',
+          hoursSaturday: '',
+          hoursSunday: '',
         });
         setSelectedFile(null);
         setImagePreview(null);
@@ -372,6 +414,149 @@ export function AdminCadastrarServico({ onNavigate }: AdminCadastrarServicoProps
                 className="w-full px-4 py-3 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors"
                 placeholder="Nome do profissional"
               />
+            </div>
+          </div>
+
+          {/* Contato: Telefone e WhatsApp */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+                <Phone className="w-4 h-4 text-primary" />
+                Telefone
+              </label>
+              <input
+                type="text"
+                value={formData.phone}
+                onChange={(e) => handleChange('phone', e.target.value)}
+                className="w-full px-4 py-3 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors"
+                placeholder="(11) 98765-4321"
+              />
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+                <MessageCircle className="w-4 h-4 text-primary" />
+                WhatsApp
+              </label>
+              <input
+                type="text"
+                value={formData.whatsapp}
+                onChange={(e) => handleChange('whatsapp', e.target.value)}
+                className="w-full px-4 py-3 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors"
+                placeholder="5511987654321"
+              />
+            </div>
+          </div>
+
+          {/* Endereço */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+              <MapPin className="w-4 h-4 text-primary" />
+              Endereço
+            </label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={(e) => handleChange('address', e.target.value)}
+              className="w-full px-4 py-3 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors"
+              placeholder="Av. Paulista, 1000 - São Paulo/SP"
+            />
+          </div>
+
+          {/* Especialidades */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+              <Tag className="w-4 h-4 text-primary" />
+              Especialidades
+            </label>
+            <textarea
+              value={formData.specialties}
+              onChange={(e) => handleChange('specialties', e.target.value)}
+              className="w-full px-4 py-3 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors resize-none"
+              rows={3}
+              placeholder="Digite as especialidades separadas por vírgula (ex: Terapia LGBTQIA+, Ansiedade, Depressão)"
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Separe cada especialidade com vírgula
+            </p>
+          </div>
+
+          {/* Horários de Funcionamento */}
+          <div>
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-3">
+              <Clock className="w-4 h-4 text-primary" />
+              Horários de Funcionamento
+            </label>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="w-20 text-sm text-muted-foreground">Segunda:</span>
+                <input
+                  type="text"
+                  value={formData.hoursMonday}
+                  onChange={(e) => handleChange('hoursMonday', e.target.value)}
+                  className="flex-1 px-4 py-2 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors text-sm"
+                  placeholder="09:00 - 18:00"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-20 text-sm text-muted-foreground">Terça:</span>
+                <input
+                  type="text"
+                  value={formData.hoursTuesday}
+                  onChange={(e) => handleChange('hoursTuesday', e.target.value)}
+                  className="flex-1 px-4 py-2 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors text-sm"
+                  placeholder="09:00 - 18:00"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-20 text-sm text-muted-foreground">Quarta:</span>
+                <input
+                  type="text"
+                  value={formData.hoursWednesday}
+                  onChange={(e) => handleChange('hoursWednesday', e.target.value)}
+                  className="flex-1 px-4 py-2 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors text-sm"
+                  placeholder="09:00 - 18:00"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-20 text-sm text-muted-foreground">Quinta:</span>
+                <input
+                  type="text"
+                  value={formData.hoursThursday}
+                  onChange={(e) => handleChange('hoursThursday', e.target.value)}
+                  className="flex-1 px-4 py-2 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors text-sm"
+                  placeholder="09:00 - 18:00"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-20 text-sm text-muted-foreground">Sexta:</span>
+                <input
+                  type="text"
+                  value={formData.hoursFriday}
+                  onChange={(e) => handleChange('hoursFriday', e.target.value)}
+                  className="flex-1 px-4 py-2 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors text-sm"
+                  placeholder="09:00 - 18:00"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-20 text-sm text-muted-foreground">Sábado:</span>
+                <input
+                  type="text"
+                  value={formData.hoursSaturday}
+                  onChange={(e) => handleChange('hoursSaturday', e.target.value)}
+                  className="flex-1 px-4 py-2 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors text-sm"
+                  placeholder="09:00 - 13:00"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-20 text-sm text-muted-foreground">Domingo:</span>
+                <input
+                  type="text"
+                  value={formData.hoursSunday}
+                  onChange={(e) => handleChange('hoursSunday', e.target.value)}
+                  className="flex-1 px-4 py-2 bg-muted rounded-xl border border-transparent focus:border-secondary focus:outline-none transition-colors text-sm"
+                  placeholder="Fechado"
+                />
+              </div>
             </div>
           </div>
 

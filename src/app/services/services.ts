@@ -207,10 +207,28 @@ export const createService = async (serviceData: {
   categorySlug: string;
   price?: number;
   provider?: string;
+  phone?: string;
+  whatsapp?: string;
+  address?: string;
+  specialties?: string;
+  hours?: Record<string, string>;
 }): Promise<Service> => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     const userId = user?.id;
+
+    // Preparar dados extras como JSON na coluna metadata (ou criar campos específicos)
+    const metadata: Record<string, any> = {};
+    if (serviceData.phone) metadata.phone = serviceData.phone;
+    if (serviceData.whatsapp) metadata.whatsapp = serviceData.whatsapp;
+    if (serviceData.address) metadata.address = serviceData.address;
+    if (serviceData.specialties) {
+      // Se specialties é string, converter para array
+      metadata.specialties = typeof serviceData.specialties === 'string' 
+        ? serviceData.specialties.split(',').map(s => s.trim()).filter(s => s)
+        : serviceData.specialties;
+    }
+    if (serviceData.hours) metadata.hours = serviceData.hours;
 
     const { data, error } = await supabase
       .from('services')
@@ -226,6 +244,9 @@ export const createService = async (serviceData: {
         rating: 0,
         review_count: 0,
         is_active: true,
+        // Salvar dados extras em metadata (se a coluna existir) ou adicionar campos específicos
+        // Por enquanto, vamos salvar em metadata como JSON
+        ...(Object.keys(metadata).length > 0 && { metadata }),
       })
       .select()
       .single();
