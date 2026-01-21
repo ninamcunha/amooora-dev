@@ -2,7 +2,7 @@
 
 ## 🎯 Objetivo
 Criar um usuário de teste para testar a página de perfil e login:
-- **Email:** teste@amooora.com.ber
+- **Email:** teste@amooora.com.br
 - **Senha:** teste123
 
 ## 📋 Passo a Passo
@@ -17,7 +17,7 @@ Criar um usuário de teste para testar a página de perfil e login:
 
 3. **Criar Novo Usuário:**
    - Clique em **Add User** (ou **Create User**)
-   - **Email:** `teste@amooora.com.ber`
+   - **Email:** `teste@amooora.com.br`
    - **Password:** `teste123`
    - **Marque "Auto Confirm User"** (importante!)
    - Clique em **Create User**
@@ -50,7 +50,7 @@ Criar um usuário de teste para testar a página de perfil e login:
 1. **Acesse o site:** `http://localhost:5174/`
 2. **Clique em "Entrar"** na página Welcome
 3. **Faça login com:**
-   - Email: `teste@amooora.com.ber`
+   - Email: `teste@amooora.com.br`
    - Senha: `teste123`
 4. **Deve redirecionar para Home**
 5. **Clique no ícone de Perfil** (no Header ou BottomNav)
