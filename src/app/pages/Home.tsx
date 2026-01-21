@@ -44,9 +44,9 @@ interface HomeProps {
 
 export function Home({ onNavigate }: HomeProps) {
   // Buscar dados reais do Supabase
-  const { places, loading: loadingPlaces } = usePlaces();
-  const { events, loading: loadingEvents } = useEvents();
-  const { services, loading: loadingServices } = useServices();
+  const { places, loading: loadingPlaces, error: errorPlaces } = usePlaces();
+  const { events, loading: loadingEvents, error: errorEvents } = useEvents();
+  const { services, loading: loadingServices, error: errorServices } = useServices();
   const { isAdmin } = useAdmin();
 
   // Limitar a 3 locais e 3 eventos para exibição na home
@@ -126,6 +126,11 @@ export function Home({ onNavigate }: HomeProps) {
             <div className="space-y-4">
               {loadingPlaces ? (
                 <p className="text-center text-muted-foreground text-sm py-4">Carregando locais...</p>
+              ) : errorPlaces ? (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-red-600 text-sm font-medium">Erro ao carregar locais</p>
+                  <p className="text-red-500 text-xs mt-1">{errorPlaces.message}</p>
+                </div>
               ) : limitedPlaces.length > 0 ? (
                 limitedPlaces.map((place) => (
                   <PlaceCard 
@@ -156,6 +161,11 @@ export function Home({ onNavigate }: HomeProps) {
             <div>
               {loadingEvents ? (
                 <p className="text-center text-muted-foreground text-sm py-4">Carregando eventos...</p>
+              ) : errorEvents ? (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-red-600 text-sm font-medium">Erro ao carregar eventos</p>
+                  <p className="text-red-500 text-xs mt-1">{errorEvents.message}</p>
+                </div>
               ) : limitedEvents.length > 0 ? (
                 limitedEvents.map((event) => {
                   // Formatar data para exibição
@@ -194,6 +204,11 @@ export function Home({ onNavigate }: HomeProps) {
               {loadingServices ? (
                 <div className="col-span-2 text-center text-muted-foreground text-sm py-4">
                   Carregando serviços...
+                </div>
+              ) : errorServices ? (
+                <div className="col-span-2 p-4 bg-red-50 border border-red-200 rounded-xl">
+                  <p className="text-red-600 text-sm font-medium">Erro ao carregar serviços</p>
+                  <p className="text-red-500 text-xs mt-1">{errorServices.message}</p>
                 </div>
               ) : topCategories.length > 0 ? (
                 topCategories.map((category) => (
