@@ -3,6 +3,7 @@ import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { EventCardExpanded } from '../components/EventCardExpanded';
+import { EventsMap } from '../components/EventsMap';
 import { BottomNav } from '../components/BottomNav';
 import { useEvents } from '../hooks/useEvents';
 import { useAdmin } from '../hooks/useAdmin';
@@ -148,6 +149,20 @@ export function Eventos({ onNavigate }: EventosProps) {
           {error && (
             <div className="px-5 py-12 text-center">
               <p className="text-red-500">Erro ao carregar eventos: {error.message}</p>
+            </div>
+          )}
+
+          {/* Mapa de Eventos */}
+          {!loading && !error && eventsForCards.length > 0 && (
+            <div className="px-5 mb-6">
+              <EventsMap 
+                events={eventsForCards.map(event => ({
+                  id: event.id,
+                  name: event.name,
+                  location: event.location,
+                }))}
+                height="300px"
+              />
             </div>
           )}
 
