@@ -185,29 +185,67 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
           {/* Informações de Local */}
           <div className="bg-white px-4 py-4 border-b border-gray-100">
             <h3 className="text-base font-bold text-gray-900 mb-3">Onde</h3>
+            
+            {/* Endereço acima do mapa */}
             <div className="flex items-start gap-3 mb-3">
               <MapPin className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-gray-900">{displayEvent.location}</p>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-900 leading-tight">
+                  {displayEvent.name} - {displayEvent.location}
+                </p>
                 {displayEvent.address && (
-                  <p className="text-sm text-gray-600">{displayEvent.address}</p>
+                  <p className="text-sm text-gray-600 mt-1">{displayEvent.address}</p>
                 )}
               </div>
             </div>
-            {/* Mapa Placeholder */}
-            <div className="w-full h-40 bg-gray-200 rounded-xl overflow-hidden">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.1976793884914!2d-46.66172492377132!3d-23.561686778786926!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0xd59f9431f2c9776a!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1704903600000!5m2!1spt-BR!2sbr"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-                title="Mapa do evento"
-              ></iframe>
-            </div>
-            <button className="w-full mt-3 py-2 text-sm text-[#932d6f] font-semibold border border-[#932d6f] rounded-xl hover:bg-[#932d6f]/5 transition-colors">
-              Ver no Google Maps
-            </button>
+
+            {/* Mapa com endereço do evento */}
+            {displayEvent.location && displayEvent.location !== 'Local não informado' && (
+              <>
+                <div className="w-full h-64 bg-gray-200 rounded-xl overflow-hidden relative mb-3">
+                  {/* Botão "Ver mapa ampliado" */}
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayEvent.location)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-3 left-3 z-10 bg-white px-3 py-1.5 rounded-lg shadow-md text-sm text-blue-600 font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Ver mapa ampliado
+                  </a>
+
+                  {/* Mapa do Google Maps com endereço do evento */}
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    loading="lazy"
+                    allowFullScreen
+                    referrerPolicy="no-referrer-when-downgrade"
+                    src={`https://www.google.com/maps?q=${encodeURIComponent(displayEvent.location)}&output=embed`}
+                    title={`Mapa: ${displayEvent.location}`}
+                  />
+                </div>
+
+                {/* Botão "Ver no Google Maps" */}
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayEvent.location)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full mt-3 py-3 px-4 text-sm text-[#932d6f] font-semibold border border-[#932d6f] rounded-xl hover:bg-[#932d6f]/5 transition-colors flex items-center justify-center gap-2"
+                >
+                  Ver no Google Maps
+                  <MapPin className="w-4 h-4" />
+                </a>
+              </>
+            )}
+            
+            {/* Mensagem se não houver localização */}
+            {(!displayEvent.location || displayEvent.location === 'Local não informado') && (
+              <div className="w-full h-40 bg-gray-100 rounded-xl flex items-center justify-center">
+                <p className="text-sm text-gray-500">Localização não informada</p>
+              </div>
+            )}
           </div>
 
           {/* Preço/Ingresso */}
