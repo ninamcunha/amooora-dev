@@ -47,54 +47,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
   }, [refetchReviews]);
-    {
-      id: '1',
-      author: 'Ana Costa',
-      avatar: 'https://images.unsplash.com/photo-1650784854945-264d5b0b6b07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwd29tYW4lMjBwcm9mZXNzaW9uYWx8ZW58MXx8fHwxNzY3ODM0MTA4fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      date: '2 dias atrás',
-      rating: 5,
-      comment: 'Lugar incrível! Ambiente super acolhedor e seguro. A comida é deliciosa e o atendimento é impecável. Recomendo muito!',
-      likes: 12,
-      replies: [
-        {
-          id: '1-1',
-          author: 'Maria Silva',
-          avatar: 'https://images.unsplash.com/photo-1594318223885-20dc4b889f9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwc21pbGV8ZW58MXx8fHwxNzY3Nzg5MjA2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-          date: '1 dia atrás',
-          rating: 0,
-          comment: 'Concordo totalmente! Fui lá semana passada e amei.',
-          likes: 3,
-        },
-      ],
-    },
-    {
-      id: '2',
-      author: 'Julia Ferreira',
-      avatar: 'https://images.unsplash.com/photo-1617931928012-3d65dcfffee2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXRpbmElMjB3b21hbiUyMGhhcHB5fGVufDF8fHwxNzY3ODM0MTA4fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      date: '5 dias atrás',
-      rating: 4,
-      comment: 'Ótimo lugar! O ambiente é muito acolhedor e o cardápio tem opções veganas deliciosas. Única coisa que faltou foi mais espaço para sentar, mas vale a pena esperar.',
-      likes: 8,
-    },
-    {
-      id: '3',
-      author: 'Camila Souza',
-      avatar: 'https://images.unsplash.com/photo-1589553009868-c7b2bb474531?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzY3NzU0NDQ2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-      date: '1 semana atrás',
-      rating: 5,
-      comment: 'Melhor lugar da região! Ambiente super seguro e inclusivo. A equipe é toda LGBTQIA+ friendly e o atendimento é nota 10. Já voltei várias vezes!',
-      likes: 15,
-    },
-    {
-      id: '4',
-      author: 'Patricia Lima',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-      date: '2 semanas atrás',
-      rating: 4,
-      comment: 'Lugar muito bom! A decoração é linda e o ambiente é super acolhedor. Recomendo para encontros e eventos. O único ponto negativo é que pode ficar barulhento nos finais de semana.',
-      likes: 6,
-    },
-  ]);
 
   const renderStars = (rating: number) => {
     return (
@@ -308,33 +260,16 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               alt="Seu avatar"
               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
             />
-            <input
-              type="text"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Escreva um comentário ou clique em criar avaliação..."
-              className="flex-1 px-4 py-2 bg-muted rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
-              onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
-              readOnly
-            />
             <button
-              onClick={() => {
-                if (newComment.trim()) {
-                  const review: Review = {
-                    id: `new-${Date.now()}`,
-                    author: 'Você',
-                    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-                    date: 'Agora',
-                    rating: 5,
-                    comment: newComment,
-                    likes: 0,
-                  };
-                  setReviews([review, ...reviews]);
-                  setNewComment('');
-                }
-              }}
-              disabled={!newComment.trim()}
-              className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
+              className="flex-1 px-4 py-2 bg-muted rounded-full border-0 text-left text-sm text-muted-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+            >
+              Escreva uma avaliação...
+            </button>
+            <button
+              onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
+              className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
+              title="Criar avaliação completa"
             >
               <Send className="w-5 h-5" />
             </button>
