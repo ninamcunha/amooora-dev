@@ -115,6 +115,7 @@ export default function App() {
     if (page === 'guest-home') {
       setIsGuestMode(true);
       setIsAdminAuthenticated(true); // Permitir acesso admin temporariamente
+      localStorage.setItem('guestMode', 'true'); // Armazenar em localStorage para o hook useAdmin
       setCurrentPage('home');
       return;
     }

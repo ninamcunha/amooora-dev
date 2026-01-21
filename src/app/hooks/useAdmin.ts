@@ -10,6 +10,15 @@ export const useAdmin = () => {
       try {
         setLoading(true);
         
+        // Verificar se está em modo visitante (guest mode)
+        const guestMode = localStorage.getItem('guestMode') === 'true';
+        if (guestMode) {
+          console.log('👤 useAdmin: Modo visitante ativo - permitindo acesso admin');
+          setIsAdmin(true);
+          setLoading(false);
+          return;
+        }
+        
         console.log('🔍 useAdmin: Verificando sessão...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
@@ -72,6 +81,13 @@ export const useAdmin = () => {
     // Listener para mudanças na sessão
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('🔄 useAdmin: Mudança na sessão:', { event, hasSession: !!session });
+      
+      // Verificar modo visitante novamente
+      const guestMode = localStorage.getItem('guestMode') === 'true';
+      if (guestMode) {
+        setIsAdmin(true);
+        return;
+      }
       
       if (event === 'SIGNED_OUT') {
         console.log('👋 useAdmin: Usuário deslogado');
