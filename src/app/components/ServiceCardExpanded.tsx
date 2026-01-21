@@ -1,0 +1,100 @@
+import { Star, MapPin, User, Heart } from 'lucide-react';
+import { useState } from 'react';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Tag } from './Tag';
+
+interface ServiceCardExpandedProps {
+  name: string;
+  description: string;
+  provider: string;
+  category: string;
+  rating: number;
+  reviewCount: number;
+  price: string;
+  imageUrl: string;
+  onClick?: () => void;
+}
+
+export function ServiceCardExpanded({
+  name,
+  description,
+  provider,
+  category,
+  rating,
+  reviewCount,
+  price,
+  imageUrl,
+  onClick,
+}: ServiceCardExpandedProps) {
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  return (
+    <div
+      onClick={onClick}
+      className="bg-white rounded-2xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow cursor-pointer"
+    >
+      {/* Imagem com badges */}
+      <div className="relative h-56 overflow-hidden">
+        <ImageWithFallback
+          src={imageUrl}
+          alt={name}
+          className="w-full h-full object-cover"
+        />
+        {/* Category badge */}
+        <div className="absolute top-3 left-3">
+          <Tag color="#932d6f">{category}</Tag>
+        </div>
+        {/* Favorite button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsFavorite(!isFavorite);
+          }}
+          className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+        >
+          <Heart
+            className={`w-5 h-5 ${
+              isFavorite ? 'fill-accent text-accent' : 'text-muted-foreground'
+            }`}
+          />
+        </button>
+      </div>
+
+      {/* Conteúdo */}
+      <div className="p-4">
+        {/* Nome */}
+        <div className="mb-2">
+          <h3 className="font-semibold text-lg text-primary">{name}</h3>
+        </div>
+
+        {/* Descrição */}
+        <p className="text-sm text-muted-foreground mb-4">{description}</p>
+
+        {/* Informações */}
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center gap-2">
+            <User className="w-4 h-4 text-accent flex-shrink-0" />
+            <span className="text-sm text-foreground">{provider}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Star className="w-4 h-4 text-accent flex-shrink-0" />
+            <span className="text-sm text-foreground">
+              {rating} ({reviewCount} avaliações)
+            </span>
+          </div>
+        </div>
+
+        {/* Footer: Preço e botão */}
+        <div className="flex items-center justify-between pt-4 border-t border-border">
+          <div>
+            <p className="text-xs text-muted-foreground mb-1">Preço</p>
+            <p className="font-semibold text-lg text-foreground">{price}</p>
+          </div>
+          <button className="px-6 py-3 bg-primary text-white rounded-full font-medium hover:bg-primary/90 transition-colors">
+            Contatar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
