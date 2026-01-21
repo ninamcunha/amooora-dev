@@ -3,7 +3,6 @@ import { SlidersHorizontal } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryFilter } from '../components/CategoryFilter';
-import { SimpleMap } from '../components/SimpleMap';
 import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
 import { BottomNav } from '../components/BottomNav';
 import { FilterModal, FilterOptions } from '../components/FilterModal';
@@ -136,19 +135,6 @@ export function Locais({ onNavigate }: LocaisProps) {
           {error && (
             <div className="px-5 py-12 text-center">
               <p className="text-red-500">Erro ao carregar locais: {error.message}</p>
-            </div>
-          )}
-
-          {/* Map */}
-          {!loading && !error && placesForCards.length > 0 && (
-            <div className="px-5 mb-6">
-              <SimpleMap
-                places={placesForCards}
-                center={placesForCards[0]?.lat && placesForCards[0]?.lng 
-                  ? { lat: placesForCards[0].lat, lng: placesForCards[0].lng }
-                  : { lat: -23.5505, lng: -46.6333 }
-                }
-              />
             </div>
           )}
 
