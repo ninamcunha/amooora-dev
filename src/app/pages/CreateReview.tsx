@@ -36,8 +36,8 @@ export function CreateReview({ onNavigate }: CreateReviewProps) {
           onBack={() => onNavigate('place-details')} 
         />
 
-        {/* Conteúdo scrollável */}
-        <div className="flex-1 overflow-y-auto pb-24">
+        {/* Conteúdo scrollável - padding-top para compensar header fixo */}
+        <div className="flex-1 overflow-y-auto pb-24 pt-24">
           <div className="px-5 py-6 space-y-6">
             {/* Título */}
             <div>
