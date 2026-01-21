@@ -11,7 +11,6 @@ import { usePlaces } from '../hooks/usePlaces';
 import { useEvents } from '../hooks/useEvents';
 import { useServices } from '../hooks/useServices';
 import { useAdmin } from '../hooks/useAdmin';
-import logoAmooora from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 
 // Mapeamento de categorias para ícones
 const categoryIconMap: { [key: string]: LucideIcon } = {
@@ -118,15 +117,6 @@ export function Home({ onNavigate }: HomeProps) {
         
         {/* Main content com scroll */}
         <main className="flex-1 overflow-y-auto px-5 py-6 space-y-8 pb-24">
-          {/* Logo Amooora */}
-          <div className="flex justify-center mb-6">
-            <img
-              src={logoAmooora}
-              alt="Amooora"
-              className="h-20"
-            />
-          </div>
-
           {/* Seção: Lugares Seguros Próximos */}
           <section>
             <SectionHeader 
