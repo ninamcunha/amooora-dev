@@ -111,7 +111,7 @@ export function Locais({ onNavigate }: LocaisProps) {
     }
 
     return filtered;
-  }, [places, activeCategory, searchQuery, filters, placeRatings]);
+  }, [places, activeCategory, searchQuery, filters, placeRatings, getPlaceTags]);
 
   // Converter Place para formato do PlaceCardExpanded
   const placesForCards = useMemo(() => {
