@@ -47,6 +47,7 @@ export function Home({ onNavigate }: HomeProps) {
   const { places, loading: loadingPlaces, error: errorPlaces } = usePlaces();
   const { events, loading: loadingEvents, error: errorEvents } = useEvents();
   const { services, loading: loadingServices, error: errorServices } = useServices();
+  // Sem autenticação: sempre permitir acesso admin
   const { isAdmin } = useAdmin();
 
   // Limitar a 3 locais e 3 eventos para exibição na home

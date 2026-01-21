@@ -162,23 +162,10 @@ export function Welcome({ onNavigate }: WelcomeProps) {
           {/* Buttons */}
           <div className="space-y-4">
             <button
-              onClick={() => onNavigate('login')}
+              onClick={() => onNavigate('home')}
               className="w-full bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg"
             >
               Entrar
-            </button>
-            <button
-              onClick={() => onNavigate('register')}
-              className="w-full bg-transparent border-2 border-primary text-primary py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/5 transition-colors"
-            >
-              Cadastrar
-            </button>
-            {/* Botão temporário para entrar sem logar */}
-            <button
-              onClick={() => onNavigate('guest-home')}
-              className="w-full bg-gray-200 text-gray-700 py-4 px-6 rounded-full font-semibold text-lg hover:bg-gray-300 transition-colors border-2 border-gray-300"
-            >
-              Entrar sem logar (Temporário)
             </button>
           </div>
 
