@@ -11,11 +11,11 @@ export function Welcome({ onNavigate }: WelcomeProps) {
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex items-center justify-center px-6">
         <div className="w-full">
           {/* Logo Amooora */}
-          <div className="flex justify-center mb-12">
+          <div className="flex justify-center mb-16">
             <img
               src={logoHome}
               alt="Amooora - Um mundo inteiro de acolhimento e liberdade"
-              className="h-28 w-auto max-w-[280px]"
+              className="h-40 w-auto max-w-[320px]"
             />
           </div>
 
