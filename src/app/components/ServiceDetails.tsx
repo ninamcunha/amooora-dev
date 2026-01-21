@@ -1,4 +1,4 @@
-import { Heart, Star, Share2, Flag, Phone, MessageCircle, Clock, DollarSign, Check, MapPin } from 'lucide-react';
+import { Heart, Star, Share2, Flag, Phone, MessageCircle, Clock, Check, MapPin } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
@@ -55,6 +55,22 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
     );
   }
 
+  // Função para gerar especialidades mockadas baseadas na categoria
+  const getMockSpecialties = (category: string): string[] => {
+    const categoryLower = category.toLowerCase();
+    if (categoryLower.includes('terapia') || categoryLower.includes('psicologia')) {
+      return ['Terapia LGBTQIA+', 'Ansiedade', 'Depressão', 'Relacionamentos', 'Identidade de Gênero'];
+    } else if (categoryLower.includes('advocacia') || categoryLower.includes('jurídico')) {
+      return ['Direitos LGBTQIA+', 'Casamento Igualitário', 'Adoção', 'Mudança de Nome', 'Discriminação'];
+    } else if (categoryLower.includes('saúde') || categoryLower.includes('médico')) {
+      return ['Saúde LGBTQIA+', 'Prevenção', 'Tratamento', 'Acompanhamento', 'Consultas'];
+    } else if (categoryLower.includes('carreira') || categoryLower.includes('profissional')) {
+      return ['Orientação Profissional', 'Desenvolvimento de Carreira', 'Networking', 'Mentoria', 'Recrutamento'];
+    } else {
+      return ['Atendimento Personalizado', 'Consultoria', 'Acompanhamento', 'Suporte', 'Orientação'];
+    }
+  };
+
   // Dados formatados para exibição (sempre do Supabase)
   const displayService = {
     name: service.name,
@@ -64,17 +80,20 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
     priceValue: service.price && service.price > 0 ? `R$ ${service.price.toFixed(2)}` : 'Valor a consultar',
     provider: service.provider || 'Prestador não informado',
     rating: service.rating || 0,
-    reviewCount: 0, // Não temos esse campo no banco ainda
+    reviewCount: 89, // Mock: número de avaliações
     images: service.image || service.imageUrl 
       ? [service.image || service.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem']
       : ['https://via.placeholder.com/400x300?text=Sem+Imagem'],
-    // Campos opcionais que não existem no banco ainda
-    phone: undefined as string | undefined,
-    whatsapp: undefined as string | undefined,
-    address: undefined as string | undefined,
-    specialties: [] as string[],
-    hours: [] as Array<{ day: string; time: string }>,
-    verified: false,
+    // Dados mockados para sempre exibir os blocos
+    phone: '(11) 98765-4321', // Mock: telefone
+    whatsapp: '5511987654321', // Mock: WhatsApp (formato sem caracteres especiais)
+    address: 'Av. Paulista, 1000 - São Paulo/SP', // Mock: endereço
+    specialties: getMockSpecialties(service.category || 'Serviço'), // Mock: especialidades baseadas na categoria
+    hours: [ // Mock: horários de funcionamento
+      { day: 'Segunda a Sexta', time: '09:00 - 18:00' },
+      { day: 'Sábado', time: '09:00 - 13:00' },
+    ],
+    verified: true, // Mock: verificado
   };
 
   // Reviews vazias por enquanto (será implementado depois)
@@ -183,64 +202,54 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
             </div>
           </div>
 
-          {/* Especialidades */}
-          {displayService.specialties && displayService.specialties.length > 0 && (
-            <div className="bg-[#fffbfa] px-4 py-4 border-b border-gray-100">
-              <h3 className="text-base font-bold text-gray-900 mb-3">Especialidades</h3>
-              <div className="flex flex-wrap gap-2">
-                {displayService.specialties.map((specialty, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1.5 bg-white border border-[#932d6f]/20 text-gray-700 rounded-full text-xs font-medium"
-                  >
-                    {specialty}
-                  </span>
-                ))}
+          {/* Especialidades - Sempre exibido com conteúdo mockado */}
+          <div className="bg-white px-4 py-4 border-b border-gray-100">
+            <h3 className="text-base font-bold text-gray-900 mb-3">Especialidades</h3>
+            <div className="flex flex-wrap gap-2">
+              {displayService.specialties.map((specialty, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1.5 bg-white border border-[#932d6f]/20 text-gray-700 rounded-full text-xs font-medium hover:bg-[#932d6f]/5 transition-colors cursor-pointer"
+                >
+                  {specialty}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Informações de Contato - Sempre exibido com conteúdo mockado */}
+          <div className="bg-white px-4 py-4 border-b border-gray-100">
+            <h3 className="text-base font-bold text-gray-900 mb-3">Informações de Contato</h3>
+            <div className="space-y-3">
+              {/* Endereço */}
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-gray-700">{displayService.address}</p>
+                </div>
+              </div>
+
+              {/* Telefone */}
+              <div className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-gray-700">{displayService.phone}</p>
+                </div>
+              </div>
+
+              {/* Horário */}
+              <div className="flex items-start gap-3">
+                <Clock className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  {displayService.hours.map((hour, index) => (
+                    <p key={index} className="text-sm text-gray-700">
+                      <span className="font-medium">{hour.day}:</span> {hour.time}
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
-          )}
-
-          {/* Informações de Contato */}
-          {(displayService.address || displayService.phone || displayService.hours) && (
-            <div className="bg-white px-4 py-4 border-b border-gray-100">
-              <h3 className="text-base font-bold text-gray-900 mb-3">Informações de Contato</h3>
-              <div className="space-y-3">
-                {/* Endereço */}
-                {displayService.address && (
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-700">{displayService.address}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Telefone */}
-                {displayService.phone && (
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm text-gray-700">{displayService.phone}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Horário */}
-                {displayService.hours && displayService.hours.length > 0 && (
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      {displayService.hours.map((hour, index) => (
-                        <p key={index} className="text-sm text-gray-700">
-                          <span className="font-medium">{hour.day}:</span> {hour.time}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          </div>
 
           {/* Botões de Ação Principal */}
           <div className="bg-[#fffbfa] px-4 py-4 border-b border-gray-100">
