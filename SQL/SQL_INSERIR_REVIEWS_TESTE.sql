@@ -6,6 +6,28 @@
 -- =====================================================
 
 -- =====================================================
+-- 0. CRIAR COLUNA author_name SE NÃO EXISTIR
+-- =====================================================
+
+DO $$ 
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM information_schema.columns 
+        WHERE table_schema = 'public'
+        AND table_name = 'reviews' 
+        AND column_name = 'author_name'
+    ) THEN
+        ALTER TABLE public.reviews 
+        ADD COLUMN author_name TEXT;
+        
+        RAISE NOTICE 'Coluna author_name criada com sucesso!';
+    ELSE
+        RAISE NOTICE 'Coluna author_name já existe.';
+    END IF;
+END $$;
+
+-- =====================================================
 -- 1. REVIEWS PARA LOCAIS (PLACES)
 -- =====================================================
 
