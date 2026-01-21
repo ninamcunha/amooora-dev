@@ -64,7 +64,6 @@ export function Login({ onNavigate }: LoginProps) {
       console.log('📋 Resultado do login:', { 
         hasUser: !!result.user, 
         hasSession: !!result.session, 
-        error: result.error 
       });
 
       if (result.error) {
@@ -84,14 +83,15 @@ export function Login({ onNavigate }: LoginProps) {
       // Login realizado com sucesso!
       console.log('✅ Login realizado com sucesso! Redirecionando para home...');
       
-      // Pequeno delay para garantir que o estado foi atualizado
-      setTimeout(() => {
-        onNavigate('home');
-      }, 100);
+      // Resetar loading antes de navegar
+      setIsLoading(false);
+      
+      // Navegar diretamente
+      onNavigate('home');
       
     } catch (error) {
       console.error('❌ Erro fatal ao fazer login:', error);
-      setSubmitError('Erro ao fazer login. Tente novamente.');
+      setSubmitError(error instanceof Error ? error.message : 'Erro ao fazer login. Tente novamente.');
       setIsLoading(false);
     }
   };
