@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import logoAmooora from "../../assets/5a07ef013ecd4a0869fe2fae41fafe9f484c2b89.png";
 import { signIn } from '../../lib/auth';
+import { supabase } from '../../lib/supabase';
 
 interface LoginProps {
   onNavigate: (page: string) => void;
@@ -81,7 +82,22 @@ export function Login({ onNavigate }: LoginProps) {
       }
 
       // Login realizado com sucesso!
-      console.log('✅ Login realizado com sucesso! Redirecionando para home...');
+      console.log('✅ Login realizado com sucesso!', {
+        userId: result.user.id,
+        email: result.user.email,
+        hasSession: !!result.session
+      });
+      
+      // Aguardar um pouco para garantir que a sessão foi persistida
+      // Isso permite que os hooks (useAdmin, etc) detectem a sessão
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Verificar se a sessão foi persistida
+      const { data: { session: verifySession } } = await supabase.auth.getSession();
+      console.log('🔍 Verificando sessão após login:', { 
+        hasSession: !!verifySession, 
+        email: verifySession?.user?.email 
+      });
       
       // Resetar loading antes de navegar
       setIsLoading(false);
