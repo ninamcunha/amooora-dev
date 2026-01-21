@@ -76,14 +76,51 @@ export async function signUp(data: SignUpData) {
  */
 export async function signIn(data: SignInData) {
   try {
+    console.log('🔐 Tentando fazer login com:', { email: data.email });
+    
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
 
     if (authError) {
-      throw new Error(`Erro ao fazer login: ${authError.message}`);
+      console.error('❌ Erro de autenticação:', {
+        message: authError.message,
+        status: authError.status,
+        name: authError.name,
+      });
+      
+      // Mensagens de erro mais amigáveis
+      let errorMessage = authError.message;
+      if (authError.message.includes('Invalid login credentials')) {
+        errorMessage = 'Email ou senha incorretos. Verifique suas credenciais.';
+      } else if (authError.message.includes('Email not confirmed')) {
+        errorMessage = 'Por favor, confirme seu email antes de fazer login.';
+      } else if (authError.message.includes('User not found')) {
+        errorMessage = 'Usuário não encontrado. Verifique o email ou cadastre-se.';
+      }
+      
+      return {
+        user: null,
+        session: null,
+        error: errorMessage,
+      };
     }
+
+    if (!authData.user || !authData.session) {
+      console.error('❌ Login sem usuário ou sessão:', { user: authData.user, session: authData.session });
+      return {
+        user: null,
+        session: null,
+        error: 'Erro ao fazer login: sessão não criada',
+      };
+    }
+
+    console.log('✅ Login bem-sucedido!', { 
+      userId: authData.user.id, 
+      email: authData.user.email,
+      hasSession: !!authData.session 
+    });
 
     return {
       user: authData.user,
@@ -91,11 +128,11 @@ export async function signIn(data: SignInData) {
       error: null,
     };
   } catch (error) {
-    console.error('Erro no signIn:', error);
+    console.error('❌ Erro fatal no signIn:', error);
     return {
       user: null,
       session: null,
-      error: error instanceof Error ? error.message : 'Erro desconhecido',
+      error: error instanceof Error ? error.message : 'Erro desconhecido ao fazer login',
     };
   }
 }

@@ -54,27 +54,44 @@ export function Login({ onNavigate }: LoginProps) {
     setSubmitError(null);
 
     try {
+      console.log('🔐 Iniciando processo de login...');
+      
       const result = await signIn({
-        email: formData.email,
+        email: formData.email.trim().toLowerCase(),
         password: formData.senha,
       });
 
+      console.log('📋 Resultado do login:', { 
+        hasUser: !!result.user, 
+        hasSession: !!result.session, 
+        error: result.error 
+      });
+
       if (result.error) {
+        console.error('❌ Erro no login:', result.error);
         setSubmitError(result.error);
         setIsLoading(false);
         return;
       }
 
-      if (result.user && result.session) {
-        // Login realizado com sucesso!
-        console.log('Login realizado com sucesso:', result.user);
-        // Navega para a página inicial
-        onNavigate('home');
+      if (!result.user || !result.session) {
+        console.error('❌ Login sem usuário ou sessão');
+        setSubmitError('Erro ao fazer login: sessão não criada. Tente novamente.');
+        setIsLoading(false);
+        return;
       }
+
+      // Login realizado com sucesso!
+      console.log('✅ Login realizado com sucesso! Redirecionando para home...');
+      
+      // Pequeno delay para garantir que o estado foi atualizado
+      setTimeout(() => {
+        onNavigate('home');
+      }, 100);
+      
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
+      console.error('❌ Erro fatal ao fazer login:', error);
       setSubmitError('Erro ao fazer login. Tente novamente.');
-    } finally {
       setIsLoading(false);
     }
   };
