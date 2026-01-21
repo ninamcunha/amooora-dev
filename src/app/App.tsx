@@ -8,6 +8,7 @@ import { Comunidade } from './pages/Comunidade';
 import { Perfil } from './pages/Perfil';
 import { EditarPerfil } from './pages/EditarPerfil';
 import { Configuracoes } from './pages/Configuracoes';
+import { Notificacoes } from './pages/Notificacoes';
 import { PlaceDetails } from './components/PlaceDetails';
 import { ServiceDetails } from './components/ServiceDetails';
 import { EventDetails } from './components/EventDetails';
@@ -114,6 +115,8 @@ export default function App() {
         return <EditarPerfil onNavigate={handleNavigate} />;
       case 'settings':
         return <Configuracoes onBack={() => setCurrentPage('profile')} />;
+      case 'notifications':
+        return <Notificacoes onNavigate={handleNavigate} />;
       case 'admin':
         return <Admin onNavigate={handleNavigate} />;
       case 'admin-cadastrar-usuario':
