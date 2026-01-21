@@ -31,6 +31,8 @@ export default function App() {
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  // Modo visitante temporário (permite navegar sem login e acessar área admin)
+  const [isGuestMode, setIsGuestMode] = useState(false);
 
   // Verificar se o usuário é admin quando há sessão
   useEffect(() => {
@@ -108,6 +110,14 @@ export default function App() {
 
   const handleNavigate = (page: string) => {
     setPreviousPage(currentPage);
+    
+    // Tratar modo visitante: se clicar em "guest-home", ativar guest mode
+    if (page === 'guest-home') {
+      setIsGuestMode(true);
+      setIsAdminAuthenticated(true); // Permitir acesso admin temporariamente
+      setCurrentPage('home');
+      return;
+    }
     
     // Verificar se a página contém um ID (formato: 'place-details:id', 'event-details:id' ou 'service-details:id')
     if (page.startsWith('place-details:')) {
@@ -192,8 +202,8 @@ export default function App() {
       case 'settings':
         return <Configuracoes onBack={() => setCurrentPage('profile')} />;
       case 'admin':
-        // Se não estiver autenticado como admin, mostrar login
-        if (!isAdminAuthenticated) {
+        // Se não estiver autenticado como admin e não estiver em modo visitante, mostrar login
+        if (!isAdminAuthenticated && !isGuestMode) {
           return (
             <AdminLogin
               onNavigate={handleNavigate}
@@ -233,8 +243,8 @@ export default function App() {
           />
         );
       case 'admin-cadastrar-usuario':
-        // Verificar autenticação antes de mostrar páginas admin
-        if (!isAdminAuthenticated) {
+        // Verificar autenticação antes de mostrar páginas admin (permitir modo visitante)
+        if (!isAdminAuthenticated && !isGuestMode) {
           return (
             <AdminLogin
               onNavigate={handleNavigate}
@@ -247,7 +257,7 @@ export default function App() {
         }
         return <AdminCadastro onNavigate={handleNavigate} />;
       case 'admin-cadastrar-local':
-        if (!isAdminAuthenticated) {
+        if (!isAdminAuthenticated && !isGuestMode) {
           return (
             <AdminLogin
               onNavigate={handleNavigate}
@@ -260,7 +270,7 @@ export default function App() {
         }
         return <AdminCadastrarLocal onNavigate={handleNavigate} />;
       case 'admin-cadastrar-servico':
-        if (!isAdminAuthenticated) {
+        if (!isAdminAuthenticated && !isGuestMode) {
           return (
             <AdminLogin
               onNavigate={handleNavigate}
@@ -273,7 +283,7 @@ export default function App() {
         }
         return <AdminCadastrarServico onNavigate={handleNavigate} />;
       case 'admin-cadastrar-evento':
-        if (!isAdminAuthenticated) {
+        if (!isAdminAuthenticated && !isGuestMode) {
           return (
             <AdminLogin
               onNavigate={handleNavigate}
