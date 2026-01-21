@@ -1,4 +1,4 @@
-import { Star, MapPin, User, Heart } from 'lucide-react';
+import { Star, MapPin, User, Heart, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Tag } from './Tag';
@@ -90,8 +90,15 @@ export function ServiceCardExpanded({
             <p className="text-xs text-muted-foreground mb-1">Preço</p>
             <p className="font-semibold text-lg text-foreground">{price}</p>
           </div>
-          <button className="px-6 py-3 bg-primary text-white rounded-full font-medium hover:bg-primary/90 transition-colors">
-            Contatar
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.();
+            }}
+            className="px-6 py-3 bg-white border border-[#932d6f] text-[#932d6f] rounded-full font-medium hover:bg-[#932d6f]/5 transition-colors flex items-center gap-2"
+          >
+            Ver Detalhes
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
       </div>

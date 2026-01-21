@@ -85,7 +85,7 @@ export function PlaceCardExpanded({
         {/* Botão Ver Local */}
         <button
           onClick={onClick}
-          className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors"
+          className="w-full bg-white border border-[#932d6f] text-[#932d6f] font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#932d6f]/5 transition-colors"
         >
           Ver Local
           <ArrowRight className="w-4 h-4" />
