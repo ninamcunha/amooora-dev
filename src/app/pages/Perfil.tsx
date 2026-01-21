@@ -273,11 +273,33 @@ export function Perfil({ onNavigate }: PerfilProps) {
             </div>
           </div>
 
+          {/* Meus Favoritos */}
+          <div className="px-5 mb-6">
+            <button 
+              onClick={() => onNavigate('favoritos')}
+              className="w-full bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-[#932d6f]/10 rounded-xl flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-[#932d6f]" />
+                </div>
+                <div className="text-left">
+                  <h2 className="text-base font-bold text-gray-900">Meus Favoritos</h2>
+                  <p className="text-sm text-gray-500">Veja todos os seus favoritos salvos</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
+
           {/* Locais Favoritos */}
           <div className="px-5 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-900">Locais Favoritos</h2>
-              <button className="text-sm text-[#932d6f] font-medium flex items-center gap-1">
+              <button 
+                onClick={() => onNavigate('favoritos')}
+                className="text-sm text-[#932d6f] font-medium flex items-center gap-1"
+              >
                 Ver todos
                 <ChevronRight className="w-4 h-4" />
               </button>

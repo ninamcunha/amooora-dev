@@ -42,15 +42,6 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
             <Search className="w-5 h-5 text-white" />
           </button>
 
-          {/* Botão de Favoritos */}
-          <button 
-            onClick={() => onNavigate?.('favoritos')}
-            className="w-10 h-10 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors"
-            title="Meus Favoritos"
-          >
-            <Heart className="w-5 h-5 text-white" />
-          </button>
-
           {/* Botão de Notificação com badge */}
           <button 
             onClick={() => onNavigate?.('notifications')}
