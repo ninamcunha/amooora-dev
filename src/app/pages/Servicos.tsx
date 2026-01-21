@@ -22,8 +22,22 @@ export function Servicos({ onNavigate, initialCategory }: ServicosProps) {
 
   // Aplicar categoria inicial quando a página carregar
   useEffect(() => {
-    if (initialCategory && categories.includes(initialCategory)) {
-      setActiveCategory(initialCategory);
+    if (initialCategory) {
+      // Verificar se a categoria está na lista de categorias disponíveis
+      if (categories.includes(initialCategory)) {
+        setActiveCategory(initialCategory);
+      } else {
+        // Se não estiver na lista, tentar encontrar correspondência (case-insensitive)
+        const matchedCategory = categories.find(
+          cat => cat.toLowerCase() === initialCategory.toLowerCase()
+        );
+        if (matchedCategory) {
+          setActiveCategory(matchedCategory);
+        } else {
+          // Se não encontrar correspondência, usar 'Outros' se existir, senão 'Todos'
+          setActiveCategory(categories.includes('Outros') ? 'Outros' : 'Todos');
+        }
+      }
     }
   }, [initialCategory]);
 
