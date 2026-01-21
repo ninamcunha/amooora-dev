@@ -65,6 +65,112 @@ export function Perfil({ onNavigate }: PerfilProps) {
     loadProfileData();
   }, [profile?.id]);
 
+  // Mock data para quando não houver dados reais
+  const mockFavoritePlaces: SavedPlace[] = [
+    {
+      id: 'mock-1',
+      place_id: 'mock-1',
+      name: 'Café da Vila',
+      category: 'Café',
+      rating: 4.8,
+      imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYWZlJTIwaW50ZXJpb3J8ZW58MXx8fHwxNzY3ODM0MzUxfDA&ixlib=rb-4.1.0&q=80&w=1080',
+    },
+    {
+      id: 'mock-2',
+      place_id: 'mock-2',
+      name: 'Bar da Lua',
+      category: 'Bar',
+      rating: 4.6,
+      imageUrl: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYXIlMjBpbnRlcmlvcnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    },
+    {
+      id: 'mock-3',
+      place_id: 'mock-3',
+      name: 'Restaurante Arco-Íris',
+      category: 'Restaurante',
+      rating: 4.9,
+      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwaW50ZXJpb3J8ZW58MXx8fHwxNzY3ODM0MzUxfDA&ixlib=rb-4.1.0&q=80&w=1080',
+    },
+  ];
+
+  const mockUpcomingEvents: UpcomingEvent[] = [
+    {
+      id: 'mock-1',
+      event_id: 'mock-1',
+      name: 'Sarau Sáfico',
+      date: '15 Fev',
+      time: '19:00',
+      location: 'Centro Cultural',
+    },
+    {
+      id: 'mock-2',
+      event_id: 'mock-2',
+      name: 'Roda de Conversa',
+      date: '22 Fev',
+      time: '18:30',
+      location: 'Casa Amooora',
+    },
+  ];
+
+  const mockAttendedEvents: AttendedEvent[] = [
+    {
+      id: 'mock-1',
+      event_id: 'mock-1',
+      name: 'Pride Fest 2025',
+      date: '10 Jan',
+      location: 'Parque Ibirapuera',
+    },
+    {
+      id: 'mock-2',
+      event_id: 'mock-2',
+      name: 'Encontro de Mulheres',
+      date: '05 Dez',
+      location: 'Centro Cultural',
+    },
+  ];
+
+  const mockReviews: UserReview[] = [
+    {
+      id: 'mock-1',
+      place_id: 'mock-1',
+      placeName: 'Café da Vila',
+      rating: 5,
+      comment: 'Adorei o ambiente! Super acolhedor e com opções veganas deliciosas. O atendimento foi impecável, me senti muito à vontade. Com certeza voltarei!',
+      date: '2 dias atrás',
+    },
+    {
+      id: 'mock-2',
+      service_id: 'mock-1',
+      serviceName: 'Terapia LGBTQIA+',
+      rating: 5,
+      comment: 'Profissional incrível! Me sinto muito acolhida e segura durante as sessões. Recomendo demais!',
+      date: '1 semana atrás',
+    },
+    {
+      id: 'mock-3',
+      event_id: 'mock-1',
+      eventName: 'Sarau Sáfico',
+      rating: 4,
+      comment: 'Evento incrível! A atmosfera era acolhedora e as performances foram emocionantes. Já estou ansiosa para o próximo!',
+      date: '2 semanas atrás',
+    },
+  ];
+
+  // Usar dados reais ou mock
+  const displayFavoritePlaces = favoritePlaces.length > 0 ? favoritePlaces : mockFavoritePlaces;
+  const displayUpcomingEvents = upcomingEvents.length > 0 ? upcomingEvents : mockUpcomingEvents;
+  const displayAttendedEvents = attendedEvents.length > 0 ? attendedEvents : mockAttendedEvents;
+  const displayReviews = myReviews.length > 0 ? myReviews : mockReviews;
+  
+  // Stats mockados se não houver dados
+  const displayStats = stats.eventsCount > 0 || stats.placesCount > 0 || stats.friendsCount > 0
+    ? stats
+    : {
+        eventsCount: 4,
+        placesCount: 3,
+        friendsCount: 12,
+      };
+
   // Se não houver perfil, mostrar mensagem ou redirecionar
   if (profileLoading || loading) {
     return (
@@ -79,29 +185,17 @@ export function Perfil({ onNavigate }: PerfilProps) {
     );
   }
 
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-muted">
-        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
-          <Header onNavigate={onNavigate} isAdmin={isAdmin} />
-          <div className="flex-1 flex items-center justify-center px-4">
-            <div className="text-center">
-              <p className="text-muted-foreground mb-4">Você precisa fazer login para ver seu perfil</p>
-              <button
-                onClick={() => onNavigate('welcome')}
-                className="px-6 py-2 bg-[#932d6f] text-white rounded-full"
-              >
-                Fazer Login
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Se não houver perfil, usar perfil mockado para demonstração
+  const displayProfile = profile || {
+    id: 'mock',
+    name: 'Usuário Amooora',
+    email: 'usuario@amooora.com',
+    username: 'usuario',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
+  };
 
   // Gerar username a partir do email se não existir
-  const username = profile.username || profile.email?.split('@')[0] || 'usuario';
+  const username = displayProfile.username || displayProfile.email?.split('@')[0] || 'usuario';
   const renderStars = (rating: number) => {
     return (
       <div className="flex gap-0.5">
@@ -132,8 +226,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
               <div className="flex-shrink-0">
                 <div className="w-20 h-20 rounded-full bg-white p-1">
                   <ImageWithFallback
-                    src={profile.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080'}
-                    alt={profile.name}
+                    src={displayProfile.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080'}
+                    alt={displayProfile.name}
                     className="w-full h-full rounded-full object-cover"
                   />
                 </div>
@@ -141,7 +235,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
 
               {/* Name and Username ao centro */}
               <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-bold text-white mb-0.5 truncate">{profile.name}</h1>
+                <h1 className="text-xl font-bold text-white mb-0.5 truncate">{displayProfile.name}</h1>
                 <p className="text-white/80 text-sm truncate">@{username}</p>
               </div>
 
@@ -163,17 +257,17 @@ export function Perfil({ onNavigate }: PerfilProps) {
             <div className="grid grid-cols-3 gap-3">
               <div className="bg-white rounded-2xl p-4 shadow-md text-center">
                 <Calendar className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
-                <div className="font-bold text-lg text-gray-900">{stats.eventsCount}</div>
+                <div className="font-bold text-lg text-gray-900">{displayStats.eventsCount}</div>
                 <div className="text-xs text-gray-600">Eventos</div>
               </div>
               <div className="bg-white rounded-2xl p-4 shadow-md text-center">
                 <MapPin className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
-                <div className="font-bold text-lg text-gray-900">{stats.placesCount}</div>
+                <div className="font-bold text-lg text-gray-900">{displayStats.placesCount}</div>
                 <div className="text-xs text-gray-600">Lugares</div>
               </div>
               <div className="bg-white rounded-2xl p-4 shadow-md text-center">
                 <Users className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
-                <div className="font-bold text-lg text-gray-900">{stats.friendsCount}</div>
+                <div className="font-bold text-lg text-gray-900">{displayStats.friendsCount}</div>
                 <div className="text-xs text-gray-600">Amigos</div>
               </div>
             </div>
@@ -189,8 +283,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
               </button>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {favoritePlaces.length > 0 ? (
-                favoritePlaces.slice(0, 5).map((place) => (
+              {displayFavoritePlaces.length > 0 ? (
+                displayFavoritePlaces.slice(0, 5).map((place) => (
                   <div key={place.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                     <div className="relative h-24">
                       <ImageWithFallback
@@ -221,8 +315,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
           <div className="px-5 mb-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Próximos Eventos</h2>
             <div className="space-y-3">
-              {upcomingEvents.length > 0 ? (
-                upcomingEvents.map((event) => (
+              {displayUpcomingEvents.length > 0 ? (
+                displayUpcomingEvents.map((event) => (
                   <div key={event.id} className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10">
                     <div className="flex items-start gap-3">
                       <div className="w-12 h-12 bg-[#932d6f] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0">
@@ -251,8 +345,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
           <div className="px-5 mb-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Eventos que Participei</h2>
             <div className="space-y-2">
-              {attendedEvents.length > 0 ? (
-                attendedEvents.map((event) => (
+              {displayAttendedEvents.length > 0 ? (
+                displayAttendedEvents.map((event) => (
                   <div key={event.id} className="bg-white rounded-xl p-3 border border-gray-100 flex items-center gap-3">
                     <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <div className="flex-1">
@@ -284,13 +378,13 @@ export function Perfil({ onNavigate }: PerfilProps) {
               <div className="grid grid-cols-7 gap-2">
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
                   // Verificar se há evento futuro neste dia
-                  const hasUpcomingEvent = upcomingEvents.some(event => {
+                  const hasUpcomingEvent = displayUpcomingEvents.some(event => {
                     const eventDay = parseInt(event.date.split(' ')[0]);
                     return eventDay === day;
                   });
                   
                   // Verificar se há evento passado neste dia
-                  const hasAttendedEvent = attendedEvents.some(event => {
+                  const hasAttendedEvent = displayAttendedEvents.some(event => {
                     const eventDay = parseInt(event.date.split(' ')[0]);
                     return eventDay === day;
                   });
@@ -348,8 +442,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
               </button>
             </div>
             <div className="space-y-3">
-              {myReviews.length > 0 ? (
-                myReviews.map((review) => (
+              {displayReviews.length > 0 ? (
+                displayReviews.map((review) => (
                   <div key={review.id} className="bg-white rounded-2xl p-4 border border-gray-100">
                     <div className="flex items-start justify-between mb-2">
                       <div>
