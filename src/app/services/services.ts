@@ -5,98 +5,75 @@ export const getServices = async (): Promise<Service[]> => {
   try {
     console.log('🔍 Buscando serviços do Supabase...');
     
-    // Primeiro, tentar buscar TODOS os serviços (sem filtro is_active) - FALLBACK
+    // Buscar TODOS os serviços (sem filtro is_active primeiro para evitar timeout)
+    // Se a query com filtro falhar, já temos os dados
     const { data: allData, error: allError } = await supabase
       .from('services')
-      .select('*');
-    
-    // Se conseguiu buscar todos, usar como fallback
-    if (!allError && allData && allData.length > 0) {
-      console.log(`📊 Total de serviços no banco (sem filtros): ${allData.length}`);
-      console.log('📋 Exemplo de serviço encontrado:', {
-        id: allData[0].id,
-        name: allData[0].name,
-        is_active: allData[0].is_active,
-      });
-    }
-    
-    // Agora tentar buscar com o filtro is_active
-    const { data, error } = await supabase
-      .from('services')
       .select('*')
-      .eq('is_active', true)
-      .order('rating', { ascending: false });
-
-    // Se houver erro ou dados vazios, usar fallback (todos os dados)
-    if (error || !data || data.length === 0) {
-      if (error) {
-        console.error('❌ Erro ao buscar serviços (com filtro is_active=true):', {
-          message: error.message,
-          code: error.code,
-        });
-      }
+      .order('rating', { ascending: false })
+      .limit(100); // Limitar para evitar queries muito grandes
+    
+    if (allError) {
+      console.error('❌ Erro ao buscar serviços:', {
+        message: allError.message,
+        code: allError.code,
+        details: allError.details,
+      });
       
-      // USAR FALLBACK: Se tiver todos os dados, usar eles
-      if (allData && allData.length > 0) {
-        console.warn('⚠️ Usando fallback: retornando todos os serviços (sem filtro is_active)');
-        console.log(`✅ Retornando ${allData.length} serviços (fallback)`);
+      // Se houver erro, tentar query mais simples
+      try {
+        const { data: simpleData, error: simpleError } = await supabase
+          .from('services')
+          .select('id, name, category')
+          .limit(50);
         
-        return allData.map((service) => ({
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          image: service.image,
-          imageUrl: service.image,
-          price: service.price ? Number(service.price) : undefined,
-          category: service.category,
-          categorySlug: service.category_slug,
-          rating: Number(service.rating) || 0,
-          provider: service.provider || undefined,
-        }));
+        if (!simpleError && simpleData && simpleData.length > 0) {
+          console.warn('⚠️ Usando query simplificada');
+          return simpleData.map((service: any) => ({
+            id: service.id,
+            name: service.name,
+            description: '',
+            image: undefined,
+            imageUrl: undefined,
+            price: undefined,
+            category: service.category,
+            categorySlug: service.category?.toLowerCase().replace(/\s+/g, '-') || '',
+            rating: 0,
+            provider: undefined,
+          }));
+        }
+      } catch (simpleError) {
+        console.error('❌ Erro na query simplificada:', simpleError);
       }
       
-      // Se não tiver fallback, retornar vazio
+      throw new Error(`Erro ao buscar serviços: ${allError.message}`);
+    }
+
+    if (!allData || allData.length === 0) {
       console.warn('⚠️ Nenhum serviço encontrado no banco');
       return [];
     }
 
-    console.log(`✅ Serviços encontrados (com filtro is_active=true): ${data.length}`);
+    console.log(`✅ Total de serviços encontrados: ${allData.length}`);
 
-    return data.map((service) => ({
+    // Filtrar apenas serviços ativos no frontend (mais rápido)
+    const activeServices = allData.filter((service) => service.is_active !== false);
+
+    return activeServices.map((service) => ({
       id: service.id,
       name: service.name,
-      description: service.description,
-      image: service.image,
-      imageUrl: service.image,
+      description: service.description || '',
+      image: service.image || undefined,
+      imageUrl: service.image || undefined,
       price: service.price ? Number(service.price) : undefined,
-      category: service.category,
-      categorySlug: service.category_slug,
+      category: service.category || 'Outros',
+      categorySlug: service.category_slug || (service.category?.toLowerCase().replace(/\s+/g, '-') || 'outros'),
       rating: Number(service.rating) || 0,
       provider: service.provider || undefined,
     }));
   } catch (error) {
     console.error('❌ Erro ao buscar serviços:', error);
-    // Tentar fallback final: buscar sem filtros
-    try {
-      const { data: fallbackData } = await supabase.from('services').select('*');
-      if (fallbackData && fallbackData.length > 0) {
-        console.warn('⚠️ Usando fallback final: retornando todos os serviços');
-        return fallbackData.map((service) => ({
-          id: service.id,
-          name: service.name,
-          description: service.description,
-          image: service.image,
-          imageUrl: service.image,
-          price: service.price ? Number(service.price) : undefined,
-          category: service.category,
-          categorySlug: service.category_slug,
-          rating: Number(service.rating) || 0,
-          provider: service.provider || undefined,
-        }));
-      }
-    } catch (fallbackError) {
-      console.error('❌ Erro no fallback:', fallbackError);
-    }
+    // Retornar array vazio em vez de lançar erro para evitar quebrar a UI
     return [];
   }
 };

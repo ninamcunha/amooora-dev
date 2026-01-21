@@ -13,9 +13,9 @@ export const useServices = () => {
         setLoading(true);
         setError(null);
         
-        // Timeout de segurança para evitar loading infinito
+        // Timeout de segurança para evitar loading infinito (aumentado para 15s)
         const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout ao carregar serviços')), 10000);
+          setTimeout(() => reject(new Error('Timeout ao carregar serviços. Verifique sua conexão ou as políticas RLS do Supabase.')), 15000);
         });
         
         const data = await Promise.race([getServices(), timeoutPromise]);
