@@ -1,9 +1,12 @@
-import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, CheckCircle, Star, User } from 'lucide-react';
-import { useState } from 'react';
+import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, CheckCircle, Star, User, MessageCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { useEvent } from '../hooks/useEvents';
+import { useEventReviews } from '../hooks/useReviews';
+import { Review } from '../types';
+import { calculateAverageRating } from '../services/reviews';
 
 interface EventDetailsProps {
   eventId?: string;
@@ -13,8 +16,43 @@ interface EventDetailsProps {
 
 export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps) {
   const { event, loading, error } = useEvent(eventId);
+  const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useEventReviews(eventId);
   const [isGoing, setIsGoing] = useState(false);
   const [isInterested, setIsInterested] = useState(false);
+
+  // Converter reviews reais para o formato esperado
+  const reviews: Review[] = realReviews.map(review => ({
+    ...review,
+    avatar: review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080',
+    author: review.author || review.userName || 'Usuário',
+    date: review.date || (review.createdAt ? new Date(review.createdAt).toLocaleDateString('pt-BR') : 'Data não disponível'),
+  }));
+
+  // Calcular rating médio e contagem
+  const averageRating = reviews.length > 0 ? calculateAverageRating(reviews) : 0;
+  const reviewCount = reviews.length;
+
+  // Refetch reviews quando voltar da página de criação
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchReviews();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetchReviews]);
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex gap-1">
+        {[...Array(5)].map((_, index) => (
+          <Star 
+            key={index}
+            className={`w-3.5 h-3.5 ${index < rating ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-300'}`}
+          />
+        ))}
+      </div>
+    );
+  };
 
   // Loading state
   if (loading) {
@@ -303,6 +341,76 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                 Denunciar
               </button>
             </div>
+          </div>
+
+          {/* Seção de Reviews */}
+          <div className="bg-white border-b border-gray-100">
+            {/* Header da Seção */}
+            <div className="px-4 py-4 border-b border-gray-100">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900">Avaliações</h3>
+                  {reviewCount > 0 && (
+                    <div className="flex items-center gap-2 mt-1">
+                      <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
+                      <span className="font-bold text-black text-base">
+                        {averageRating.toFixed(1)} ({reviewCount})
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {eventId && (
+                  <button 
+                    onClick={() => onNavigate?.(`create-review:event:${eventId}`)}
+                    className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+                  >
+                    <Star className="w-4 h-4" />
+                    Avaliar
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Lista de Reviews */}
+            {reviewsLoading ? (
+              <div className="px-4 py-8 text-center">
+                <p className="text-muted-foreground text-sm">Carregando avaliações...</p>
+              </div>
+            ) : reviews.length > 0 ? (
+              reviews.map((review) => (
+                <div key={review.id} className="px-4 py-4 border-b border-gray-100">
+                  {/* Header do Review */}
+                  <div className="flex items-start gap-3 mb-2">
+                    <img
+                      src={review.avatar} 
+                      alt={review.author}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <h4 className="font-bold text-gray-900 text-sm">{review.author}</h4>
+                      <p className="text-xs text-gray-500">Avaliação postada {review.date}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {renderStars(review.rating)}
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-8 text-center">
+                <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Ainda não há avaliações para este evento</p>
+                {eventId && (
+                  <button
+                    onClick={() => onNavigate?.(`create-review:event:${eventId}`)}
+                    className="mt-3 px-4 py-2 bg-[#932d6f] text-white rounded-full text-sm font-medium hover:bg-[#932d6f]/90 transition-colors"
+                  >
+                    Seja o primeiro a avaliar
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Espaço extra no final */}
