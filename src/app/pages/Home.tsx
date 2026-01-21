@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles, Briefcase, Stethoscope, GraduationCap, ShoppingBag, UtensilsCrossed, Palette, Dumbbell, Music, BookOpen, Camera, Car, Home, UserCheck, Building2 } from 'lucide-react';
+import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles, Briefcase, Stethoscope, GraduationCap, ShoppingBag, UtensilsCrossed, Palette, Dumbbell, Music, BookOpen, Camera, Car, Home as HomeIcon, UserCheck, Building2 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SectionHeader } from '../components/SectionHeader';
@@ -29,7 +29,7 @@ const categoryIconMap: { [key: string]: LucideIcon } = {
   'Livros': BookOpen,
   'Fotografia': Camera,
   'Transporte': Car,
-  'Construção': Home,
+  'Construção': HomeIcon,
   'Recursos Humanos': UserCheck,
   'Negócios': Building2,
   // Adicionar mais mapeamentos conforme necessário
