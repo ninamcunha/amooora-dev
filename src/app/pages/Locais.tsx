@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, MapPin } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
 import { BottomNav } from '../components/BottomNav';
 import { FilterModal, FilterOptions } from '../components/FilterModal';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonListExpanded } from '../components/Skeleton';
 import { usePlaces } from '../hooks/usePlaces';
 import { useAdmin } from '../hooks/useAdmin';
 
@@ -126,15 +128,18 @@ export function Locais({ onNavigate }: LocaisProps) {
 
           {/* Loading */}
           {loading && (
-            <div className="px-5 py-12 text-center">
-              <p className="text-muted-foreground">Carregando locais...</p>
+            <div className="px-5 space-y-4 pb-6">
+              <SkeletonListExpanded count={3} />
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="px-5 py-12 text-center">
-              <p className="text-red-500">Erro ao carregar locais: {error.message}</p>
+            <div className="px-5">
+              <EmptyState
+                title="Erro ao carregar locais"
+                description={error.message}
+              />
             </div>
           )}
 
@@ -166,9 +171,13 @@ export function Locais({ onNavigate }: LocaisProps) {
                   />
                 ))
               ) : (
-                <div className="py-12 text-center">
-                  <p className="text-muted-foreground">Nenhum lugar encontrado</p>
-                </div>
+                <EmptyState
+                  icon={MapPin}
+                  title="Nenhum lugar encontrado"
+                  description={searchQuery || activeCategory !== 'Todos' || Object.values(filters).some(v => v !== 'any')
+                    ? "Tente ajustar os filtros ou a busca"
+                    : "Ainda não há lugares cadastrados"}
+                />
               )}
             </div>
           )}

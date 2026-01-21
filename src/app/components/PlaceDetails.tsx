@@ -1,4 +1,5 @@
 import { Heart, Star, Check, Share2, Flag, UserPlus, ArrowLeft, MapPin, MessageCircle, Send } from 'lucide-react';
+import { useFavorites } from '../hooks/useFavorites';
 import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
@@ -22,8 +23,11 @@ interface PlaceDetailsProps {
 export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps) {
   const { place, loading, error } = usePlace(placeId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = usePlaceReviews(placeId);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  
+  const favorite = placeId ? isFavorite('places', placeId) : false;
 
   // Converter reviews reais para o formato esperado
   const reviews: ReviewWithReplies[] = realReviews.map(review => ({
@@ -152,8 +156,13 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
                   </>
                 )}
               </div>
-              <button className="p-1">
-                <Heart className="w-6 h-6 text-gray-300 hover:fill-[#932d6f] hover:text-[#932d6f] transition-colors" />
+              <button 
+                onClick={() => placeId && toggleFavorite('places', placeId)}
+                className="p-1"
+              >
+                <Heart className={`w-6 h-6 transition-colors ${
+                  favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-300 hover:fill-[#932d6f] hover:text-[#932d6f]'
+                }`} />
               </button>
             </div>
 

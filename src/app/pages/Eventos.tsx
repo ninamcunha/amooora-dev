@@ -1,3 +1,4 @@
+import { Calendar } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
@@ -5,6 +6,8 @@ import { CategoryFilter } from '../components/CategoryFilter';
 import { EventCardExpanded } from '../components/EventCardExpanded';
 import { EventsMap } from '../components/EventsMap';
 import { BottomNav } from '../components/BottomNav';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonListExpanded } from '../components/Skeleton';
 import { useEvents } from '../hooks/useEvents';
 import { useAdmin } from '../hooks/useAdmin';
 
@@ -140,15 +143,18 @@ export function Eventos({ onNavigate }: EventosProps) {
 
           {/* Loading */}
           {loading && (
-            <div className="px-5 py-12 text-center">
-              <p className="text-muted-foreground">Carregando eventos...</p>
+            <div className="px-5 space-y-4 pb-6">
+              <SkeletonListExpanded count={3} />
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="px-5 py-12 text-center">
-              <p className="text-red-500">Erro ao carregar eventos: {error.message}</p>
+            <div className="px-5">
+              <EmptyState
+                title="Erro ao carregar eventos"
+                description={error.message}
+              />
             </div>
           )}
 
@@ -178,9 +184,13 @@ export function Eventos({ onNavigate }: EventosProps) {
                   />
                 ))
               ) : (
-                <div className="py-12 text-center">
-                  <p className="text-muted-foreground">Nenhum evento encontrado</p>
-                </div>
+                <EmptyState
+                  icon={Calendar}
+                  title="Nenhum evento encontrado"
+                  description={searchQuery || activeCategory !== 'Todos' 
+                    ? "Tente ajustar os filtros ou a busca"
+                    : "Ainda não há eventos cadastrados"}
+                />
               )}
             </div>
           )}

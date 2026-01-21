@@ -3,15 +3,10 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { useService } from '../hooks/useServices';
+import { useServiceReviews } from '../hooks/useReviews';
+import { calculateAverageRating } from '../services/reviews';
+import { Review } from '../types';
 
-interface Review {
-  id: string;
-  author: string;
-  avatar: string;
-  date: string;
-  rating: number;
-  comment: string;
-}
 
 interface ServiceDetailsProps {
   serviceId?: string;
@@ -21,6 +16,7 @@ interface ServiceDetailsProps {
 
 export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetailsProps) {
   const { service, loading, error } = useService(serviceId);
+  const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useServiceReviews(serviceId);
 
   // Loading state
   if (loading) {
@@ -96,8 +92,17 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
     verified: true, // Mock: verificado
   };
 
-  // Reviews vazias por enquanto (será implementado depois)
-  const reviews: Review[] = [];
+  // Converter reviews reais para o formato esperado
+  const reviews: Review[] = realReviews.map(review => ({
+    ...review,
+    avatar: review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080',
+    author: review.author || review.userName || 'Usuário',
+    date: review.date || (review.createdAt ? new Date(review.createdAt).toLocaleDateString('pt-BR') : 'Data não disponível'),
+  }));
+
+  // Calcular rating médio e contagem
+  const averageRating = reviews.length > 0 ? calculateAverageRating(reviews) : displayService.rating;
+  const reviewCount = reviews.length || displayService.reviewCount;
 
   const renderStars = (rating: number) => {
     return (
@@ -192,7 +197,7 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
                 <span className="font-bold text-black text-lg">
-                  {displayService.rating} ({displayService.reviewCount})
+                  {averageRating.toFixed(1)} ({reviewCount})
                 </span>
               </div>
               <div className="flex flex-col items-end">
@@ -286,13 +291,13 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
           {/* Botões de Ação Secundários */}
           <div className="bg-white px-4 py-3 border-b border-gray-100">
             <div className="flex gap-2 overflow-x-auto">
-              <button 
-                onClick={() => onNavigate?.('create-review')}
-                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
-              >
-                <Star className="w-4 h-4" />
-                Avaliar
-              </button>
+                    <button 
+                      onClick={() => serviceId && onNavigate?.(`create-review:service:${serviceId}`)}
+                      className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+                    >
+                      <Star className="w-4 h-4" />
+                      Avaliar
+                    </button>
               <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap">
                 <Share2 className="w-4 h-4" />
                 Compartilhar
@@ -310,9 +315,13 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
               <h3 className="text-lg font-bold text-gray-900">Avaliações</h3>
             </div>
 
-            {/* Lista de Reviews */}
-            {reviews.length > 0 ? (
-              reviews.map((review) => (
+                  {/* Lista de Reviews */}
+                  {reviewsLoading ? (
+                    <div className="px-4 py-8 text-center">
+                      <p className="text-muted-foreground text-sm">Carregando avaliações...</p>
+                    </div>
+                  ) : reviews.length > 0 ? (
+                    reviews.map((review) => (
                 <div key={review.id} className="px-4 py-4 border-b border-gray-100">
                   {/* Header do Review */}
                   <div className="flex items-center gap-3 mb-2">

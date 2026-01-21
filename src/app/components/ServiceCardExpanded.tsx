@@ -1,9 +1,10 @@
 import { Star, MapPin, User, Heart, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Tag } from './Tag';
+import { useFavorites } from '../hooks/useFavorites';
 
 interface ServiceCardExpandedProps {
+  id: string;
   name: string;
   description: string;
   provider: string;
@@ -16,6 +17,7 @@ interface ServiceCardExpandedProps {
 }
 
 export function ServiceCardExpanded({
+  id,
   name,
   description,
   provider,
@@ -26,7 +28,8 @@ export function ServiceCardExpanded({
   imageUrl,
   onClick,
 }: ServiceCardExpandedProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite('services', id);
 
   return (
     <div
@@ -48,13 +51,13 @@ export function ServiceCardExpanded({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setIsFavorite(!isFavorite);
+            toggleFavorite('services', id);
           }}
           className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
         >
           <Heart
             className={`w-5 h-5 ${
-              isFavorite ? 'fill-accent text-accent' : 'text-muted-foreground'
+              favorite ? 'fill-accent text-accent' : 'text-muted-foreground'
             }`}
           />
         </button>

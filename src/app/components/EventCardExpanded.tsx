@@ -1,10 +1,11 @@
 import { Calendar, Clock, MapPin, Users, Heart, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Tag } from './Tag';
 import { DateBadge } from './DateBadge';
+import { useFavorites } from '../hooks/useFavorites';
 
 interface EventCardExpandedProps {
+  id: string;
   name: string;
   description: string;
   date: string;
@@ -23,6 +24,7 @@ interface EventCardExpandedProps {
 }
 
 export function EventCardExpanded({
+  id,
   name,
   description,
   date,
@@ -36,7 +38,8 @@ export function EventCardExpanded({
   isPaid = false,
   onClick,
 }: EventCardExpandedProps) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite('events', id);
 
   return (
     <div
@@ -56,12 +59,15 @@ export function EventCardExpanded({
         </div>
         {/* Favorite button */}
         <button
-          onClick={() => setIsFavorite(!isFavorite)}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite('events', id);
+          }}
           className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
         >
           <Heart
             className={`w-5 h-5 ${
-              isFavorite ? 'fill-accent text-accent' : 'text-muted-foreground'
+              favorite ? 'fill-accent text-accent' : 'text-muted-foreground'
             }`}
           />
         </button>

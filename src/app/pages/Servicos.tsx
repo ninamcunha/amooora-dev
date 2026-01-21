@@ -1,9 +1,12 @@
+import { Briefcase } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { ServiceCardExpanded } from '../components/ServiceCardExpanded';
 import { BottomNav } from '../components/BottomNav';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonListExpanded } from '../components/Skeleton';
 import { useServices } from '../hooks/useServices';
 import { useAdmin } from '../hooks/useAdmin';
 
@@ -115,15 +118,18 @@ export function Servicos({ onNavigate, initialCategory }: ServicosProps) {
 
           {/* Loading */}
           {loading && (
-            <div className="px-5 py-12 text-center">
-              <p className="text-muted-foreground">Carregando serviços...</p>
+            <div className="px-5 space-y-4 pb-6">
+              <SkeletonListExpanded count={3} />
             </div>
           )}
 
           {/* Error */}
           {error && (
-            <div className="px-5 py-12 text-center">
-              <p className="text-red-500">Erro ao carregar serviços: {error.message}</p>
+            <div className="px-5">
+              <EmptyState
+                title="Erro ao carregar serviços"
+                description={error.message}
+              />
             </div>
           )}
 
@@ -139,9 +145,13 @@ export function Servicos({ onNavigate, initialCategory }: ServicosProps) {
                   />
                 ))
               ) : (
-                <div className="py-12 text-center">
-                  <p className="text-muted-foreground">Nenhum serviço encontrado</p>
-                </div>
+                <EmptyState
+                  icon={Briefcase}
+                  title="Nenhum serviço encontrado"
+                  description={searchQuery || activeCategory !== 'Todos' 
+                    ? "Tente ajustar os filtros ou a busca"
+                    : "Ainda não há serviços cadastrados"}
+                />
               )}
             </div>
           )}
