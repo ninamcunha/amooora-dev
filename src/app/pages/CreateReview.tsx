@@ -1,27 +1,74 @@
 import { useState } from 'react';
-import { Star, Camera, Heart } from 'lucide-react';
+import { Star, Camera, Heart, AlertCircle } from 'lucide-react';
 import { Header } from '../components/Header';
 import { BottomNav } from '../components/BottomNav';
+import { createReview } from '../services/reviews';
 
 interface CreateReviewProps {
   onNavigate: (page: string) => void;
+  placeId?: string;
+  serviceId?: string;
+  eventId?: string;
+  itemName?: string;
+  itemType?: 'place' | 'service' | 'event';
+  onBack?: () => void;
 }
 
-export function CreateReview({ onNavigate }: CreateReviewProps) {
+export function CreateReview({ 
+  onNavigate, 
+  placeId, 
+  serviceId, 
+  eventId,
+  itemName = 'este local',
+  itemType = 'place',
+  onBack 
+}: CreateReviewProps) {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
+  const [authorName, setAuthorName] = useState('');
   const [wouldRecommend, setWouldRecommend] = useState<boolean | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = () => {
-    // Aqui você pode adicionar lógica para salvar a review
-    console.log({
-      rating,
-      reviewText,
-      wouldRecommend,
-    });
-    // Volta para a página de detalhes
-    onNavigate('place-details');
+  const handleSubmit = async () => {
+    if (!isFormValid) return;
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      await createReview({
+        placeId,
+        serviceId,
+        eventId,
+        rating,
+        comment: reviewText,
+        authorName: authorName.trim() || undefined, // Nome opcional
+      });
+
+      setSuccess(true);
+      // Aguardar um pouco antes de voltar para mostrar feedback
+      setTimeout(() => {
+        if (onBack) {
+          onBack();
+        } else if (placeId) {
+          onNavigate(`place-details:${placeId}`);
+        } else if (serviceId) {
+          onNavigate(`service-details:${serviceId}`);
+        } else if (eventId) {
+          onNavigate(`event-details:${eventId}`);
+        } else {
+          onNavigate('home');
+        }
+      }, 1500);
+    } catch (err) {
+      console.error('Erro ao criar avaliação:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao criar avaliação. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isFormValid = rating > 0 && reviewText.trim().length > 0;
@@ -33,7 +80,12 @@ export function CreateReview({ onNavigate }: CreateReviewProps) {
         <Header 
           onNavigate={onNavigate} 
           showBackButton 
-          onBack={() => onNavigate('place-details')} 
+          onBack={onBack || (() => {
+            if (placeId) onNavigate(`place-details:${placeId}`);
+            else if (serviceId) onNavigate(`service-details:${serviceId}`);
+            else if (eventId) onNavigate(`event-details:${eventId}`);
+            else onNavigate('home');
+          })} 
         />
 
         {/* Conteúdo scrollável - padding-top para compensar header fixo */}
@@ -45,7 +97,7 @@ export function CreateReview({ onNavigate }: CreateReviewProps) {
                 Conte sua experiência
               </h1>
               <p className="text-gray-600 text-sm">
-                Compartilhe sua experiência no <span className="font-semibold text-primary">Café da Vila</span>
+                Compartilhe sua experiência em <span className="font-semibold text-primary">{itemName}</span>
               </p>
             </div>
 
@@ -104,10 +156,28 @@ export function CreateReview({ onNavigate }: CreateReviewProps) {
               </div>
             </div>
 
+            {/* Nome (opcional, para reviews sem login) */}
+            <div>
+              <label className="block text-base font-semibold text-gray-900 mb-3">
+                Seu nome (opcional)
+              </label>
+              <input
+                type="text"
+                value={authorName}
+                onChange={(e) => setAuthorName(e.target.value)}
+                placeholder="Como você quer ser identificado?"
+                className="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-[#932d6f] focus:ring-2 focus:ring-[#932d6f]/20 outline-none text-sm"
+                maxLength={50}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Se deixar em branco, aparecerá como "Visitante"
+              </p>
+            </div>
+
             {/* Recomendaria? */}
             <div className="bg-[#fffbfa] rounded-2xl p-6 border border-[#932d6f]/10">
               <label className="block text-base font-semibold text-gray-900 mb-4">
-                Você recomendaria este local?
+                Você recomendaria {itemType === 'place' ? 'este local' : itemType === 'service' ? 'este serviço' : 'este evento'}?
               </label>
               <div className="flex gap-3">
                 <button
@@ -152,20 +222,45 @@ export function CreateReview({ onNavigate }: CreateReviewProps) {
               </button>
             </div>
 
+            {/* Mensagem de erro */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-red-800 mb-1">
+                    Erro ao publicar avaliação
+                  </p>
+                  <p className="text-xs text-red-600">{error}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Mensagem de sucesso */}
+            {success && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs">✓</span>
+                </div>
+                <p className="text-sm font-medium text-green-800">
+                  Avaliação publicada com sucesso!
+                </p>
+              </div>
+            )}
+
             {/* Botão Publicar */}
             <button
               onClick={handleSubmit}
-              disabled={!isFormValid}
+              disabled={!isFormValid || isSubmitting}
               className={`w-full py-4 rounded-2xl font-semibold text-base transition-all ${
-                isFormValid
+                isFormValid && !isSubmitting
                   ? 'bg-[#932d6f] text-white hover:bg-[#7d2660] shadow-lg'
                   : 'bg-gray-200 text-gray-400 cursor-not-allowed'
               }`}
             >
-              Publicar Review
+              {isSubmitting ? 'Publicando...' : 'Publicar Review'}
             </button>
 
-            {!isFormValid && (
+            {!isFormValid && !isSubmitting && (
               <p className="text-center text-xs text-gray-500">
                 Preencha a avaliação e o texto para publicar
               </p>

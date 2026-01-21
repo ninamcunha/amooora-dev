@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Review } from '../types';
-import {
-  getReviewsByPlaceId,
-  getReviewsByServiceId,
-  getReviewsByEventId,
-} from '../services/reviews';
+import { getReviewsByPlaceId, getReviewsByServiceId, getReviewsByEventId } from '../services/reviews';
 
-export const useReviewsByPlaceId = (placeId: string) => {
+export const usePlaceReviews = (placeId: string | undefined) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -21,10 +17,13 @@ export const useReviewsByPlaceId = (placeId: string) => {
     const loadReviews = async () => {
       try {
         setLoading(true);
+        setError(null);
         const data = await getReviewsByPlaceId(placeId);
-        setReviews(data);
+        setReviews(data || []);
       } catch (err) {
+        console.error('Erro ao carregar avaliações:', err);
         setError(err instanceof Error ? err : new Error('Erro ao carregar avaliações'));
+        setReviews([]);
       } finally {
         setLoading(false);
       }
@@ -33,10 +32,14 @@ export const useReviewsByPlaceId = (placeId: string) => {
     loadReviews();
   }, [placeId]);
 
-  return { reviews, loading, error };
+  return { reviews, loading, error, refetch: () => {
+    if (placeId) {
+      getReviewsByPlaceId(placeId).then(setReviews).catch(console.error);
+    }
+  }};
 };
 
-export const useReviewsByServiceId = (serviceId: string) => {
+export const useServiceReviews = (serviceId: string | undefined) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -51,10 +54,13 @@ export const useReviewsByServiceId = (serviceId: string) => {
     const loadReviews = async () => {
       try {
         setLoading(true);
+        setError(null);
         const data = await getReviewsByServiceId(serviceId);
-        setReviews(data);
+        setReviews(data || []);
       } catch (err) {
+        console.error('Erro ao carregar avaliações:', err);
         setError(err instanceof Error ? err : new Error('Erro ao carregar avaliações'));
+        setReviews([]);
       } finally {
         setLoading(false);
       }
@@ -63,10 +69,14 @@ export const useReviewsByServiceId = (serviceId: string) => {
     loadReviews();
   }, [serviceId]);
 
-  return { reviews, loading, error };
+  return { reviews, loading, error, refetch: () => {
+    if (serviceId) {
+      getReviewsByServiceId(serviceId).then(setReviews).catch(console.error);
+    }
+  }};
 };
 
-export const useReviewsByEventId = (eventId: string) => {
+export const useEventReviews = (eventId: string | undefined) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -81,10 +91,13 @@ export const useReviewsByEventId = (eventId: string) => {
     const loadReviews = async () => {
       try {
         setLoading(true);
+        setError(null);
         const data = await getReviewsByEventId(eventId);
-        setReviews(data);
+        setReviews(data || []);
       } catch (err) {
+        console.error('Erro ao carregar avaliações:', err);
         setError(err instanceof Error ? err : new Error('Erro ao carregar avaliações'));
+        setReviews([]);
       } finally {
         setLoading(false);
       }
@@ -93,5 +106,9 @@ export const useReviewsByEventId = (eventId: string) => {
     loadReviews();
   }, [eventId]);
 
-  return { reviews, loading, error };
+  return { reviews, loading, error, refetch: () => {
+    if (eventId) {
+      getReviewsByEventId(eventId).then(setReviews).catch(console.error);
+    }
+  }};
 };

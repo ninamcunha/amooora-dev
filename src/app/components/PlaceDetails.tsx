@@ -1,19 +1,16 @@
 import { Heart, Star, Check, Share2, Flag, UserPlus, ArrowLeft, MapPin, MessageCircle, Send } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { usePlace } from '../hooks/usePlaces';
+import { usePlaceReviews } from '../hooks/useReviews';
+import { Review } from '../types';
+import { calculateAverageRating } from '../services/reviews';
 
-interface Review {
-  id: string;
-  author: string;
-  avatar: string;
-  date: string;
-  rating: number;
-  comment: string;
+interface ReviewWithReplies extends Review {
   likes?: number;
-  replies?: Review[];
+  replies?: ReviewWithReplies[];
 }
 
 interface PlaceDetailsProps {
@@ -24,12 +21,33 @@ interface PlaceDetailsProps {
 
 export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps) {
   const { place, loading, error } = usePlace(placeId);
+  const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = usePlaceReviews(placeId);
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
 
-  // Mock de reviews com exemplos (será substituído quando implementarmos reviews do Supabase)
-  const [reviews, setReviews] = useState<Review[]>([
+  // Converter reviews reais para o formato esperado
+  const reviews: ReviewWithReplies[] = realReviews.map(review => ({
+    ...review,
+    avatar: review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080',
+    author: review.author || review.userName || 'Usuário',
+    date: review.date || (review.createdAt ? new Date(review.createdAt).toLocaleDateString('pt-BR') : 'Data não disponível'),
+    likes: 0, // Por enquanto sem sistema de likes
+    replies: [],
+  }));
+
+  // Calcular rating médio
+  const averageRating = reviews.length > 0 ? calculateAverageRating(reviews) : place?.rating || 0;
+  const reviewCount = reviews.length || place?.reviewCount || 0;
+
+  // Refetch reviews quando voltar da página de criação
+  useEffect(() => {
+    const handleFocus = () => {
+      refetchReviews();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetchReviews]);
     {
       id: '1',
       author: 'Ana Costa',
@@ -211,25 +229,25 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               </a>
             )}
 
-            {/* Avaliação */}
-            <div className="flex items-center gap-2 pt-2">
-              <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
-              <span className="font-bold text-black text-lg">
-                {place.rating.toFixed(1)} ({place.reviewCount || 0})
-              </span>
-            </div>
+                  {/* Avaliação */}
+                  <div className="flex items-center gap-2 pt-2">
+                    <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
+                    <span className="font-bold text-black text-lg">
+                      {averageRating.toFixed(1)} ({reviewCount})
+                    </span>
+                  </div>
           </div>
 
           {/* Botões de Ação */}
           <div className="bg-[#fffbfa] px-4 py-3">
             <div className="flex gap-2 overflow-x-auto">
-              <button 
-                onClick={() => onNavigate?.('create-review')}
-                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
-              >
-                <Check className="w-4 h-4" />
-                Já fui
-              </button>
+                    <button 
+                      onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
+                      className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+                    >
+                      <Check className="w-4 h-4" />
+                      Já fui
+                    </button>
               <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap">
                 <Share2 className="w-4 h-4" />
                 Compartilhar
@@ -254,7 +272,11 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
             </div>
 
             {/* Lista de Reviews */}
-            {reviews.length > 0 ? (
+            {reviewsLoading ? (
+              <div className="px-4 py-8 text-center">
+                <p className="text-muted-foreground text-sm">Carregando avaliações...</p>
+              </div>
+            ) : reviews.length > 0 ? (
               reviews.map((review) => (
                 <ReviewItem 
                   key={review.id} 
@@ -264,24 +286,10 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
                   replyText={replyText}
                   onReplyTextChange={setReplyText}
                   onSendReply={(id) => {
-                    if (replyText.trim()) {
-                      const newReply: Review = {
-                        id: `reply-${Date.now()}`,
-                        author: 'Você',
-                        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-                        date: 'Agora',
-                        rating: 0,
-                        comment: replyText,
-                        likes: 0,
-                      };
-                      setReviews(reviews.map(r => 
-                        r.id === id 
-                          ? { ...r, replies: [...(r.replies || []), newReply] }
-                          : r
-                      ));
-                      setReplyText('');
-                      setReplyingTo(null);
-                    }
+                    // Respostas serão implementadas depois quando tiver sistema de comentários completo
+                    console.log('Resposta:', { reviewId: id, text: replyText });
+                    setReplyText('');
+                    setReplyingTo(null);
                   }}
                 />
               ))
@@ -305,23 +313,10 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               type="text"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Escreva um comentário..."
+              placeholder="Escreva um comentário ou clique em criar avaliação..."
               className="flex-1 px-4 py-2 bg-muted rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter' && newComment.trim()) {
-                  const review: Review = {
-                    id: `new-${Date.now()}`,
-                    author: 'Você',
-                    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-                    date: 'Agora',
-                    rating: 5,
-                    comment: newComment,
-                    likes: 0,
-                  };
-                  setReviews([review, ...reviews]);
-                  setNewComment('');
-                }
-              }}
+              onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
+              readOnly
             />
             <button
               onClick={() => {
@@ -364,7 +359,7 @@ function ReviewItem({
   onSendReply,
   isReply = false 
 }: { 
-  review: Review; 
+  review: ReviewWithReplies; 
   onReply: (id: string) => void;
   replyingTo: string | null;
   replyText: string;
@@ -378,13 +373,13 @@ function ReviewItem({
         {/* Header do Review */}
         <div className="flex items-center gap-3 mb-2">
           <ImageWithFallback
-            src={review.avatar}
-            alt={review.author}
+            src={review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080'}
+            alt={review.author || review.userName || 'Usuário'}
             className={`${isReply ? 'w-8 h-8' : 'w-10 h-10'} rounded-full object-cover flex-shrink-0`}
           />
           <div className="flex-1">
-            <h4 className="font-bold text-gray-900 text-sm">{review.author}</h4>
-            <p className="text-xs text-gray-500">{review.date}</p>
+            <h4 className="font-bold text-gray-900 text-sm">{review.author || review.userName || 'Usuário'}</h4>
+            <p className="text-xs text-gray-500">{review.date || (review.createdAt ? new Date(review.createdAt).toLocaleDateString('pt-BR') : 'Data não disponível')}</p>
           </div>
         </div>
 

@@ -56,6 +56,20 @@ export default function App() {
       const postId = page.split(':')[1];
       setSelectedPostId(postId);
       setCurrentPage('post-details');
+    } else if (page.startsWith('create-review:')) {
+      // Formato: 'create-review:place:id', 'create-review:service:id', 'create-review:event:id'
+      const parts = page.split(':');
+      const itemType = parts[1]; // place, service ou event
+      const itemId = parts[2];
+      
+      if (itemType === 'place') {
+        setSelectedPlaceId(itemId);
+      } else if (itemType === 'service') {
+        setSelectedServiceId(itemId);
+      } else if (itemType === 'event') {
+        setSelectedEventId(itemId);
+      }
+      setCurrentPage('create-review');
     } else {
       setSelectedCategory(undefined); // Limpar categoria ao navegar para outras páginas
       setCurrentPage(page);
@@ -80,6 +94,35 @@ export default function App() {
           }} 
         />;
       case 'create-review':
+        // Determinar qual tipo de item baseado nos IDs disponíveis
+        if (selectedPlaceId) {
+          return <CreateReview 
+            onNavigate={handleNavigate} 
+            placeId={selectedPlaceId}
+            itemType="place"
+            onBack={() => {
+              setCurrentPage('place-details');
+            }}
+          />;
+        } else if (selectedServiceId) {
+          return <CreateReview 
+            onNavigate={handleNavigate} 
+            serviceId={selectedServiceId}
+            itemType="service"
+            onBack={() => {
+              setCurrentPage('service-details');
+            }}
+          />;
+        } else if (selectedEventId) {
+          return <CreateReview 
+            onNavigate={handleNavigate} 
+            eventId={selectedEventId}
+            itemType="event"
+            onBack={() => {
+              setCurrentPage('event-details');
+            }}
+          />;
+        }
         return <CreateReview onNavigate={handleNavigate} />;
       case 'services':
         return <Servicos onNavigate={handleNavigate} initialCategory={selectedCategory} />;
