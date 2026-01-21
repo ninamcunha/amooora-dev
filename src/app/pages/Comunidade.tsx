@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
+import { CategoryFilter } from '../components/CategoryFilter';
 import { CommunityStats } from '../components/CommunityStats';
-import { CommunityFilters } from '../components/CommunityFilters';
 import { CommunityPostCard } from '../components/CommunityPostCard';
 import { BottomNav } from '../components/BottomNav';
 import { useAdmin } from '../hooks/useAdmin';
@@ -87,7 +86,6 @@ interface ComunidadeProps {
 
 export function Comunidade({ onNavigate }: ComunidadeProps) {
   const { isAdmin } = useAdmin();
-  const [activeView, setActiveView] = useState<'feed' | 'trending' | 'members'>('feed');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -99,23 +97,25 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
         
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto pb-24">
-          {/* Page Header com Título e Botão + */}
+          {/* Page Header */}
           <div className="px-5 pt-6 pb-4">
-            <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold text-primary">Comunidade</h1>
-              <button className="w-14 h-14 bg-[#932d6f] rounded-full flex items-center justify-center hover:bg-[#7d2660] transition-colors shadow-lg">
-                <Plus className="w-7 h-7 text-white" />
-              </button>
-            </div>
-
-            {/* Barra de busca */}
+            <h1 className="text-2xl font-semibold text-primary mb-4">Comunidade</h1>
+            
+            {/* Search */}
             <div className="mb-4">
-              <SearchBar 
+              <SearchBar
                 placeholder="Buscar tópicos, pessoas..."
                 value={searchQuery}
                 onChange={setSearchQuery}
               />
             </div>
+
+            {/* Category Filters */}
+            <CategoryFilter
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={setActiveCategory}
+            />
           </div>
 
           {/* Estatísticas da Comunidade */}
@@ -123,15 +123,6 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
             members={1243}
             posts={567}
             activeToday={89}
-          />
-
-          {/* Filtros (duas linhas) */}
-          <CommunityFilters
-            activeView={activeView}
-            activeCategory={activeCategory}
-            categories={categories}
-            onViewChange={setActiveView}
-            onCategoryChange={setActiveCategory}
           />
 
           {/* Lista de Posts */}
