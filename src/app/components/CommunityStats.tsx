@@ -8,32 +8,28 @@ interface CommunityStatsProps {
 
 export function CommunityStats({ members, posts, activeToday }: CommunityStatsProps) {
   return (
-    <div className="flex gap-3 px-5 mb-4">
-      {/* Membros */}
-      <div className="flex-1 bg-[#932d6f] rounded-xl p-3 text-white">
-        <div className="flex items-center gap-2 mb-1">
-          <Users className="w-4 h-4" />
-          <span className="text-xs font-medium">Membros</span>
+    <div className="px-5 mb-6">
+      <div className="grid grid-cols-3 gap-3">
+        {/* Membros */}
+        <div className="bg-white rounded-2xl p-4 shadow-md text-center">
+          <Users className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
+          <div className="font-bold text-lg text-gray-900">{members.toLocaleString()}</div>
+          <div className="text-xs text-gray-600">Membros</div>
         </div>
-        <p className="text-lg font-bold">{members.toLocaleString()}</p>
-      </div>
 
-      {/* Posts */}
-      <div className="flex-1 bg-[#FF6B7A] rounded-xl p-3 text-white">
-        <div className="flex items-center gap-2 mb-1">
-          <MessageCircle className="w-4 h-4" />
-          <span className="text-xs font-medium">Posts</span>
+        {/* Posts */}
+        <div className="bg-white rounded-2xl p-4 shadow-md text-center">
+          <MessageCircle className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
+          <div className="font-bold text-lg text-gray-900">{posts.toLocaleString()}</div>
+          <div className="text-xs text-gray-600">Posts</div>
         </div>
-        <p className="text-lg font-bold">{posts.toLocaleString()}</p>
-      </div>
 
-      {/* Ativas hoje */}
-      <div className="flex-1 bg-gradient-to-br from-[#932d6f] to-[#FF6B7A] rounded-xl p-3 text-white">
-        <div className="flex items-center gap-2 mb-1">
-          <TrendingUp className="w-4 h-4" />
-          <span className="text-xs font-medium">Ativas hoje</span>
+        {/* Ativas hoje */}
+        <div className="bg-white rounded-2xl p-4 shadow-md text-center">
+          <TrendingUp className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
+          <div className="font-bold text-lg text-gray-900">{activeToday}</div>
+          <div className="text-xs text-gray-600">Ativas hoje</div>
         </div>
-        <p className="text-lg font-bold">{activeToday}</p>
       </div>
     </div>
   );
