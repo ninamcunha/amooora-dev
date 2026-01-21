@@ -5,13 +5,44 @@ export const getServices = async (): Promise<Service[]> => {
   try {
     console.log('🔍 Buscando serviços do Supabase...');
     
-    // Buscar TODOS os serviços (sem filtro is_active primeiro para evitar timeout)
-    // Se a query com filtro falhar, já temos os dados
+    // Primeiro, tentar uma query muito simples para verificar conectividade
+    console.log('🔍 Testando conectividade básica...');
+    const { data: testData, error: testError } = await supabase
+      .from('services')
+      .select('id')
+      .limit(1);
+    
+    if (testError) {
+      console.error('❌ Erro de conectividade/RLS:', {
+        message: testError.message,
+        code: testError.code,
+        details: testError.details,
+        hint: testError.hint,
+      });
+      
+      // Se for erro de RLS, fornecer dica
+      if (testError.code === '42501' || testError.message?.includes('row-level security')) {
+        console.error('🚨 ERRO DE RLS: As políticas Row Level Security estão bloqueando a query!');
+        console.error('📝 SOLUÇÃO: Execute o SQL para permitir SELECT público na tabela services:');
+        console.error(`
+          CREATE POLICY "Permitir SELECT público em services"
+          ON services FOR SELECT
+          USING (true);
+        `);
+        throw new Error('Erro de RLS: A tabela services não permite SELECT público. Verifique as políticas RLS no Supabase.');
+      }
+      
+      throw new Error(`Erro ao buscar serviços: ${testError.message} (Código: ${testError.code})`);
+    }
+    
+    console.log('✅ Conectividade OK, buscando todos os serviços...');
+    
+    // Agora buscar todos os serviços
     const { data: allData, error: allError } = await supabase
       .from('services')
       .select('*')
       .order('rating', { ascending: false })
-      .limit(100); // Limitar para evitar queries muito grandes
+      .limit(100);
     
     if (allError) {
       console.error('❌ Erro ao buscar serviços:', {
@@ -19,38 +50,11 @@ export const getServices = async (): Promise<Service[]> => {
         code: allError.code,
         details: allError.details,
       });
-      
-      // Se houver erro, tentar query mais simples
-      try {
-        const { data: simpleData, error: simpleError } = await supabase
-          .from('services')
-          .select('id, name, category')
-          .limit(50);
-        
-        if (!simpleError && simpleData && simpleData.length > 0) {
-          console.warn('⚠️ Usando query simplificada');
-          return simpleData.map((service: any) => ({
-            id: service.id,
-            name: service.name,
-            description: '',
-            image: undefined,
-            imageUrl: undefined,
-            price: undefined,
-            category: service.category,
-            categorySlug: service.category?.toLowerCase().replace(/\s+/g, '-') || '',
-            rating: 0,
-            provider: undefined,
-          }));
-        }
-      } catch (simpleError) {
-        console.error('❌ Erro na query simplificada:', simpleError);
-      }
-      
       throw new Error(`Erro ao buscar serviços: ${allError.message}`);
     }
 
     if (!allData || allData.length === 0) {
-      console.warn('⚠️ Nenhum serviço encontrado no banco');
+      console.warn('⚠️ Nenhum serviço encontrado no banco (tabela vazia)');
       return [];
     }
 
@@ -58,6 +62,8 @@ export const getServices = async (): Promise<Service[]> => {
 
     // Filtrar apenas serviços ativos no frontend (mais rápido)
     const activeServices = allData.filter((service) => service.is_active !== false);
+
+    console.log(`✅ Serviços ativos após filtro: ${activeServices.length}`);
 
     return activeServices.map((service) => ({
       id: service.id,
@@ -72,8 +78,15 @@ export const getServices = async (): Promise<Service[]> => {
       provider: service.provider || undefined,
     }));
   } catch (error) {
-    console.error('❌ Erro ao buscar serviços:', error);
-    // Retornar array vazio em vez de lançar erro para evitar quebrar a UI
+    console.error('❌ Erro fatal ao buscar serviços:', error);
+    
+    // Se for erro conhecido, relançar para exibir mensagem mais clara
+    if (error instanceof Error && error.message.includes('RLS')) {
+      throw error;
+    }
+    
+    // Para outros erros, retornar array vazio para não quebrar a UI
+    console.warn('⚠️ Retornando array vazio devido a erro');
     return [];
   }
 };
