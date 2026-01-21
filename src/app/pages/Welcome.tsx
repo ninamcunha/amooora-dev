@@ -19,15 +19,15 @@ export function Welcome({ onNavigate }: WelcomeProps) {
             />
           </div>
 
-          {/* Buttons */}
-          <div className="space-y-4">
-            <button
-              onClick={() => onNavigate('home')}
-              className="w-full bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg"
-            >
-              Entrar
-            </button>
-          </div>
+                 {/* Buttons */}
+                 <div className="space-y-4 flex justify-center">
+                   <button
+                     onClick={() => onNavigate('home')}
+                     className="w-[55%] bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg"
+                   >
+                     Entrar
+                   </button>
+                 </div>
 
           {/* Tagline */}
           <p className="text-center text-muted-foreground text-sm mt-8">
