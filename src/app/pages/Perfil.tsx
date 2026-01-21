@@ -4,6 +4,7 @@ import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { BottomNav } from '../components/BottomNav';
 import { Header } from '../components/Header';
 import { useProfile } from '../hooks/useProfile';
+import { useAdmin } from '../hooks/useAdmin';
 import { 
   getProfileStats, 
   getSavedPlaces, 
@@ -22,6 +23,7 @@ interface PerfilProps {
 
 export function Perfil({ onNavigate }: PerfilProps) {
   const { profile, loading: profileLoading } = useProfile();
+  const { isAdmin } = useAdmin();
   const [stats, setStats] = useState({ eventsCount: 0, placesCount: 0, friendsCount: 0 });
   const [favoritePlaces, setFavoritePlaces] = useState<SavedPlace[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
@@ -68,7 +70,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
     return (
       <div className="min-h-screen bg-muted">
         <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
-          <Header onNavigate={onNavigate} />
+          <Header onNavigate={onNavigate} isAdmin={isAdmin} />
           <div className="flex-1 flex items-center justify-center">
             <p className="text-muted-foreground">Carregando perfil...</p>
           </div>
@@ -81,7 +83,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
     return (
       <div className="min-h-screen bg-muted">
         <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
-          <Header onNavigate={onNavigate} />
+          <Header onNavigate={onNavigate} isAdmin={isAdmin} />
           <div className="flex-1 flex items-center justify-center px-4">
             <div className="text-center">
               <p className="text-muted-foreground mb-4">Você precisa fazer login para ver seu perfil</p>
@@ -119,7 +121,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
     <div className="min-h-screen bg-muted">
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
         {/* Header fixo */}
-        <Header onNavigate={onNavigate} />
+        <Header onNavigate={onNavigate} isAdmin={isAdmin} />
 
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto pb-24">

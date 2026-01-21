@@ -7,6 +7,7 @@ import { ServiceCard } from '../components/ServiceCard';
 import { BottomNav } from '../components/BottomNav';
 import { usePlaces } from '../hooks/usePlaces';
 import { useEvents } from '../hooks/useEvents';
+import { useAdmin } from '../hooks/useAdmin';
 
 const services = [
   { id: '1', name: 'Terapia', icon: MessageCircle, color: '#932d6f' },
@@ -23,6 +24,7 @@ export function Home({ onNavigate }: HomeProps) {
   // Buscar dados reais do Supabase
   const { places, loading: loadingPlaces } = usePlaces();
   const { events, loading: loadingEvents } = useEvents();
+  const { isAdmin } = useAdmin();
 
   // Limitar a 3 locais e 3 eventos para exibição na home
   const limitedPlaces = places.slice(0, 3);
@@ -46,7 +48,7 @@ export function Home({ onNavigate }: HomeProps) {
       {/* Container mobile-first */}
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
         {/* Header fixo */}
-        <Header onNavigate={onNavigate} />
+        <Header onNavigate={onNavigate} isAdmin={isAdmin} />
         
         {/* Main content com scroll */}
         <main className="flex-1 overflow-y-auto px-5 py-6 space-y-8 pb-24">

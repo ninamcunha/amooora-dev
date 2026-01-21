@@ -6,6 +6,7 @@ import { CommunityStats } from '../components/CommunityStats';
 import { CommunityFilters } from '../components/CommunityFilters';
 import { CommunityPostCard } from '../components/CommunityPostCard';
 import { BottomNav } from '../components/BottomNav';
+import { useAdmin } from '../hooks/useAdmin';
 
 const categories = ['Todos', 'Apoio', 'Dicas', 'Eventos', 'Geral'];
 
@@ -85,6 +86,7 @@ interface ComunidadeProps {
 }
 
 export function Comunidade({ onNavigate }: ComunidadeProps) {
+  const { isAdmin } = useAdmin();
   const [activeView, setActiveView] = useState<'feed' | 'trending' | 'members'>('feed');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,7 +95,7 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
     <div className="min-h-screen bg-muted">
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
         {/* Header fixo */}
-        <Header onNavigate={onNavigate} />
+        <Header onNavigate={onNavigate} isAdmin={isAdmin} />
         
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto pb-24">

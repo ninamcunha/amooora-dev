@@ -30,6 +30,7 @@ export default function App() {
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   // Verificar se o usuário é admin quando há sessão
   useEffect(() => {
@@ -43,6 +44,12 @@ export default function App() {
           return;
         }
 
+        // Salvar email do usuário
+        setCurrentUserEmail(session.user.email || null);
+
+        // Verificar se o usuário é admin por email ou perfil
+        const isAdminByEmail = session.user.email === 'admin@amooora.com';
+        
         // Verificar se o usuário é admin
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
@@ -51,11 +58,10 @@ export default function App() {
           .single();
 
         if (profileError) {
-          // Se o perfil não existe ou erro, não é admin
-          console.log('Perfil não encontrado:', profileError);
-          setIsAdminAuthenticated(false);
+          // Se o perfil não existe ou erro, verificar apenas por email
+          setIsAdminAuthenticated(isAdminByEmail);
         } else {
-          const isAdmin = profile?.is_admin === true || profile?.role === 'admin';
+          const isAdmin = isAdminByEmail || profile?.is_admin === true || profile?.role === 'admin';
           setIsAdminAuthenticated(isAdmin);
         }
       } catch (error) {
@@ -71,15 +77,22 @@ export default function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') {
         setIsAdminAuthenticated(false);
+        setCurrentUserEmail(null);
       } else if (session?.user) {
         try {
+          // Salvar email do usuário
+          setCurrentUserEmail(session.user.email || null);
+          
+          // Verificar se é admin por email
+          const isAdminByEmail = session.user.email === 'admin@amooora.com';
+          
           const { data: profile } = await supabase
             .from('profiles')
             .select('is_admin, role')
             .eq('id', session.user.id)
             .single();
 
-          const isAdmin = profile?.is_admin === true || profile?.role === 'admin';
+          const isAdmin = isAdminByEmail || profile?.is_admin === true || profile?.role === 'admin';
           setIsAdminAuthenticated(isAdmin);
         } catch (error) {
           console.error('Erro ao verificar admin após mudança de sessão:', error);

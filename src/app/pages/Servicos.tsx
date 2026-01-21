@@ -3,6 +3,7 @@ import { Search, MapPin, Star, Plus } from 'lucide-react';
 import { Header } from '../components/Header';
 import { BottomNav } from '../components/BottomNav';
 import { useServices } from '../hooks/useServices';
+import { useAdmin } from '../hooks/useAdmin';
 
 const categories = ['Todos', 'Costura', 'Marcenaria', 'Pintura', 'Reparos', 'Bem-estar', 'Beleza', 'Outros'];
 
@@ -12,6 +13,7 @@ interface ServicosProps {
 
 export function Servicos({ onNavigate }: ServicosProps) {
   const { services, loading, error } = useServices();
+  const { isAdmin } = useAdmin();
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
@@ -60,7 +62,7 @@ export function Servicos({ onNavigate }: ServicosProps) {
     <div className="min-h-screen bg-muted">
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
         {/* Header fixo */}
-        <Header onNavigate={onNavigate} />
+        <Header onNavigate={onNavigate} isAdmin={isAdmin} />
         
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto pb-24">

@@ -4,6 +4,7 @@ import { CategoryFilter } from '../components/CategoryFilter';
 import { EventCardExpanded } from '../components/EventCardExpanded';
 import { BottomNav } from '../components/BottomNav';
 import { useEvents } from '../hooks/useEvents';
+import { useAdmin } from '../hooks/useAdmin';
 
 const categories = ['Todos', 'Hoje', 'Semana', 'Gratuitos'];
 
@@ -13,6 +14,7 @@ interface EventosProps {
 
 export function Eventos({ onNavigate }: EventosProps) {
   const { events, loading, error } = useEvents();
+  const { isAdmin } = useAdmin();
   const [activeCategory, setActiveCategory] = useState('Todos');
 
   // Formatar data para exibição
@@ -67,7 +69,7 @@ export function Eventos({ onNavigate }: EventosProps) {
     <div className="min-h-screen bg-muted">
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
         {/* Header fixo */}
-        <Header onNavigate={onNavigate} />
+        <Header onNavigate={onNavigate} isAdmin={isAdmin} />
         
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto pb-24">

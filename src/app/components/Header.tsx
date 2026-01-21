@@ -1,13 +1,14 @@
-import { Bell, UserPen, ArrowLeft, Users } from 'lucide-react';
+import { Bell, UserPen, ArrowLeft, Users, Settings } from 'lucide-react';
 import logoAmooora from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 
 interface HeaderProps {
   onNavigate?: (page: string) => void;
   showBackButton?: boolean;
   onBack?: () => void;
+  isAdmin?: boolean;
 }
 
-export function Header({ onNavigate, showBackButton, onBack }: HeaderProps) {
+export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: HeaderProps) {
   return (
     <header className="px-5 py-4 bg-white border-b border-gray-100">
       <div className="flex items-center justify-between">
@@ -39,6 +40,17 @@ export function Header({ onNavigate, showBackButton, onBack }: HeaderProps) {
               3
             </span>
           </button>
+
+          {/* Botão de Configurações (apenas para admin) */}
+          {isAdmin && (
+            <button 
+              onClick={() => onNavigate?.('admin')}
+              className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center hover:bg-yellow-600 transition-colors"
+              title="Área Administrativa"
+            >
+              <Settings className="w-5 h-5 text-white" />
+            </button>
+          )}
 
           {/* Botão de Perfil */}
           <button 

@@ -8,6 +8,7 @@ import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
 import { BottomNav } from '../components/BottomNav';
 import { FilterModal, FilterOptions } from '../components/FilterModal';
 import { usePlaces } from '../hooks/usePlaces';
+import { useAdmin } from '../hooks/useAdmin';
 
 const categories = ['Todos', 'Cafés', 'Bares', 'Restaurantes', 'Cultura'];
 
@@ -17,6 +18,7 @@ interface LocaisProps {
 
 export function Locais({ onNavigate }: LocaisProps) {
   const { places, loading, error } = usePlaces();
+  const { isAdmin } = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -95,7 +97,7 @@ export function Locais({ onNavigate }: LocaisProps) {
     <div className="min-h-screen bg-muted">
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
         {/* Header fixo */}
-        <Header onNavigate={onNavigate} />
+        <Header onNavigate={onNavigate} isAdmin={isAdmin} />
         
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto pb-24">
