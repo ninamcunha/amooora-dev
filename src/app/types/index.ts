@@ -21,6 +21,7 @@ export interface Place {
   reviewCount?: number;
   distance?: string;
   isSafe?: boolean;
+  tags?: string[]; // Tags como: 'vegano', 'aceita-pets', 'acessivel', 'drag-shows', etc.
 }
 
 export interface Service {

@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 export interface FilterOptions {
   distance: string;
   rating: string;
+  tags: string[]; // Array de tags selecionadas
 }
 
 interface FilterModalProps {
@@ -27,6 +28,17 @@ const ratingOptions = [
   { label: '4.0+ estrelas', value: '4.0' },
   { label: '3.5+ estrelas', value: '3.5' },
   { label: 'Qualquer avaliação', value: 'any' },
+];
+
+const availableTags = [
+  { label: 'Vegano', value: 'vegano', icon: '🌱' },
+  { label: 'Aceita Pets', value: 'aceita-pets', icon: '🐾' },
+  { label: 'Acessível', value: 'acessivel', icon: '♿' },
+  { label: 'Drag Shows', value: 'drag-shows', icon: '🎭' },
+  { label: 'Wifi Grátis', value: 'wifi-gratis', icon: '📶' },
+  { label: 'Estacionamento', value: 'estacionamento', icon: '🅿️' },
+  { label: 'Música ao Vivo', value: 'musica-ao-vivo', icon: '🎵' },
+  { label: 'Ar Livre', value: 'ar-livre', icon: '🌳' },
 ];
 
 export function FilterModal({
@@ -107,6 +119,38 @@ export function FilterModal({
                   {option.label}
                 </button>
               ))}
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-base text-foreground mb-3">
+              Tags e Características
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {availableTags.map((tag) => {
+                const isSelected = filters.tags?.includes(tag.value) || false;
+                return (
+                  <button
+                    key={tag.value}
+                    onClick={() => {
+                      const currentTags = filters.tags || [];
+                      const newTags = isSelected
+                        ? currentTags.filter((t) => t !== tag.value)
+                        : [...currentTags, tag.value];
+                      onFiltersChange({ ...filters, tags: newTags });
+                    }}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 ${
+                      isSelected
+                        ? 'bg-primary text-white'
+                        : 'bg-gray-100 text-foreground hover:bg-gray-200'
+                    }`}
+                  >
+                    <span>{tag.icon}</span>
+                    {tag.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

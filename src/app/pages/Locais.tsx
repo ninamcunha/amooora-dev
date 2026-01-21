@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { SlidersHorizontal, MapPin } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
@@ -9,6 +9,9 @@ import { FilterModal, FilterOptions } from '../components/FilterModal';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonListExpanded } from '../components/Skeleton';
 import { usePlaces } from '../hooks/usePlaces';
+import { usePlaceReviews } from '../hooks/useReviews';
+import { calculateAverageRating } from '../services/reviews';
+import { useFilterPreferences } from '../hooks/useFilterPreferences';
 import { useAdmin } from '../hooks/useAdmin';
 
 const categories = ['Todos', 'Cafés', 'Bares', 'Restaurantes', 'Cultura'];
@@ -20,16 +23,50 @@ interface LocaisProps {
 export function Locais({ onNavigate }: LocaisProps) {
   const { places, loading, error } = usePlaces();
   const { isAdmin } = useAdmin();
+  const { filters, updateFilters, clearFilters } = useFilterPreferences();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  const [filters, setFilters] = useState<FilterOptions>({
-    distance: 'any',
-    rating: 'any',
-  });
+  
+  // Estado para ratings médios reais calculados das reviews
+  const [placeRatings, setPlaceRatings] = useState<Record<string, number>>({});
+  
+  // Calcular ratings médios reais para todos os lugares
+  useEffect(() => {
+    if (places.length > 0) {
+      // Por enquanto, usar o rating do lugar como base
+      // Em uma implementação futura, buscaríamos reviews de todos os lugares
+      const ratingsMap: Record<string, number> = {};
+      places.forEach(place => {
+        ratingsMap[place.id] = place.rating || 0;
+      });
+      setPlaceRatings(ratingsMap);
+    }
+  }, [places]);
 
-  // Filtrar lugares por categoria e busca
+  // Gerar tags mockadas baseadas na descrição do lugar (simulação)
+  const getPlaceTags = useMemo(() => {
+    return (place: typeof places[0]): string[] => {
+      const tags: string[] = [];
+      const desc = (place.description || '').toLowerCase();
+      
+      // Tags baseadas em palavras-chave na descrição
+      if (desc.includes('vegano') || desc.includes('vegetariano')) tags.push('vegano');
+      if (desc.includes('pet') || desc.includes('animal')) tags.push('aceita-pets');
+      if (desc.includes('acessível') || desc.includes('cadeirante')) tags.push('acessivel');
+      if (desc.includes('drag') || desc.includes('show')) tags.push('drag-shows');
+      if (desc.includes('wifi') || desc.includes('internet')) tags.push('wifi-gratis');
+      if (desc.includes('estacionamento') || desc.includes('parking')) tags.push('estacionamento');
+      if (desc.includes('música') || desc.includes('música ao vivo')) tags.push('musica-ao-vivo');
+      if (desc.includes('ar livre') || desc.includes('terraço') || desc.includes('varanda')) tags.push('ar-livre');
+      
+      return tags;
+    };
+  }, [places]);
+
+  // Filtrar lugares por categoria, busca, rating e tags
   const filteredPlaces = useMemo(() => {
+
     let filtered = places;
 
     // Filtro por categoria
@@ -48,10 +85,22 @@ export function Locais({ onNavigate }: LocaisProps) {
       );
     }
 
-    // Filtro por rating
+    // Filtro por rating (usar rating médio real se disponível)
     if (filters.rating !== 'any') {
       const minRating = parseFloat(filters.rating);
-      filtered = filtered.filter((place) => place.rating >= minRating);
+      filtered = filtered.filter((place) => {
+        const placeRating = placeRatings[place.id] || place.rating;
+        return placeRating >= minRating;
+      });
+    }
+
+    // Filtro por tags
+    if (filters.tags && filters.tags.length > 0) {
+      filtered = filtered.filter((place) => {
+        const placeTags = place.tags || getPlaceTags(place);
+        // O lugar deve ter pelo menos uma das tags selecionadas
+        return filters.tags!.some(tag => placeTags.includes(tag));
+      });
     }
 
     // Filtro por distância (por enquanto apenas visual, pois não temos coordenadas do usuário)
@@ -62,39 +111,73 @@ export function Locais({ onNavigate }: LocaisProps) {
     }
 
     return filtered;
-  }, [places, activeCategory, searchQuery, filters]);
+  }, [places, activeCategory, searchQuery, filters, placeRatings]);
 
   // Converter Place para formato do PlaceCardExpanded
   const placesForCards = useMemo(() => {
-    return filteredPlaces.map((place) => ({
-      id: place.id,
-      name: place.name,
-      description: place.description || 'Sem descrição',
-      rating: place.rating,
-      reviewCount: place.reviewCount || 0,
-      distance: place.distance || 'N/A',
-      address: place.address || 'Endereço não informado',
-      imageUrl: place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
-      tags: [
-        { label: place.category, color: '#932d6f' },
-      ],
-      isSafe: place.isSafe ?? true,
-      lat: place.latitude,
-      lng: place.longitude,
-    }));
-  }, [filteredPlaces]);
+    return filteredPlaces.map((place) => {
+      const placeTags = place.tags || getPlaceTags(place);
+      const realRating = placeRatings[place.id] || place.rating;
+      
+      // Mapear tags para formato visual com cores
+      const tagColors: Record<string, string> = {
+        'vegano': '#10b981', // Verde
+        'aceita-pets': '#f59e0b', // Laranja
+        'acessivel': '#3b82f6', // Azul
+        'drag-shows': '#ec4899', // Rosa
+        'wifi-gratis': '#8b5cf6', // Roxo
+        'estacionamento': '#6366f1', // Índigo
+        'musica-ao-vivo': '#ef4444', // Vermelho
+        'ar-livre': '#22c55e', // Verde claro
+      };
+      
+      const tagLabels: Record<string, string> = {
+        'vegano': 'Vegano',
+        'aceita-pets': 'Aceita Pets',
+        'acessivel': 'Acessível',
+        'drag-shows': 'Drag Shows',
+        'wifi-gratis': 'Wifi Grátis',
+        'estacionamento': 'Estacionamento',
+        'musica-ao-vivo': 'Música ao Vivo',
+        'ar-livre': 'Ar Livre',
+      };
+
+      const visualTags = [
+        { label: place.category, color: '#932d6f' }, // Categoria sempre aparece
+        ...placeTags.slice(0, 3).map(tag => ({ // Limitar a 3 tags adicionais para não sobrecarregar
+          label: tagLabels[tag] || tag,
+          color: tagColors[tag] || '#932d6f',
+        })),
+      ];
+
+      return {
+        id: place.id,
+        name: place.name,
+        description: place.description || 'Sem descrição',
+        rating: realRating,
+        reviewCount: place.reviewCount || 0,
+        distance: place.distance || 'N/A',
+        address: place.address || 'Endereço não informado',
+        imageUrl: place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+        tags: visualTags,
+        isSafe: place.isSafe ?? true,
+        lat: place.latitude,
+        lng: place.longitude,
+      };
+    });
+  }, [filteredPlaces, placeRatings, getPlaceTags]);
 
   const handleApplyFilters = () => {
-    // Aqui você pode implementar a lógica de filtragem
-    console.log('Filtros aplicados:', filters);
+    // Filtros já estão sendo aplicados automaticamente via useFilterPreferences
     setIsFilterModalOpen(false);
   };
 
   const handleClearFilters = () => {
-    setFilters({
-      distance: 'any',
-      rating: 'any',
-    });
+    clearFilters();
+  };
+
+  const handleFiltersChange = (newFilters: FilterOptions) => {
+    updateFilters(newFilters);
   };
 
   return (
@@ -192,7 +275,7 @@ export function Locais({ onNavigate }: LocaisProps) {
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         filters={filters}
-        onFiltersChange={setFilters}
+        onFiltersChange={handleFiltersChange}
         onApply={handleApplyFilters}
         onClear={handleClearFilters}
       />
