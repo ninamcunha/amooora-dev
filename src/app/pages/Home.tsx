@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles, Briefcase, Stethoscope, GraduationCap, ShoppingBag, UtensilsCrossed, Palette, Dumbbell, Music, BookOpen, Camera, Car, Home as HomeIcon, UserCheck, Building2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles, Briefcase, Stethoscope, GraduationCap, ShoppingBag, UtensilsCrossed, Palette, Dumbbell, Music, BookOpen, Camera, Car, Home as HomeIcon, UserCheck, Building2, Search } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SectionHeader } from '../components/SectionHeader';
@@ -7,6 +7,7 @@ import { PlaceCard } from '../components/PlaceCard';
 import { EventCard } from '../components/EventCard';
 import { ServiceCard } from '../components/ServiceCard';
 import { BottomNav } from '../components/BottomNav';
+import { GlobalSearch } from '../components/GlobalSearch';
 import { usePlaces } from '../hooks/usePlaces';
 import { useEvents } from '../hooks/useEvents';
 import { useServices } from '../hooks/useServices';
@@ -49,6 +50,7 @@ export function Home({ onNavigate }: HomeProps) {
   const { services, loading: loadingServices, error: errorServices } = useServices();
   // Sem autenticação: sempre permitir acesso admin
   const { isAdmin } = useAdmin();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Limitar a 3 locais e 3 eventos mais recentes para exibição na home
   // Os dados já vêm ordenados por created_at DESC dos serviços
@@ -99,6 +101,17 @@ export function Home({ onNavigate }: HomeProps) {
         
         {/* Main content com scroll - padding-top para compensar header fixo */}
         <main className="flex-1 overflow-y-auto px-5 py-6 space-y-8 pb-24 pt-24">
+          {/* Campo de Busca */}
+          <div className="mb-2">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors text-left"
+            >
+              <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <span className="text-sm text-gray-500 flex-1">Buscar locais, eventos e serviços...</span>
+            </button>
+          </div>
+
           {/* Seção: Lugares Seguros Próximos */}
           <section>
             <SectionHeader 
@@ -215,6 +228,13 @@ export function Home({ onNavigate }: HomeProps) {
         {/* Navegação inferior fixa */}
         <BottomNav activeItem="home" onItemClick={onNavigate} />
       </div>
+
+      {/* Modal de Busca Global */}
+      <GlobalSearch 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+        onNavigate={onNavigate}
+      />
     </div>
   );
 }

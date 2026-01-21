@@ -73,8 +73,6 @@ export default function App() {
         setSelectedEventId(itemId);
       }
       setCurrentPage('create-review');
-    } else if (page === 'search') {
-      setIsSearchOpen(true);
     } else {
       setSelectedCategory(undefined); // Limpar categoria ao navegar para outras páginas
       setCurrentPage(page);
