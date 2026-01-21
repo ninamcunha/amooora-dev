@@ -21,7 +21,7 @@ interface BottomNavProps {
 
 export function BottomNav({ activeItem = 'home', onItemClick }: BottomNavProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg z-50">
       <div className="flex items-center justify-around max-w-md mx-auto px-2 py-2">
         {navItems.map((item) => {
           const Icon = item.icon;
