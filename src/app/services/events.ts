@@ -3,70 +3,30 @@ import { supabase } from '../../lib/supabase';
 
 export const getEvents = async (): Promise<Event[]> => {
   try {
-    console.log('🔍 Buscando eventos do Supabase...');
-    const today = new Date().toISOString();
-    console.log('📅 Data de hoje para filtro:', today);
+    console.log('🔍 Buscando TODOS os eventos do Supabase...');
     
-    // Primeiro, tentar buscar TODOS os eventos (sem filtros) - FALLBACK
-    const { data: allData, error: allError } = await supabase
-      .from('events')
-      .select('*');
-    
-    // Se conseguiu buscar todos, usar como fallback
-    if (!allError && allData && allData.length > 0) {
-      console.log(`📊 Total de eventos no banco (sem filtros): ${allData.length}`);
-      console.log('📋 Exemplo de evento encontrado:', {
-        id: allData[0].id,
-        name: allData[0].name,
-        is_active: allData[0].is_active,
-        date: allData[0].date,
-        date_is_future: allData[0].date >= today,
-      });
-    }
-    
-    // Agora tentar buscar com os filtros is_active e date
+    // Buscar TODOS os eventos da tabela (sem filtros)
+    // Apenas filtrar por is_active para evitar eventos desativados
     const { data, error } = await supabase
       .from('events')
       .select('*')
-      .eq('is_active', true)
-      .gte('date', today) // Apenas eventos futuros
-      .order('date', { ascending: true });
+      .eq('is_active', true) // Apenas eventos ativos
+      .order('date', { ascending: true }); // Ordenar por data
 
-    // Se houver erro ou dados vazios, usar fallback (todos os dados)
-    if (error || !data || data.length === 0) {
-      if (error) {
-        console.error('❌ Erro ao buscar eventos (com filtros):', {
-          message: error.message,
-          code: error.code,
-        });
-      }
-      
-      // USAR FALLBACK: Se tiver todos os dados, usar eles
-      if (allData && allData.length > 0) {
-        console.warn('⚠️ Usando fallback: retornando todos os eventos (sem filtros)');
-        console.log(`✅ Retornando ${allData.length} eventos (fallback)`);
-        
-        return allData.map((event) => ({
-          id: event.id,
-          name: event.name,
-          description: event.description,
-          image: event.image || undefined,
-          imageUrl: event.image || undefined,
-          date: event.date,
-          time: event.date ? new Date(event.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : undefined,
-          location: event.location,
-          category: event.category,
-          price: event.price ? Number(event.price) : undefined,
-          participants: event.participants_count || 0,
-        }));
-      }
-      
-      // Se não tiver fallback, retornar vazio
+    if (error) {
+      console.error('❌ Erro ao buscar eventos:', {
+        message: error.message,
+        code: error.code,
+      });
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
       console.warn('⚠️ Nenhum evento encontrado no banco');
       return [];
     }
 
-    console.log(`✅ Eventos encontrados (is_active=true E date>=hoje): ${data.length}`);
+    console.log(`✅ Total de eventos encontrados: ${data.length}`);
 
     return data.map((event) => ({
       id: event.id,
@@ -83,11 +43,15 @@ export const getEvents = async (): Promise<Event[]> => {
     }));
   } catch (error) {
     console.error('❌ Erro ao buscar eventos:', error);
-    // Tentar fallback final: buscar sem filtros
+    // Tentar buscar sem filtro de is_active como último recurso
     try {
-      const { data: fallbackData } = await supabase.from('events').select('*');
+      const { data: fallbackData } = await supabase
+        .from('events')
+        .select('*')
+        .order('date', { ascending: true });
+      
       if (fallbackData && fallbackData.length > 0) {
-        console.warn('⚠️ Usando fallback final: retornando todos os eventos');
+        console.warn('⚠️ Usando fallback: retornando todos os eventos (incluindo inativos)');
         return fallbackData.map((event) => ({
           id: event.id,
           name: event.name,
