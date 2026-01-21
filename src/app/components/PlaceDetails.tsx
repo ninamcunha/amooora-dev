@@ -198,12 +198,17 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               </p>
             )}
 
-            {/* Endereço */}
+            {/* Endereço com link para Google Maps */}
             {place.address && (
-              <div className="flex items-start gap-2 mb-3">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-2 mb-3 hover:opacity-80 transition-opacity"
+              >
                 <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-muted-foreground">{place.address}</span>
-              </div>
+              </a>
             )}
 
             {/* Avaliação */}
