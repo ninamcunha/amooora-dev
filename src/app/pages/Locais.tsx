@@ -25,8 +25,6 @@ export function Locais({ onNavigate }: LocaisProps) {
   const [filters, setFilters] = useState<FilterOptions>({
     distance: 'any',
     rating: 'any',
-    amenities: [],
-    accessibility: false,
   });
 
   // Filtrar lugares por categoria e busca
@@ -51,8 +49,15 @@ export function Locais({ onNavigate }: LocaisProps) {
 
     // Filtro por rating
     if (filters.rating !== 'any') {
-      const minRating = filters.rating === '4+' ? 4 : filters.rating === '3+' ? 3 : 0;
+      const minRating = parseFloat(filters.rating);
       filtered = filtered.filter((place) => place.rating >= minRating);
+    }
+
+    // Filtro por distância (por enquanto apenas visual, pois não temos coordenadas do usuário)
+    // TODO: Implementar cálculo de distância quando tivermos localização do usuário
+    if (filters.distance !== 'any') {
+      // Por enquanto, apenas manter o filtro selecionado
+      // Futuramente: calcular distância real baseada em latitude/longitude
     }
 
     return filtered;
@@ -88,8 +93,6 @@ export function Locais({ onNavigate }: LocaisProps) {
     setFilters({
       distance: 'any',
       rating: 'any',
-      amenities: [],
-      accessibility: false,
     });
   };
 
