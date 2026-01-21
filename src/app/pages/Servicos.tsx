@@ -7,7 +7,8 @@ import { BottomNav } from '../components/BottomNav';
 import { useServices } from '../hooks/useServices';
 import { useAdmin } from '../hooks/useAdmin';
 
-const categories = ['Todos', 'Costura', 'Marcenaria', 'Pintura', 'Reparos', 'Bem-estar', 'Beleza', 'Outros'];
+// Lista de categorias - incluir todas as categorias que podem aparecer no banco de dados
+const categories = ['Todos', 'Terapia', 'Advocacia', 'Costura', 'Marcenaria', 'Pintura', 'Reparos', 'Bem-estar', 'Beleza', 'Saúde', 'Carreira', 'Outros'];
 
 interface ServicosProps {
   onNavigate: (page: string) => void;
@@ -45,9 +46,12 @@ export function Servicos({ onNavigate, initialCategory }: ServicosProps) {
   const filteredServices = useMemo(() => {
     let filtered = services;
 
-    // Filtro por categoria
+    // Filtro por categoria (comparação case-insensitive para garantir correspondência)
     if (activeCategory !== 'Todos') {
-      filtered = filtered.filter((service) => service.category === activeCategory);
+      filtered = filtered.filter((service) => {
+        const serviceCategory = service.category || '';
+        return serviceCategory.toLowerCase() === activeCategory.toLowerCase();
+      });
     }
 
     // Filtro por busca
