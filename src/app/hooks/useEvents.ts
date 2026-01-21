@@ -13,9 +13,9 @@ export const useEvents = () => {
         setLoading(true);
         setError(null);
         
-        // Timeout de segurança para evitar loading infinito
+        // Timeout de segurança aumentado para 30 segundos
         const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout ao carregar eventos')), 10000);
+          setTimeout(() => reject(new Error('Timeout ao carregar eventos. Verifique sua conexão ou as políticas RLS do Supabase.')), 30000);
         });
         
         const data = await Promise.race([getEvents(), timeoutPromise]);
