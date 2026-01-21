@@ -1,6 +1,4 @@
-// TODO: Adicione o arquivo logo-home.png em src/assets/
-// Por enquanto usando logo temporário
-import logoHome from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
+import logoHome from "../../assets/logo-home.png";
 
 interface WelcomeProps {
   onNavigate: (page: string) => void;
