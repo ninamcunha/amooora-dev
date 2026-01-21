@@ -126,33 +126,35 @@ export function Perfil({ onNavigate }: PerfilProps) {
         {/* Conteúdo scrollável */}
         <div className="flex-1 overflow-y-auto pb-24">
           {/* Cabeçalho do Perfil com Gradiente */}
-          <div className="relative bg-gradient-to-br from-[#A84B8E] to-[#8B3A7A] pt-6 pb-8 px-5">
-            {/* Avatar */}
-            <div className="flex justify-center mb-4">
-              <div className="w-24 h-24 rounded-full bg-white p-1">
-                <ImageWithFallback
-                  src={profile.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080'}
-                  alt={profile.name}
-                  className="w-full h-full rounded-full object-cover"
-                />
+          <div className="relative bg-gradient-to-br from-[#A84B8E] to-[#8B3A7A] pt-6 pb-6 px-5">
+            <div className="flex items-center gap-4">
+              {/* Avatar à esquerda */}
+              <div className="flex-shrink-0">
+                <div className="w-20 h-20 rounded-full bg-white p-1">
+                  <ImageWithFallback
+                    src={profile.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080'}
+                    alt={profile.name}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Name and Username */}
-            <div className="text-center mb-4">
-              <h1 className="text-2xl font-bold text-white mb-1">{profile.name}</h1>
-              <p className="text-white/80 text-sm">@{username}</p>
-            </div>
+              {/* Name and Username ao centro */}
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl font-bold text-white mb-0.5 truncate">{profile.name}</h1>
+                <p className="text-white/80 text-sm truncate">@{username}</p>
+              </div>
 
-            {/* Botão Editar Perfil */}
-            <div className="flex justify-center">
-              <button
-                onClick={() => onNavigate('edit-profile')}
-                className="flex items-center gap-2 px-6 py-2.5 bg-white rounded-full font-medium text-[#932d6f] hover:bg-white/90 transition-colors"
-              >
-                <Edit className="w-4 h-4" />
-                Editar Perfil
-              </button>
+              {/* Botão Editar Perfil à direita */}
+              <div className="flex-shrink-0">
+                <button
+                  onClick={() => onNavigate('edit-profile')}
+                  className="flex items-center gap-2 px-4 py-2 bg-white rounded-full font-medium text-[#932d6f] hover:bg-white/90 transition-colors text-sm whitespace-nowrap border border-[#932d6f]/20"
+                >
+                  <Edit className="w-4 h-4" />
+                  Editar Perfil
+                </button>
+              </div>
             </div>
           </div>
 
