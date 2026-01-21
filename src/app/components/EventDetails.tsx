@@ -57,8 +57,8 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   
   // Imagens do evento
   const eventImages = event.image || event.imageUrl 
-    ? [event.image || event.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem']
-    : ['https://via.placeholder.com/400x300?text=Sem+Imagem'];
+    ? [event.image || event.imageUrl || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80']
+    : ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80'];
 
   // Dados formatados para exibição
   const displayEvent = {

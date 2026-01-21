@@ -98,7 +98,7 @@ export function Eventos({ onNavigate }: EventosProps) {
       time: event.time || 'Horário não informado',
       location: event.location || 'Local não informado',
       participants: `${event.participants || 0} participantes`,
-      imageUrl: event.imageUrl || event.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+      imageUrl: event.imageUrl || event.image || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
       category: {
         label: event.category || 'Evento',
         color: '#932d6f',

@@ -165,7 +165,7 @@ export function Home({ onNavigate }: HomeProps) {
                       time={time || 'Horário não disponível'}
                       location={event.location}
                       participants={event.participants || 0}
-                      imageUrl={event.imageUrl || event.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
+                      imageUrl={event.imageUrl || event.image || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80'}
                       onClick={() => onNavigate(`event-details:${event.id}`)}
                     />
                   );
