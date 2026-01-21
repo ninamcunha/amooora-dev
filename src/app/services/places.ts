@@ -9,7 +9,8 @@ export const getPlaces = async (): Promise<Place[]> => {
     // Primeiro, tentar buscar TODOS os locais (sem filtro is_safe) - FALLBACK
     const { data: allData, error: allError } = await supabase
       .from('places')
-      .select('*');
+      .select('*')
+      .order('created_at', { ascending: false }); // Ordenar por data de criação (mais recente primeiro)
     
     // Se conseguiu buscar todos, usar como fallback
     if (!allError && allData && allData.length > 0) {
@@ -26,7 +27,7 @@ export const getPlaces = async (): Promise<Place[]> => {
       .from('places')
       .select('*')
       .eq('is_safe', true)
-      .order('rating', { ascending: false });
+      .order('created_at', { ascending: false }); // Ordenar por data de criação (mais recente primeiro)
 
     // Se houver erro ou dados vazios, usar fallback (todos os dados)
     if (error || !data || data.length === 0) {

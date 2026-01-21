@@ -50,52 +50,33 @@ export function Home({ onNavigate }: HomeProps) {
   // Sem autenticação: sempre permitir acesso admin
   const { isAdmin } = useAdmin();
 
-  // Limitar a 3 locais e 3 eventos para exibição na home
+  // Limitar a 3 locais e 3 eventos mais recentes para exibição na home
+  // Os dados já vêm ordenados por created_at DESC dos serviços
   const limitedPlaces = places.slice(0, 3);
   const limitedEvents = events.slice(0, 3);
 
-  // Agrupar serviços por categoria e pegar as 4 mais comuns
-  const topCategories = useMemo(() => {
+  // Pegar os últimos 4 serviços cadastrados (já ordenados por created_at DESC)
+  const latestServices = useMemo(() => {
     if (!services || services.length === 0) {
       // Fallback para categorias padrão se não houver serviços
       return [
-        { id: '1', name: 'Terapia', icon: MessageCircle, color: DEFAULT_COLOR, count: 0 },
-        { id: '2', name: 'Advocacia', icon: Scale, color: DEFAULT_COLOR, count: 0 },
-        { id: '3', name: 'Saúde', icon: Heart, color: DEFAULT_COLOR, count: 0 },
-        { id: '4', name: 'Carreira', icon: Sparkles, color: DEFAULT_COLOR, count: 0 },
+        { id: '1', name: 'Terapia', icon: MessageCircle, color: DEFAULT_COLOR, slug: 'terapia' },
+        { id: '2', name: 'Advocacia', icon: Scale, color: DEFAULT_COLOR, slug: 'advocacia' },
+        { id: '3', name: 'Saúde', icon: Heart, color: DEFAULT_COLOR, slug: 'saude' },
+        { id: '4', name: 'Carreira', icon: Sparkles, color: DEFAULT_COLOR, slug: 'carreira' },
       ];
     }
 
-    // Agrupar por categoria
-    const categoryCount: { [key: string]: number } = {};
-    const categorySlugs: { [key: string]: string } = {};
-    
-    services.forEach((service) => {
-      const category = service.category || 'Outros';
-      categoryCount[category] = (categoryCount[category] || 0) + 1;
-      if (service.categorySlug) {
-        categorySlugs[category] = service.categorySlug;
-      }
-    });
-
-    // Converter para array e ordenar por quantidade (maior para menor)
-    const sortedCategories = Object.entries(categoryCount)
-      .map(([category, count]) => ({
-        category,
-        count,
-        slug: categorySlugs[category] || category.toLowerCase().replace(/\s+/g, '-'),
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 4); // Pegar top 4
+    // Pegar os últimos 4 serviços cadastrados (já ordenados por created_at DESC)
+    const latest = services.slice(0, 4);
 
     // Mapear para formato do ServiceCard
-    return sortedCategories.map((item, index) => ({
-      id: `category-${index + 1}`,
-      name: item.category,
-      icon: categoryIconMap[item.category] || Scissors, // Ícone padrão se não encontrado
+    return latest.map((service, index) => ({
+      id: service.id,
+      name: service.category || 'Outros', // Mostrar categoria do serviço
+      icon: categoryIconMap[service.category || 'Outros'] || Scissors,
       color: DEFAULT_COLOR,
-      count: item.count,
-      slug: item.slug,
+      slug: service.categorySlug || service.category?.toLowerCase().replace(/\s+/g, '-') || 'outros',
     }));
   }, [services]);
 
@@ -211,14 +192,14 @@ export function Home({ onNavigate }: HomeProps) {
                   <p className="text-red-600 text-sm font-medium">Erro ao carregar serviços</p>
                   <p className="text-red-500 text-xs mt-1">{errorServices.message}</p>
                 </div>
-              ) : topCategories.length > 0 ? (
-                topCategories.map((category) => (
+              ) : latestServices.length > 0 ? (
+                latestServices.map((service) => (
                   <ServiceCard 
-                    key={category.id} 
-                    name={category.name}
-                    icon={category.icon}
-                    color={category.color}
-                    onClick={() => handleServiceClick(category.slug || category.name.toLowerCase())}
+                    key={service.id} 
+                    name={service.name}
+                    icon={service.icon}
+                    color={service.color}
+                    onClick={() => handleServiceClick(service.slug || service.name.toLowerCase())}
                   />
                 ))
               ) : (

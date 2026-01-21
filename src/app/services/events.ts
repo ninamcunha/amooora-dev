@@ -11,7 +11,7 @@ export const getEvents = async (): Promise<Event[]> => {
       .from('events')
       .select('*')
       .eq('is_active', true) // Apenas eventos ativos
-      .order('date', { ascending: true }); // Ordenar por data
+      .order('created_at', { ascending: false }); // Ordenar por data de criação (mais recente primeiro)
 
     if (error) {
       console.error('❌ Erro ao buscar eventos:', {
@@ -48,7 +48,7 @@ export const getEvents = async (): Promise<Event[]> => {
       const { data: fallbackData } = await supabase
         .from('events')
         .select('*')
-        .order('date', { ascending: true });
+        .order('created_at', { ascending: false }); // Ordenar por data de criação (mais recente primeiro)
       
       if (fallbackData && fallbackData.length > 0) {
         console.warn('⚠️ Usando fallback: retornando todos os eventos (incluindo inativos)');

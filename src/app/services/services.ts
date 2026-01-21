@@ -41,7 +41,7 @@ export const getServices = async (): Promise<Service[]> => {
     const { data: allData, error: allError } = await supabase
       .from('services')
       .select('*')
-      .order('rating', { ascending: false })
+      .order('created_at', { ascending: false }) // Ordenar por data de criação (mais recente primeiro)
       .limit(100);
     
     if (allError) {
