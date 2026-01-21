@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Header } from '../components/Header';
+import { SearchBar } from '../components/SearchBar';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { EventCardExpanded } from '../components/EventCardExpanded';
 import { BottomNav } from '../components/BottomNav';
@@ -15,6 +16,7 @@ interface EventosProps {
 export function Eventos({ onNavigate }: EventosProps) {
   const { events, loading, error } = useEvents();
   const { isAdmin } = useAdmin();
+  const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
 
   // Formatar data para exibição
@@ -31,7 +33,7 @@ export function Eventos({ onNavigate }: EventosProps) {
     return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
   };
 
-  // Filtrar eventos por categoria
+  // Filtrar eventos por categoria e busca
   const filteredEvents = useMemo(() => {
     let filtered = events;
 
@@ -70,8 +72,20 @@ export function Eventos({ onNavigate }: EventosProps) {
       filtered = events.filter((event) => !event.price || event.price === 0);
     }
 
+    // Filtro por busca
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (event) =>
+          event.name.toLowerCase().includes(query) ||
+          event.description?.toLowerCase().includes(query) ||
+          event.location?.toLowerCase().includes(query) ||
+          event.category?.toLowerCase().includes(query)
+      );
+    }
+
     return filtered;
-  }, [events, activeCategory]);
+  }, [events, activeCategory, searchQuery]);
 
   // Converter Event para formato do EventCardExpanded
   const eventsForCards = useMemo(() => {
@@ -106,6 +120,15 @@ export function Eventos({ onNavigate }: EventosProps) {
           <div className="px-5 pt-6 pb-4">
             <h1 className="text-2xl font-semibold text-primary mb-4">Eventos</h1>
             
+            {/* Search */}
+            <div className="mb-4">
+              <SearchBar
+                placeholder="Buscar eventos..."
+                value={searchQuery}
+                onChange={setSearchQuery}
+              />
+            </div>
+
             {/* Category Filters */}
             <CategoryFilter
               categories={categories}
