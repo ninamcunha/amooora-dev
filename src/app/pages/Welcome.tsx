@@ -15,7 +15,7 @@ export function Welcome({ onNavigate }: WelcomeProps) {
             <img
               src={logoAmooora}
               alt="Amooora - Um mundo inteiro de acolhimento e liberdade"
-              className="h-24 w-auto"
+              className="h-28 w-auto max-w-[280px]"
             />
           </div>
 
