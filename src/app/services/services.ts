@@ -76,6 +76,11 @@ export const getServices = async (): Promise<Service[]> => {
       categorySlug: service.category_slug || (service.category?.toLowerCase().replace(/\s+/g, '-') || 'outros'),
       rating: Number(service.rating) || 0,
       provider: service.provider || undefined,
+      phone: service.phone || undefined,
+      whatsapp: service.whatsapp || undefined,
+      address: service.address || undefined,
+      specialties: service.specialties ? (Array.isArray(service.specialties) ? service.specialties : []) : undefined,
+      hours: service.hours || undefined,
     }));
   } catch (error) {
     console.error('❌ Erro fatal ao buscar serviços:', error);
