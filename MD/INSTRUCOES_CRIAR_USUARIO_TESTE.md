@@ -30,7 +30,7 @@ Criar um usuário de teste para testar a página de perfil e login:
 
 1. **Execute o SQL:**
    - Vá em **SQL Editor** → **New query**
-   - Abra o arquivo `SQL_CRIAR_USUARIO_TESTE.sql`
+   - Abra o arquivo `SQL/SQL_CRIAR_USUARIO_TESTE.sql`
    - Copie TODO o conteúdo e cole no SQL Editor
    - Execute (botão **Run** ou `Ctrl+Enter`)
 

@@ -66,7 +66,7 @@ WITH CHECK (auth.uid() = id);
 -- 3. MANTER INSERT/UPDATE/DELETE SEGUROS (opcional - temporariamente público)
 -- =====================================================
 
--- Se você executou SQL_RLS_SEGURO.sql, estas políticas exigem autenticação
+-- Se você executou SQL/SQL_RLS_SEGURO.sql, estas políticas exigem autenticação
 -- Se quiser permitir cadastro via admin sem login, pode descomentar:
 
 -- Places: Permitir INSERT público temporariamente (para admin funcionar)

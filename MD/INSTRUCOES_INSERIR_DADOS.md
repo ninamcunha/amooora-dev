@@ -27,7 +27,7 @@ Criar dados de exemplo no banco de dados Supabase para testar as páginas do sit
 2. Vá em **SQL Editor** → **New query**
 
 ### Passo 2: Execute o SQL
-1. Abra o arquivo `SQL_INSERIR_DADOS_EXEMPLO.sql`
+1. Abra o arquivo `SQL/SQL_INSERIR_DADOS_EXEMPLO.sql`
 2. **Copie TODO o conteúdo** e cole no SQL Editor
 3. Clique em **Run** ou pressione `Ctrl+Enter` (Windows) / `Cmd+Enter` (Mac)
 

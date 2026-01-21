@@ -34,19 +34,19 @@ O problema de timeout pode ter várias causas. Siga os passos abaixo na ordem:
 1. **Acesse o Supabase Dashboard:**
    - https://supabase.com/dashboard/project/btavwaysfjpsuqxdfguw
 
-2. **Execute o arquivo `SQL_TESTE_RLS_SIMPLES.sql`:**
+2. **Execute o arquivo `SQL/SQL_TESTE_RLS_SIMPLES.sql`:**
    - Vá em SQL Editor → New query
-   - Copie e cole o conteúdo de `SQL_TESTE_RLS_SIMPLES.sql`
+   - Copie e cole o conteúdo de `SQL/SQL_TESTE_RLS_SIMPLES.sql`
    - Execute (Run)
    - Verifique os resultados:
      - Se as queries COUNT(*) retornarem números = RLS está OK
      - Se der erro de permissão = RLS está bloqueando
 
-3. **Se RLS estiver bloqueando, execute `SQL_FIX_SELECT_PUBLICO.sql`:**
+3. **Se RLS estiver bloqueando, execute `SQL/SQL_FIX_SELECT_PUBLICO.sql`:**
    - Vá em SQL Editor → New query
-   - Copie e cole o conteúdo de `SQL_FIX_SELECT_PUBLICO.sql`
+   - Copie e cole o conteúdo de `SQL/SQL_FIX_SELECT_PUBLICO.sql`
    - Execute (Run)
-   - Execute novamente `SQL_TESTE_RLS_SIMPLES.sql` para confirmar
+   - Execute novamente `SQL/SQL_TESTE_RLS_SIMPLES.sql` para confirmar
 
 ### Passo 3: Verificar se Há Dados nas Tabelas
 
@@ -65,7 +65,7 @@ SELECT id, name FROM events LIMIT 5;
 ```
 
 **Se não houver dados:**
-- Execute `SQL_INSERIR_DADOS_EXEMPLO.sql` para inserir dados de teste
+- Execute `SQL/SQL_INSERIR_DADOS_EXEMPLO.sql` para inserir dados de teste
 
 ### Passo 4: Verificar Console do Navegador
 
@@ -97,7 +97,7 @@ SELECT * FROM events LIMIT 1;
 
 **Se essas queries funcionarem no SQL Editor mas não no app:**
 - O problema é RLS bloqueando consultas do cliente
-- Execute `SQL_FIX_SELECT_PUBLICO.sql` novamente
+- Execute `SQL/SQL_FIX_SELECT_PUBLICO.sql` novamente
 - Verifique se a política foi criada corretamente
 
 ### Passo 6: Desabilitar RLS Temporariamente (TESTE APENAS)
@@ -126,7 +126,7 @@ ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
--- E execute SQL_FIX_SELECT_PUBLICO.sql para criar políticas corretas
+-- E execute SQL/SQL_FIX_SELECT_PUBLICO.sql para criar políticas corretas
 ```
 
 ### Passo 7: Verificar Network Tab
@@ -172,7 +172,7 @@ npm install
 Após seguir todos os passos acima:
 
 1. **Copie e me envie:**
-   - Resultado do `SQL_TESTE_RLS_SIMPLES.sql`
+   - Resultado do `SQL/SQL_TESTE_RLS_SIMPLES.sql`
    - Erros do console do navegador
    - Requisições da aba Network (se houver)
 

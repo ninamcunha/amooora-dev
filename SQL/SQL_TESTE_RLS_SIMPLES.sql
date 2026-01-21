@@ -37,5 +37,5 @@ SELECT COUNT(*) as total_profiles FROM profiles;
 
 -- =====================================================
 -- SE AS QUERIES ACIMA FUNCIONAREM, O PROBLEMA NÃO É RLS
--- SE DEREM ERRO DE PERMISSÃO, EXECUTE SQL_FIX_SELECT_PUBLICO.sql
+-- SE DEREM ERRO DE PERMISSÃO, EXECUTE SQL/SQL_FIX_SELECT_PUBLICO.sql
 -- =====================================================

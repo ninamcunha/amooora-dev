@@ -17,7 +17,7 @@ O problema é **definitivamente** as políticas RLS (Row Level Security) bloquea
    - https://supabase.com/dashboard/project/btavwaysfjpsuqxdfguw
    - Vá em **SQL Editor** → **New query**
 
-2. **Abra o arquivo `SQL_FORCAR_RLS_PUBLICO.sql`**
+2. **Abra o arquivo `SQL/SQL_FORCAR_RLS_PUBLICO.sql`**
 
 3. **Copie TODO o conteúdo** e cole no SQL Editor
 
@@ -110,7 +110,7 @@ Com essas informações, consigo confirmar se tudo está funcionando!
 
 ## ✅ Checklist Final
 
-- [ ] Executei o SQL `SQL_FORCAR_RLS_PUBLICO.sql`
+- [ ] Executei o SQL `SQL/SQL_FORCAR_RLS_PUBLICO.sql`
 - [ ] Todas as políticas mostram `✅ PÚBLICO`
 - [ ] As queries de teste retornaram dados
 - [ ] Limpei o cache do navegador

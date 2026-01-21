@@ -111,7 +111,7 @@ AND policyname LIKE '%SELECT%';
 Se os dados não aparecem após login:
 
 1. **Verificar RLS:**
-   - Execute `SQL_FIX_SELECT_PUBLICO.sql` no SQL Editor
+   - Execute `SQL/SQL_FIX_SELECT_PUBLICO.sql` no SQL Editor
    - Isso garante que SELECT é público nas tabelas principais
 
 2. **Limpar Cache:**

@@ -11,7 +11,7 @@ Os conteúdos do banco de dados não estão sendo carregados no sistema.
    - https://supabase.com/dashboard/project/btavwaysfjpsuqxdfguw
    - Vá em **SQL Editor** → **New query**
 
-2. **Copie e cole o conteúdo do arquivo `SQL_CORRECAO_RAPIDA_RLS.sql`**
+2. **Copie e cole o conteúdo do arquivo `SQL/SQL_CORRECAO_RAPIDA_RLS.sql`**
 
 3. **Execute o SQL** (botão **Run** ou `Ctrl+Enter`)
 
@@ -105,7 +105,7 @@ WHERE is_active IS NULL OR is_active = false;
 
 ## 📋 Checklist
 
-- [ ] Executei o SQL `SQL_CORRECAO_RAPIDA_RLS.sql`
+- [ ] Executei o SQL `SQL/SQL_CORRECAO_RAPIDA_RLS.sql`
 - [ ] Verifiquei dados no Table Editor
 - [ ] Verifiquei campos `is_safe`, `is_active` e `date`
 - [ ] Verifiquei console do navegador (F12)

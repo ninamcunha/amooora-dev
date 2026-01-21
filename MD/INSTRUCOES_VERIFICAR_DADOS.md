@@ -23,7 +23,7 @@ Os dados podem não ter sido salvos corretamente no banco.
 
 1. Acesse: https://supabase.com/dashboard/project/btavwaysfjpsuqxdfguw
 2. Vá em **SQL Editor** → **New query**
-3. Abra o arquivo `SQL_VERIFICAR_E_CORRIGIR_RLS.sql` e copie TODO o conteúdo
+3. Abra o arquivo `SQL/SQL_VERIFICAR_E_CORRIGIR_RLS.sql` e copie TODO o conteúdo
 4. Cole no SQL Editor e execute (botão **Run** ou `Ctrl+Enter`)
 
 Este SQL vai:
@@ -71,7 +71,7 @@ Se ainda não aparecer, podemos temporariamente remover os filtros para testar. 
 
 ## 📝 Checklist
 
-- [ ] Executei o SQL `SQL_VERIFICAR_E_CORRIGIR_RLS.sql`
+- [ ] Executei o SQL `SQL/SQL_VERIFICAR_E_CORRIGIR_RLS.sql`
 - [ ] Políticas mostram `✅ PÚBLICO`
 - [ ] Verifiquei console do navegador (F12)
 - [ ] Verifiquei dados no Table Editor do Supabase

@@ -135,4 +135,4 @@ Se você ainda não criou o usuário:
    - Password: `teste123`
    - **Marque:** "Auto Confirm User"
 4. Clique em **Create User**
-5. Execute o SQL `SQL_CRIAR_USUARIO_TESTE.sql` para preencher o perfil
+5. Execute o SQL `SQL/SQL_CRIAR_USUARIO_TESTE.sql` para preencher o perfil

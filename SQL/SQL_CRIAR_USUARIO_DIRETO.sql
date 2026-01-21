@@ -17,7 +17,7 @@
 -- 4. Password: teste123
 -- 5. Marque "Auto Confirm User"
 -- 6. Clique em "Create User"
--- 7. Depois execute o SQL_CRIAR_USUARIO_TESTE.sql para preencher o perfil
+-- 7. Depois execute o SQL/SQL_CRIAR_USUARIO_TESTE.sql para preencher o perfil
 
 -- =====================================================
 -- TENTAR CRIAR VIA SQL (PODE NÃO FUNCIONAR)
@@ -35,7 +35,7 @@ BEGIN
 
   IF test_user_id IS NOT NULL THEN
     RAISE NOTICE 'Usuário já existe! ID: %', test_user_id;
-    RAISE NOTICE 'Execute SQL_CRIAR_USUARIO_TESTE.sql para preencher o perfil';
+    RAISE NOTICE 'Execute SQL/SQL_CRIAR_USUARIO_TESTE.sql para preencher o perfil';
     RETURN;
   END IF;
 
@@ -44,5 +44,5 @@ BEGIN
   RAISE NOTICE 'Use o Dashboard para criar o usuário:';
   RAISE NOTICE 'https://supabase.com/dashboard/project/btavwaysfjpsuqxdfguw/auth/users';
   RAISE NOTICE '';
-  RAISE NOTICE 'Depois execute SQL_CRIAR_USUARIO_TESTE.sql para preencher o perfil';
+  RAISE NOTICE 'Depois execute SQL/SQL_CRIAR_USUARIO_TESTE.sql para preencher o perfil';
 END $$;

@@ -14,7 +14,7 @@ Preencher o perfil de `admin@amooora.com` com dados de exemplo para testar a pá
    - Menu lateral → **SQL Editor** → **New query**
 
 3. **Execute o SQL:**
-   - Abra o arquivo `SQL_PREENCHER_PERFIL_ADMIN.sql`
+   - Abra o arquivo `SQL/SQL_PREENCHER_PERFIL_ADMIN.sql`
    - Copie TODO o conteúdo
    - Cole no SQL Editor
    - Clique em **Run** (ou `Ctrl+Enter` / `Cmd+Enter`)

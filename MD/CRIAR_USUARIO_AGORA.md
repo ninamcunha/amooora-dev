@@ -17,7 +17,7 @@
 ### Passo 3: Preencher Perfil (Automático)
 1. **Vá em SQL Editor** (menu lateral esquerdo)
 2. **Clique em "New query"**
-3. **Abra o arquivo** `SQL_CRIAR_USUARIO_TESTE.sql` no seu computador
+3. **Abra o arquivo** `SQL/SQL_CRIAR_USUARIO_TESTE.sql` no seu computador
 4. **Copie TODO o conteúdo** do arquivo
 5. **Cole no SQL Editor**
 6. **Clique em "Run"** (ou pressione `Ctrl+Enter` / `Cmd+Enter`)
@@ -65,7 +65,7 @@
 Depois de criar o usuário:
 
 1. **Verifique se o usuário aparece na lista** (Authentication → Users)
-2. **Execute o SQL** `SQL_CRIAR_USUARIO_TESTE.sql`
+2. **Execute o SQL** `SQL/SQL_CRIAR_USUARIO_TESTE.sql`
 3. **Verifique a mensagem no SQL Editor:**
    - ✅ "Usuário encontrado! ID: [uuid]"
    - ✅ "Perfil criado/atualizado com sucesso!"

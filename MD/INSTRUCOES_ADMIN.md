@@ -120,7 +120,7 @@ Clique no ícone de **Logout** (porta) no canto superior direito do painel admin
 
 ### ⚠️ Próximos passos recomendados:
 
-1. **Restringir Políticas RLS**: Execute `SQL_RLS_SEGURO.sql` para proteger o banco
+1. **Restringir Políticas RLS**: Execute `SQL/SQL_RLS_SEGURO.sql` para proteger o banco
 2. **Criar múltiplos admins**: Crie mais usuários admin conforme necessário
 3. **Trocar senha regularmente**: Mantenha senhas seguras
 4. **Monitorar acesso**: Verifique logs de acesso no Supabase Dashboard

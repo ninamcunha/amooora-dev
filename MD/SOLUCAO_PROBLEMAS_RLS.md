@@ -117,10 +117,10 @@ Este SQL:
 - ✅ Mantém **UPDATE** restrito ao próprio usuário
 - ⚠️ Mantém **INSERT em places/services/events** restrito a usuários autenticados
 
-Se você executou o `SQL_RLS_SEGURO.sql` antes e isso quebrou o cadastro/login, este SQL corrige.
+Se você executou o `SQL/SQL_RLS_SEGURO.sql` antes e isso quebrou o cadastro/login, este SQL corrige.
 
 ## 🔍 Se Ainda Não Funcionar
 
 1. Verifique o console do navegador (F12) para ver erros específicos
-2. Execute o arquivo `SQL_VERIFICAR_RLS.sql` para ver quais políticas estão ativas
+2. Execute o arquivo `SQL/SQL_VERIFICAR_RLS.sql` para ver quais políticas estão ativas
 3. Verifique se as tabelas existem e têm dados

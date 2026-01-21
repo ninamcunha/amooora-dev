@@ -2,14 +2,14 @@
 
 ## Como Usar o Prompt
 
-Você pode usar o prompt do arquivo `PROMPT_SUPABASE_SCHEMA.md` de duas formas:
+Você pode usar o prompt do arquivo `MD/PROMPT_SUPABASE_SCHEMA.md` de duas formas:
 
 ### Opção 1: Usar com o Supabase AI Assistant (no dashboard do Supabase)
 
 1. Acesse o dashboard do Supabase: https://supabase.com/dashboard
 2. Abra o projeto ou crie um novo
 3. Vá em "SQL Editor" ou "Database" > "SQL Editor"
-4. Copie e cole o conteúdo do arquivo `PROMPT_SUPABASE_SCHEMA.md`
+4. Copie e cole o conteúdo do arquivo `MD/PROMPT_SUPABASE_SCHEMA.md`
 5. Use o AI Assistant do Supabase para gerar as migrações automaticamente
 
 ### Opção 2: Usar com o MCP do Supabase via Cursor
@@ -23,7 +23,7 @@ Liste meus projetos do Supabase
 
 #### 2. Criar migrações
 ```
-Crie uma migração SQL para o schema do Amooora baseado no prompt em PROMPT_SUPABASE_SCHEMA.md
+Crie uma migração SQL para o schema do Amooora baseado no prompt em MD/PROMPT_SUPABASE_SCHEMA.md
 ```
 
 #### 3. Aplicar migrações
@@ -161,7 +161,7 @@ O aplicativo é uma plataforma LGBTQIA+ para descobrir locais seguros, serviços
 
 Use o MCP do Supabase para:
 1. Listar meus projetos
-2. Criar todas as tabelas especificadas no arquivo PROMPT_SUPABASE_SCHEMA.md
+2. Criar todas as tabelas especificadas no arquivo MD/PROMPT_SUPABASE_SCHEMA.md
 3. Configurar RLS (Row Level Security) para todas as tabelas
 4. Criar funções e triggers necessários
 5. Criar índices para performance
@@ -178,7 +178,7 @@ Tabelas necessárias:
 - post_likes (curtidas em posts)
 - post_replies (comentários em posts)
 
-Siga as especificações detalhadas no arquivo PROMPT_SUPABASE_SCHEMA.md.
+Siga as especificações detalhadas no arquivo MD/PROMPT_SUPABASE_SCHEMA.md.
 
 Após criar, me informe:
 - Quais tabelas foram criadas

@@ -15,7 +15,7 @@ Flexibilizar temporariamente as regras de segurança (RLS) para que o conteúdo 
    - https://supabase.com/dashboard/project/btavwaysfjpsuqxdfguw
    - Vá em **SQL Editor** → **New query**
 
-2. **Abra o arquivo `SQL_RLS_TEMPORARIO_PERMISSIVO.sql`**
+2. **Abra o arquivo `SQL/SQL_RLS_TEMPORARIO_PERMISSIVO.sql`**
 
 3. **Copie TODO o conteúdo** e cole no SQL Editor
 
@@ -25,7 +25,7 @@ Flexibilizar temporariamente as regras de segurança (RLS) para que o conteúdo 
 
 1. **Na mesma janela do SQL Editor**, crie uma **nova query**
 
-2. **Abra o arquivo `SQL_STORAGE_PUBLICO_TEMPORARIO.sql`**
+2. **Abra o arquivo `SQL/SQL_STORAGE_PUBLICO_TEMPORARIO.sql`**
 
 3. **Copie TODO o conteúdo** e cole no SQL Editor
 
@@ -115,8 +115,8 @@ Com essas informações, consigo identificar exatamente o que está acontecendo!
 
 ## 📝 Checklist
 
-- [ ] Executei `SQL_RLS_TEMPORARIO_PERMISSIVO.sql`
-- [ ] Executei `SQL_STORAGE_PUBLICO_TEMPORARIO.sql`
+- [ ] Executei `SQL/SQL_RLS_TEMPORARIO_PERMISSIVO.sql`
+- [ ] Executei `SQL/SQL_STORAGE_PUBLICO_TEMPORARIO.sql`
 - [ ] Todas as políticas mostram `✅ PÚBLICO`
 - [ ] Fechei e reabri o navegador
 - [ ] Limpei o cache do navegador

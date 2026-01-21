@@ -63,7 +63,7 @@ Procure por estas mensagens no console:
 ❌ Erro ao buscar TODOS os locais (sem filtros): { code: '42501', ... }
 ⚠️ Aviso: Política RLS pode estar bloqueando.
 ```
-**Solução**: Execute o SQL `SQL_VERIFICAR_E_CORRIGIR_RLS.sql` no Supabase
+**Solução**: Execute o SQL `SQL/SQL_VERIFICAR_E_CORRIGIR_RLS.sql` no Supabase
 
 **Caso 3: Filtros Excluindo Todos os Dados**
 ```
@@ -95,13 +95,13 @@ Procure por estas mensagens no console:
 - [ ] Console mostra quantos dados existem com filtros
 - [ ] Verifiquei se há dados no Table Editor do Supabase
 - [ ] Verifiquei se os campos `is_safe`, `is_active`, `date` estão corretos
-- [ ] Executei o SQL `SQL_VERIFICAR_E_CORRIGIR_RLS.sql`
+- [ ] Executei o SQL `SQL/SQL_VERIFICAR_E_CORRIGIR_RLS.sql`
 
 ## 🆘 Se Ainda Não Funcionar
 
 Me envie:
 1. Todas as mensagens do console (F12)
 2. Print da tela do Table Editor do Supabase mostrando os dados
-3. Resultado da execução do SQL `SQL_VERIFICAR_E_CORRIGIR_RLS.sql`
+3. Resultado da execução do SQL `SQL/SQL_VERIFICAR_E_CORRIGIR_RLS.sql`
 
 Com essas informações, consigo identificar exatamente o problema!

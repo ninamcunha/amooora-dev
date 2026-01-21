@@ -19,7 +19,7 @@ O projeto possui várias vulnerabilidades que precisam ser corrigidas antes de i
 
 ### 1. **Políticas RLS Públicas (CRÍTICO)**
 **Severidade:** 🔴 **ALTA**  
-**Localização:** `SQL_FIX_RLS_TABLES.sql`, Supabase Database
+**Localização:** `SQL/SQL_FIX_RLS_TABLES.sql`, Supabase Database
 
 **Problema:**
 - Todas as tabelas (`places`, `services`, `events`) têm políticas RLS que permitem **INSERT, UPDATE e DELETE públicos**
