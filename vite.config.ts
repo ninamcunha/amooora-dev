@@ -17,9 +17,10 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: Number(process.env.VITE_PORT) || 5173, // Permite configurar porta via .env
     host: true, // Permite acesso de qualquer IP
     open: true, // Abre automaticamente no navegador
+    strictPort: false, // Permite usar próxima porta disponível se a configurada estiver ocupada
     hmr: {
       // Hot Module Replacement para atualizações instantâneas
       overlay: true, // Mostra erros sobrepostos na tela
