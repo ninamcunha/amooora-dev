@@ -61,10 +61,11 @@ export const shareContent = async (data: ShareData): Promise<boolean> => {
 
 /**
  * Gerar URL de compartilhamento para um item específico
+ * Usa formato de URL padrão com barra para facilitar roteamento
  */
 export const getShareUrl = (type: 'place' | 'event' | 'service', id: string): string => {
   const baseUrl = window.location.origin;
-  return `${baseUrl}/${type}-details:${id}`;
+  return `${baseUrl}/#/${type}-details/${id}`;
 };
 
 /**

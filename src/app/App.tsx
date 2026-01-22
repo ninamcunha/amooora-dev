@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Welcome } from './pages/Welcome';
 import { Home } from './pages/Home';
 import { Locais } from './pages/Locais';
@@ -31,6 +31,101 @@ export default function App() {
   const [selectedPostId, setSelectedPostId] = useState<string | undefined>(undefined);
 
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+
+  // Detectar URL ao carregar a página e navegar para a página correta
+  useEffect(() => {
+    const hash = window.location.hash;
+    const pathname = window.location.pathname;
+    
+    // Verificar se há hash na URL (formato: #/event-details/id)
+    if (hash) {
+      const hashPath = hash.replace('#/', '');
+      const parts = hashPath.split('/');
+      
+      if (parts.length === 2) {
+        const [pageType, id] = parts;
+        
+        if (pageType === 'event-details' && id) {
+          setSelectedEventId(id);
+          setCurrentPage('event-details');
+          setPreviousPage('home');
+          return;
+        } else if (pageType === 'place-details' && id) {
+          setSelectedPlaceId(id);
+          setCurrentPage('place-details');
+          setPreviousPage('home');
+          return;
+        } else if (pageType === 'service-details' && id) {
+          setSelectedServiceId(id);
+          setCurrentPage('service-details');
+          setPreviousPage('home');
+          return;
+        } else if (pageType === 'post-details' && id) {
+          setSelectedPostId(id);
+          setCurrentPage('post-details');
+          setPreviousPage('community');
+          return;
+        }
+      }
+    }
+    
+    // Verificar se há pathname direto (formato: /event-details/id)
+    if (pathname && pathname !== '/') {
+      const pathParts = pathname.split('/').filter(Boolean);
+      
+      if (pathParts.length === 2) {
+        const [pageType, id] = pathParts;
+        
+        if (pageType === 'event-details' && id) {
+          setSelectedEventId(id);
+          setCurrentPage('event-details');
+          setPreviousPage('home');
+          return;
+        } else if (pageType === 'place-details' && id) {
+          setSelectedPlaceId(id);
+          setCurrentPage('place-details');
+          setPreviousPage('home');
+          return;
+        } else if (pageType === 'service-details' && id) {
+          setSelectedServiceId(id);
+          setCurrentPage('service-details');
+          setPreviousPage('home');
+          return;
+        } else if (pageType === 'post-details' && id) {
+          setSelectedPostId(id);
+          setCurrentPage('post-details');
+          setPreviousPage('community');
+          return;
+        }
+      }
+    }
+    
+    // Verificar formato antigo com dois pontos (compatibilidade)
+    const url = window.location.href;
+    const oldFormatMatch = url.match(/(event-details|place-details|service-details|post-details):([a-f0-9-]+)/i);
+    
+    if (oldFormatMatch) {
+      const [, pageType, id] = oldFormatMatch;
+      
+      if (pageType === 'event-details') {
+        setSelectedEventId(id);
+        setCurrentPage('event-details');
+        setPreviousPage('home');
+      } else if (pageType === 'place-details') {
+        setSelectedPlaceId(id);
+        setCurrentPage('place-details');
+        setPreviousPage('home');
+      } else if (pageType === 'service-details') {
+        setSelectedServiceId(id);
+        setCurrentPage('service-details');
+        setPreviousPage('home');
+      } else if (pageType === 'post-details') {
+        setSelectedPostId(id);
+        setCurrentPage('post-details');
+        setPreviousPage('community');
+      }
+    }
+  }, []);
 
   const handleNavigate = (page: string) => {
     setPreviousPage(currentPage);
