@@ -1,16 +1,29 @@
 import { Place } from '../types';
 import { supabase } from '../../lib/supabase';
 
-export const getPlaces = async (): Promise<Place[]> => {
+export const getPlaces = async (
+  limit?: number,
+  offset?: number
+): Promise<{ data: Place[]; hasMore: boolean }> => {
   try {
     console.log('🔍 Buscando locais do Supabase...');
     console.log('🔗 URL:', import.meta.env.VITE_SUPABASE_URL);
     
     // Primeiro, tentar buscar TODOS os locais (sem filtro is_safe) - FALLBACK
-    const { data: allData, error: allError } = await supabase
+    let allQuery = supabase
       .from('places')
       .select('*')
       .order('created_at', { ascending: false }); // Ordenar por data de criação (mais recente primeiro)
+    
+    // Aplicar paginação se fornecida
+    if (limit) {
+      allQuery = allQuery.limit(limit);
+    }
+    if (offset) {
+      allQuery = allQuery.range(offset, offset + (limit || 1000) - 1);
+    }
+    
+    const { data: allData, error: allError } = await allQuery;
     
     // Se conseguiu buscar todos, usar como fallback
     if (!allError && allData && allData.length > 0) {
@@ -23,11 +36,21 @@ export const getPlaces = async (): Promise<Place[]> => {
     }
     
     // Agora tentar buscar com o filtro is_safe
-    const { data, error } = await supabase
+    let query = supabase
       .from('places')
       .select('*')
       .eq('is_safe', true)
       .order('created_at', { ascending: false }); // Ordenar por data de criação (mais recente primeiro)
+    
+    // Aplicar paginação se fornecida
+    if (limit) {
+      query = query.limit(limit);
+    }
+    if (offset) {
+      query = query.range(offset, offset + (limit || 1000) - 1);
+    }
+    
+    const { data, error } = await query;
 
     // Se houver erro ou dados vazios, usar fallback (todos os dados)
     if (error || !data || data.length === 0) {
@@ -44,7 +67,7 @@ export const getPlaces = async (): Promise<Place[]> => {
         console.log(`✅ Retornando ${allData.length} locais (fallback)`);
         
         // Mapear e retornar todos os dados
-        return allData.map((place) => ({
+        const mappedPlaces = allData.map((place) => ({
           id: place.id,
           name: place.name,
           description: place.description || undefined,
@@ -59,17 +82,23 @@ export const getPlaces = async (): Promise<Place[]> => {
           isSafe: place.is_safe ?? true,
           distance: undefined,
         }));
+        
+        const hasMore = limit ? allData.length === limit : false;
+        return { data: mappedPlaces, hasMore };
       }
       
       // Se não tiver fallback, retornar vazio
       console.warn('⚠️ Nenhum local encontrado no banco');
-      return [];
+      return { data: [], hasMore: false };
     }
 
     console.log(`✅ Locais encontrados (com filtro is_safe=true): ${data.length}`);
 
+    // Verificar se há mais resultados
+    const hasMore = limit ? data.length === limit : false;
+
     // Mapear dados do banco para o tipo Place
-    return data.map((place) => ({
+    const mappedPlaces = data.map((place) => ({
       id: place.id,
       name: place.name,
       description: place.description || undefined,
@@ -84,6 +113,8 @@ export const getPlaces = async (): Promise<Place[]> => {
       isSafe: place.is_safe ?? true,
       distance: undefined, // Será calculado no frontend se necessário
     }));
+
+    return { data: mappedPlaces, hasMore };
   } catch (error) {
     console.error('❌ Erro ao buscar locais:', error);
     // Tentar fallback final: buscar sem filtros
@@ -91,7 +122,7 @@ export const getPlaces = async (): Promise<Place[]> => {
       const { data: fallbackData } = await supabase.from('places').select('*');
       if (fallbackData && fallbackData.length > 0) {
         console.warn('⚠️ Usando fallback final: retornando todos os locais');
-        return fallbackData.map((place) => ({
+        const fallbackPlaces = fallbackData.map((place) => ({
           id: place.id,
           name: place.name,
           description: place.description || undefined,
@@ -106,11 +137,12 @@ export const getPlaces = async (): Promise<Place[]> => {
           isSafe: place.is_safe ?? true,
           distance: undefined,
         }));
+        return { data: fallbackPlaces, hasMore: false };
       }
     } catch (fallbackError) {
       console.error('❌ Erro no fallback:', fallbackError);
     }
-    return [];
+    return { data: [], hasMore: false };
   }
 };
 

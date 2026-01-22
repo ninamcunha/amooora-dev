@@ -2,37 +2,84 @@ import { useState, useEffect } from 'react';
 import { Place } from '../types';
 import { getPlaces, getPlaceById } from '../services/places';
 
-export const usePlaces = () => {
+interface UsePlacesOptions {
+  limit?: number;
+  enablePagination?: boolean;
+}
+
+export const usePlaces = (options: UsePlacesOptions = {}) => {
+  const { limit = 20, enablePagination = false } = options;
   const [places, setPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(0);
+
+  const loadData = async (reset = false) => {
+    try {
+      if (reset) {
+        setLoading(true);
+        setOffset(0);
+      }
+
+      const currentOffset = reset ? 0 : offset;
+      
+      // Timeout de segurança aumentado para 30 segundos
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout ao carregar locais. Verifique sua conexão ou as políticas RLS do Supabase.')), 30000);
+      });
+
+      const result = await Promise.race([
+        enablePagination ? getPlaces(limit, currentOffset) : getPlaces(),
+        timeoutPromise,
+      ]);
+
+      if (enablePagination && 'hasMore' in result) {
+        // Com paginação
+        if (reset) {
+          setPlaces(result.data || []);
+        } else {
+          setPlaces((prev) => [...prev, ...(result.data || [])]);
+        }
+        setHasMore(result.hasMore);
+        setOffset(currentOffset + (result.data?.length || 0));
+      } else if (!enablePagination) {
+        // Sem paginação (compatibilidade)
+        const placesData = Array.isArray(result) ? result : result.data || [];
+        setPlaces(placesData);
+        setHasMore(false);
+      }
+      
+      setError(null);
+    } catch (err) {
+      console.error('❌ Erro no hook usePlaces:', err);
+      setError(err instanceof Error ? err : new Error('Erro ao carregar locais'));
+      if (reset) {
+        setPlaces([]); // Garantir que places seja array vazio em caso de erro
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadPlaces = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        // Timeout de segurança aumentado para 30 segundos
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout ao carregar locais. Verifique sua conexão ou as políticas RLS do Supabase.')), 30000);
-        });
-        
-        const data = await Promise.race([getPlaces(), timeoutPromise]);
-        setPlaces(data || []);
-      } catch (err) {
-        console.error('❌ Erro no hook usePlaces:', err);
-        setError(err instanceof Error ? err : new Error('Erro ao carregar locais'));
-        setPlaces([]); // Garantir que places seja array vazio em caso de erro
-      } finally {
-        setLoading(false);
-      }
-    };
+    loadData(true);
+  }, []); // Carregar apenas na montagem inicial
 
-    loadPlaces();
-  }, []);
+  const loadMore = () => {
+    if (!loading && hasMore && enablePagination) {
+      loadData(false);
+    }
+  };
 
-  return { places, loading, error };
+  return { 
+    places, 
+    loading, 
+    error, 
+    hasMore: enablePagination ? hasMore : false, 
+    loadMore: enablePagination ? loadMore : undefined,
+    refetch: () => loadData(true),
+  };
 };
 
 export const usePlace = (id: string | undefined) => {

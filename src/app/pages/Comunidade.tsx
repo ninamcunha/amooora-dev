@@ -1,84 +1,81 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Header } from '../components/Header';
-import { SearchBar } from '../components/SearchBar';
-import { CategoryFilter } from '../components/CategoryFilter';
-import { CommunityStats } from '../components/CommunityStats';
 import { CommunityPostCard } from '../components/CommunityPostCard';
+import { CommunityList } from '../components/CommunityList';
+import { CreatePostForm } from '../components/CreatePostForm';
 import { BottomNav } from '../components/BottomNav';
+import { EmptyState } from '../components/EmptyState';
+import { SkeletonListExpanded } from '../components/Skeleton';
+import { InfiniteScroll } from '../components/InfiniteScroll';
 import { useAdmin } from '../hooks/useAdmin';
+import { useCommunityPosts } from '../hooks/useCommunityPosts';
+import { createPost } from '../services/community';
+import { MessageSquare } from 'lucide-react';
 
-const categories = ['Todos', 'Apoio', 'Dicas', 'Eventos', 'Geral'];
-
-const mockPosts = [
+// Dados mockados de comunidades (baseado nas categorias existentes)
+const mockCommunities = [
   {
-    id: '1',
-    author: {
-      name: 'Maria Santos',
-      avatarUrl: 'https://images.unsplash.com/photo-1594318223885-20dc4b889f9e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwc21pbGV8ZW58MXx8fHwxNzY3Nzg5MjA2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    timeAgo: '2h atrás',
-    title: 'Lugares seguros para viajar sozinha?',
-    description: 'Estou planejando uma viagem para o nordeste e gostaria de dicas de lugares acolhedores...',
-    category: {
-      label: 'Dicas',
-      color: '#FF6B7A',
-    },
-    likes: 45,
-    replies: 23,
-    isTrending: false,
+    id: 'spirituality',
+    name: 'Spirituality',
+    avatar: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=200&h=200&fit=crop',
+    description: 'Comunidade para discussões sobre espiritualidade',
+    membersCount: 342,
+    postsCount: 156,
   },
   {
-    id: '2',
-    author: {
-      name: 'Ana Costa',
-      avatarUrl: 'https://images.unsplash.com/photo-1650784854945-264d5b0b6b07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwd29tYW4lMjBwcm9mZXNzaW9uYWx8ZW58MXx8fHwxNzY3ODM0MTA4fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    timeAgo: '5h atrás',
-    title: 'Como lidar com a família?',
-    description: 'Preciso de conselhos sobre como conversar com meus pais...',
-    category: {
-      label: 'Apoio',
-      color: '#932d6f',
-    },
-    likes: 128,
-    replies: 67,
-    isTrending: false,
+    id: 'art-craft',
+    name: 'Art & Craft',
+    avatar: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop',
+    description: 'Compartilhe suas criações artísticas',
+    membersCount: 521,
+    postsCount: 289,
   },
   {
-    id: '3',
-    author: {
-      name: 'Julia Ferreira',
-      avatarUrl: 'https://images.unsplash.com/photo-1617931928012-3d65dcfffee2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXRpbmElMjB3b21hbiUyMGhhcHB5fGVufDF8fHwxNzY3ODM0MTA4fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    timeAgo: '1d atrás',
-    title: 'Recomendações de profissionais de saúde',
-    description: 'Alguém conhece médicas ginecologistas que sejam respeitosas e acolhedoras?',
-    category: {
-      label: 'Dicas',
-      color: '#FF6B7A',
-    },
-    likes: 89,
-    replies: 34,
-    isTrending: false,
+    id: 'support',
+    name: 'Apoio',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop',
+    description: 'Espaço de apoio e acolhimento',
+    membersCount: 783,
+    postsCount: 445,
   },
   {
-    id: '4',
-    author: {
-      name: 'Camila Souza',
-      avatarUrl: 'https://images.unsplash.com/photo-1589553009868-c7b2bb474531?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMHdvbWFuJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzY3NzU0NDQ2fDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    timeAgo: '2d atrás',
-    title: 'Grupo de corrida às 7h no parque',
-    description: 'Quem quer se juntar ao nosso grupo de corrida matinal? Todas são bem-vindas!',
-    category: {
-      label: 'Eventos',
-      color: '#932d6f',
-    },
-    likes: 34,
-    replies: 12,
-    isTrending: false,
+    id: 'tips',
+    name: 'Dicas',
+    avatar: 'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=200&h=200&fit=crop',
+    description: 'Compartilhe suas dicas e experiências',
+    membersCount: 612,
+    postsCount: 334,
+  },
+  {
+    id: 'events',
+    name: 'Eventos',
+    avatar: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=200&h=200&fit=crop',
+    description: 'Eventos da comunidade',
+    membersCount: 425,
+    postsCount: 198,
   },
 ];
+
+// Mapear categoria para cor
+const categoryColors: Record<string, string> = {
+  'Apoio': '#932d6f',
+  'Dicas': '#FF6B7A',
+  'Eventos': '#932d6f',
+  'Geral': '#6366f1',
+};
+
+// Função para calcular tempo relativo
+const getTimeAgo = (dateString: string): string => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return 'Agora';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}min atrás`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h atrás`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d atrás`;
+  return date.toLocaleDateString('pt-BR');
+};
 
 interface ComunidadeProps {
   onNavigate: (page: string) => void;
@@ -86,8 +83,90 @@ interface ComunidadeProps {
 
 export function Comunidade({ onNavigate }: ComunidadeProps) {
   const { isAdmin } = useAdmin();
-  const [activeCategory, setActiveCategory] = useState('Todos');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'feed' | 'communities'>('feed');
+  const [selectedCommunityId, setSelectedCommunityId] = useState<string | null>(null);
+
+  // Usar hook para buscar posts do banco (sem filtros de busca/categoria por padrão)
+  const { posts, loading, error, hasMore, loadMore, refetch } = useCommunityPosts({
+    category: undefined,
+    searchQuery: undefined,
+    limit: 20,
+  });
+
+  // Filtrar posts baseado no tab ativo
+  const filteredPosts = useMemo(() => {
+    if (activeTab === 'communities' && selectedCommunityId) {
+      // Filtrar por comunidade selecionada
+      // Por enquanto, mapear ID de comunidade para categoria
+      const communityCategoryMap: Record<string, string> = {
+        'support': 'Apoio',
+        'tips': 'Dicas',
+        'events': 'Eventos',
+        'spirituality': 'Geral',
+        'art-craft': 'Geral',
+      };
+      const category = communityCategoryMap[selectedCommunityId];
+      if (category) {
+        return posts.filter((post) => post.category === category);
+      }
+    }
+    // "Meu feed" - mostrar todos os posts
+    return posts;
+  }, [posts, activeTab, selectedCommunityId]);
+
+  // Mapear comunidades para o formato do CreatePostForm
+  const communitiesForForm = mockCommunities.map((c) => ({
+    id: c.id,
+    name: c.name,
+    avatar: c.avatar,
+  }));
+
+
+  const handleCreatePost = async (content: string, communityId: string) => {
+    // Mapear ID de comunidade para categoria
+    const communityCategoryMap: Record<string, string> = {
+      'support': 'Apoio',
+      'tips': 'Dicas',
+      'events': 'Eventos',
+      'spirituality': 'Geral',
+      'art-craft': 'Geral',
+    };
+    const category = communityCategoryMap[communityId] || 'Geral';
+    
+    // Usar primeiras palavras do conteúdo como título (ou criar um título padrão)
+    const title = content.split('\n')[0].substring(0, 100) || 'Novo Post';
+    
+    await createPost(title, content, category);
+    await refetch();
+  };
+
+  // Recarregar posts quando a página receber foco (quando voltar de outra página)
+  useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetch]);
+
+  // Converter posts filtrados para o formato esperado pelo CommunityPostCard
+  const postsForCards = filteredPosts.map((post) => ({
+    id: post.id,
+    author: {
+      name: post.author?.name || 'Usuário',
+      avatarUrl: post.author?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080',
+    },
+    timeAgo: getTimeAgo(post.createdAt),
+    title: post.title,
+    description: post.content.length > 150 ? post.content.substring(0, 150) + '...' : post.content,
+    category: {
+      label: post.category,
+      color: categoryColors[post.category] || '#932d6f',
+    },
+    likes: post.likesCount,
+    replies: post.repliesCount,
+    isTrending: post.isTrending,
+  }));
 
   return (
     <div className="min-h-screen bg-muted">
@@ -99,52 +178,87 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
         <div className="flex-1 overflow-y-auto pb-24 pt-24">
           {/* Page Header */}
           <div className="px-5 pt-6 pb-4">
-            <h1 className="text-2xl font-semibold text-primary mb-4">Comunidade</h1>
-            
-            {/* Search */}
-            <div className="mb-4">
-              <SearchBar
-                placeholder="Buscar tópicos, pessoas..."
-                value={searchQuery}
-                onChange={setSearchQuery}
-              />
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-2xl font-semibold text-primary">Comunidade</h1>
+              <button className="text-sm text-primary font-medium">Ver todas</button>
             </div>
-
-            {/* Category Filters */}
-            <CategoryFilter
-              categories={categories}
-              activeCategory={activeCategory}
-              onCategoryChange={setActiveCategory}
-            />
           </div>
 
-          {/* Estatísticas da Comunidade */}
-          <CommunityStats 
-            members={1243}
-            posts={567}
-            activeToday={89}
+          {/* Lista de Comunidades */}
+          <CommunityList
+            communities={mockCommunities}
+            onCommunityClick={(communityId) => {
+              setSelectedCommunityId(communityId);
+              setActiveTab('communities');
+            }}
+          />
+
+          {/* Tabs: Meu feed / Minhas comunidades */}
+          <div className="px-5 mb-4">
+            <div className="flex border-b border-gray-200">
+              <button
+                onClick={() => {
+                  setActiveTab('feed');
+                  setSelectedCommunityId(null);
+                }}
+                className={`flex-1 py-3 text-center text-sm font-medium transition-colors ${
+                  activeTab === 'feed'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Meu feed
+              </button>
+              <button
+                onClick={() => setActiveTab('communities')}
+                className={`flex-1 py-3 text-center text-sm font-medium transition-colors ${
+                  activeTab === 'communities'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Minhas comunidades
+              </button>
+            </div>
+          </div>
+
+          {/* Formulário de Criação de Post */}
+          <CreatePostForm
+            communities={communitiesForForm}
+            onSubmit={handleCreatePost}
           />
 
           {/* Lista de Posts */}
           <div className="px-5 space-y-4 pb-6">
-            {mockPosts
-              .filter((post) => {
-                if (activeCategory !== 'Todos' && post.category.label !== activeCategory) {
-                  return false;
-                }
-                if (searchQuery && !post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                    !post.description.toLowerCase().includes(searchQuery.toLowerCase())) {
-                  return false;
-                }
-                return true;
-              })
-              .map((post) => (
-                <CommunityPostCard 
-                  key={post.id} 
-                  {...post} 
-                  onClick={() => onNavigate(`post-details:${post.id}`)}
-                />
-              ))}
+            {loading && posts.length === 0 ? (
+              <SkeletonListExpanded count={3} />
+            ) : error ? (
+              <EmptyState
+                icon={MessageSquare}
+                title="Erro ao carregar posts"
+                description={error.message || 'Não foi possível carregar os posts da comunidade.'}
+              />
+            ) : postsForCards.length === 0 ? (
+              <EmptyState
+                icon={MessageSquare}
+                title="Nenhum post encontrado"
+                description="Ainda não há posts na comunidade. Seja o primeiro a compartilhar!"
+              />
+            ) : (
+              <InfiniteScroll
+                onLoadMore={loadMore}
+                hasMore={hasMore}
+                loading={loading}
+              >
+                {postsForCards.map((post) => (
+                  <CommunityPostCard 
+                    key={post.id} 
+                    {...post} 
+                    onClick={() => onNavigate(`post-details:${post.id}`)}
+                  />
+                ))}
+              </InfiniteScroll>
+            )}
           </div>
         </div>
 

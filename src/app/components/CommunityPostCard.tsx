@@ -1,7 +1,8 @@
 import { Heart, MessageCircle, TrendingUp } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Tag } from './Tag';
+import { usePostLikes } from '../hooks/usePostLikes';
 
 interface CommunityPostCardProps {
   id?: string;
@@ -29,21 +30,30 @@ export function CommunityPostCard({
   title,
   description,
   category,
-  likes,
+  likes: initialLikes,
   replies,
   isTrending = false,
   onClick,
 }: CommunityPostCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(likes);
+  // Usar hook para gerenciar likes do banco
+  const { isLiked, likesCount, toggleLike, setLikesCount } = usePostLikes({
+    postId: id || '',
+    userId: undefined, // Por enquanto sem login
+    authorName: undefined,
+  });
 
-  const handleLike = () => {
-    if (isLiked) {
-      setLikeCount(likeCount - 1);
-    } else {
-      setLikeCount(likeCount + 1);
+  // Sincronizar likesCount inicial quando post carrega
+  useEffect(() => {
+    if (initialLikes !== undefined && likesCount === 0 && initialLikes > 0) {
+      setLikesCount(initialLikes);
     }
-    setIsLiked(!isLiked);
+  }, [initialLikes]);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevenir navegação ao clicar no like
+    if (id) {
+      await toggleLike();
+    }
   };
 
   return (
@@ -85,18 +95,12 @@ export function CommunityPostCard({
           <Heart
             className={`w-5 h-5 ${isLiked ? 'fill-accent text-accent' : ''}`}
           />
-          <span className="text-sm font-medium">{likeCount}</span>
+          <span className="text-sm font-medium">{likesCount || initialLikes || 0}</span>
         </button>
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            // TODO: Navegar para página de detalhes do post quando implementado
-          }}
-          className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-        >
+        <div className="flex items-center gap-2 text-muted-foreground">
           <MessageCircle className="w-5 h-5" />
           <span className="text-sm">{replies} respostas</span>
-        </button>
+        </div>
       </div>
     </div>
   );

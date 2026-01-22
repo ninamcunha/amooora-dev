@@ -72,3 +72,36 @@ export interface Review {
   createdAt?: string;
   date?: string;
 }
+
+export interface CommunityPost {
+  id: string;
+  userId: string;
+  title: string;
+  content: string;
+  category: string;
+  image?: string;
+  likesCount: number;
+  repliesCount: number;
+  isTrending: boolean;
+  createdAt: string;
+  author?: {
+    name: string;
+    avatar?: string;
+  };
+}
+
+export interface PostReply {
+  id: string;
+  postId: string;
+  userId?: string;
+  authorName?: string;
+  content: string;
+  parentReplyId?: string;
+  createdAt: string;
+  author: {
+    name: string;
+    avatar?: string;
+  };
+  likes?: number;
+  replies?: PostReply[];
+}
