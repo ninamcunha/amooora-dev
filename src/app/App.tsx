@@ -11,6 +11,7 @@ import { Configuracoes } from './pages/Configuracoes';
 import { Notificacoes } from './pages/Notificacoes';
 import { PostDetails } from './pages/PostDetails';
 import { MeusFavoritos } from './pages/MeusFavoritos';
+import { MinhasComunidades } from './pages/MinhasComunidades';
 import { PlaceDetails } from './components/PlaceDetails';
 import { ServiceDetails } from './components/ServiceDetails';
 import { EventDetails } from './components/EventDetails';
@@ -254,6 +255,13 @@ export default function App() {
         );
       case 'community':
         return <Comunidade onNavigate={handleNavigate} />;
+      case 'minhas-comunidades':
+        return (
+          <MinhasComunidades 
+            onNavigate={handleNavigate}
+            onBack={() => setCurrentPage('community')}
+          />
+        );
       case 'post-details':
         return (
           <PostDetails 

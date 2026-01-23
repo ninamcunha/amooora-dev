@@ -12,47 +12,87 @@ import { useCommunityPosts } from '../hooks/useCommunityPosts';
 import { createPost } from '../services/community';
 import { MessageSquare } from 'lucide-react';
 
-// Dados mockados de comunidades (baseado nas categorias existentes)
+// Dados mockados de comunidades (temas LGBTQIA+)
 const mockCommunities = [
   {
-    id: 'spirituality',
-    name: 'Spirituality',
-    avatar: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=200&h=200&fit=crop',
-    description: 'Comunidade para discussões sobre espiritualidade',
-    membersCount: 342,
-    postsCount: 156,
-  },
-  {
-    id: 'art-craft',
-    name: 'Art & Craft',
-    avatar: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop',
-    description: 'Compartilhe suas criações artísticas',
-    membersCount: 521,
-    postsCount: 289,
-  },
-  {
-    id: 'support',
+    id: 'apoio',
     name: 'Apoio',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop',
-    description: 'Espaço de apoio e acolhimento',
-    membersCount: 783,
-    postsCount: 445,
+    description: 'Espaço seguro para compartilhar experiências e buscar apoio',
+    membersCount: 1243,
+    postsCount: 567,
   },
   {
-    id: 'tips',
-    name: 'Dicas',
-    avatar: 'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=200&h=200&fit=crop',
-    description: 'Compartilhe suas dicas e experiências',
-    membersCount: 612,
+    id: 'saude-mental',
+    name: 'Saúde Mental',
+    avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&h=200&fit=crop',
+    description: 'Bem-estar mental e autocuidado',
+    membersCount: 892,
     postsCount: 334,
   },
   {
-    id: 'events',
+    id: 'relacionamentos',
+    name: 'Relacionamentos',
+    avatar: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=200&h=200&fit=crop',
+    description: 'Experiências e dicas sobre relacionamentos',
+    membersCount: 1567,
+    postsCount: 445,
+  },
+  {
+    id: 'carreira',
+    name: 'Carreira',
+    avatar: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=200&h=200&fit=crop',
+    description: 'Networking e oportunidades profissionais',
+    membersCount: 678,
+    postsCount: 234,
+  },
+  {
+    id: 'eventos',
     name: 'Eventos',
     avatar: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=200&h=200&fit=crop',
-    description: 'Eventos da comunidade',
-    membersCount: 425,
-    postsCount: 198,
+    description: 'Eventos e encontros da comunidade',
+    membersCount: 2134,
+    postsCount: 892,
+  },
+  {
+    id: 'arte-cultura',
+    name: 'Arte & Cultura',
+    avatar: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop',
+    description: 'Criações artísticas e cultura LGBTQIA+',
+    membersCount: 987,
+    postsCount: 456,
+  },
+  {
+    id: 'esportes',
+    name: 'Esportes',
+    avatar: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&h=200&fit=crop',
+    description: 'Atividades físicas e esportes inclusivos',
+    membersCount: 543,
+    postsCount: 189,
+  },
+  {
+    id: 'viagens',
+    name: 'Viagens',
+    avatar: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200&h=200&fit=crop',
+    description: 'Destinos LGBTQIA+ friendly',
+    membersCount: 1123,
+    postsCount: 378,
+  },
+  {
+    id: 'beleza-estilo',
+    name: 'Beleza & Estilo',
+    avatar: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200&h=200&fit=crop',
+    description: 'Dicas de beleza, moda e estilo',
+    membersCount: 1456,
+    postsCount: 623,
+  },
+  {
+    id: 'familia',
+    name: 'Família',
+    avatar: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=200&h=200&fit=crop',
+    description: 'Família e paternidade/maternidade',
+    membersCount: 789,
+    postsCount: 267,
   },
 ];
 
@@ -97,13 +137,18 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
   const filteredPosts = useMemo(() => {
     if (activeTab === 'communities' && selectedCommunityId) {
       // Filtrar por comunidade selecionada
-      // Por enquanto, mapear ID de comunidade para categoria
+      // Mapear ID de comunidade para categoria
       const communityCategoryMap: Record<string, string> = {
-        'support': 'Apoio',
-        'tips': 'Dicas',
-        'events': 'Eventos',
-        'spirituality': 'Geral',
-        'art-craft': 'Geral',
+        'apoio': 'Apoio',
+        'saude-mental': 'Apoio',
+        'relacionamentos': 'Geral',
+        'carreira': 'Geral',
+        'eventos': 'Eventos',
+        'arte-cultura': 'Geral',
+        'esportes': 'Geral',
+        'viagens': 'Dicas',
+        'beleza-estilo': 'Dicas',
+        'familia': 'Apoio',
       };
       const category = communityCategoryMap[selectedCommunityId];
       if (category) {
@@ -125,11 +170,16 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
   const handleCreatePost = async (content: string, communityId: string) => {
     // Mapear ID de comunidade para categoria
     const communityCategoryMap: Record<string, string> = {
-      'support': 'Apoio',
-      'tips': 'Dicas',
-      'events': 'Eventos',
-      'spirituality': 'Geral',
-      'art-craft': 'Geral',
+      'apoio': 'Apoio',
+      'saude-mental': 'Apoio',
+      'relacionamentos': 'Geral',
+      'carreira': 'Geral',
+      'eventos': 'Eventos',
+      'arte-cultura': 'Geral',
+      'esportes': 'Geral',
+      'viagens': 'Dicas',
+      'beleza-estilo': 'Dicas',
+      'familia': 'Apoio',
     };
     const category = communityCategoryMap[communityId] || 'Geral';
     
@@ -210,7 +260,10 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
                 Meu feed
               </button>
               <button
-                onClick={() => setActiveTab('communities')}
+                onClick={() => {
+                  setActiveTab('communities');
+                  onNavigate('minhas-comunidades');
+                }}
                 className={`flex-1 py-3 text-center text-sm font-medium transition-colors ${
                   activeTab === 'communities'
                     ? 'text-primary border-b-2 border-primary'
