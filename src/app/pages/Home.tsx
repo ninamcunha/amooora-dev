@@ -5,7 +5,7 @@ import { Header } from '../components/Header';
 import { SectionHeader } from '../components/SectionHeader';
 import { PlaceCard } from '../components/PlaceCard';
 import { EventCard } from '../components/EventCard';
-import { ServiceCard } from '../components/ServiceCard';
+import { ServiceCardGrid } from '../components/ServiceCardGrid';
 import { BottomNav } from '../components/BottomNav';
 import { GlobalSearch } from '../components/GlobalSearch';
 import { usePlaces } from '../hooks/usePlaces';
@@ -57,37 +57,30 @@ export function Home({ onNavigate }: HomeProps) {
   const limitedPlaces = places.slice(0, 3);
   const limitedEvents = events.slice(0, 3);
 
-  // Pegar os últimos 4 serviços cadastrados (já ordenados por created_at DESC)
+  // Pegar os últimos 6 serviços cadastrados para grid 2 colunas (já ordenados por created_at DESC)
   const latestServices = useMemo(() => {
     if (!services || services.length === 0) {
-      // Fallback para categorias padrão se não houver serviços
-      return [
-        { id: '1', name: 'Terapia', icon: MessageCircle, color: DEFAULT_COLOR, slug: 'terapia' },
-        { id: '2', name: 'Advocacia', icon: Scale, color: DEFAULT_COLOR, slug: 'advocacia' },
-        { id: '3', name: 'Saúde', icon: Heart, color: DEFAULT_COLOR, slug: 'saude' },
-        { id: '4', name: 'Carreira', icon: Sparkles, color: DEFAULT_COLOR, slug: 'carreira' },
-      ];
+      return [];
     }
 
-    // Pegar os últimos 4 serviços cadastrados (já ordenados por created_at DESC)
-    const latest = services.slice(0, 4);
-
-    // Mapear para formato do ServiceCard
-    return latest.map((service, index) => ({
+    // Pegar os últimos 6 serviços cadastrados para exibir em grid
+    return services.slice(0, 6).map((service) => ({
       id: service.id,
-      name: service.category || 'Outros', // Mostrar categoria do serviço
-      icon: categoryIconMap[service.category || 'Outros'] || Scissors,
-      color: DEFAULT_COLOR,
+      name: service.name || service.category || 'Serviço',
+      category: service.category || 'Outros',
+      provider: service.provider,
+      imageUrl: service.imageUrl || service.image,
       slug: service.categorySlug || service.category?.toLowerCase().replace(/\s+/g, '-') || 'outros',
     }));
   }, [services]);
 
-  const handleServiceClick = (categoryName: string) => {
-    // Navegar para página de serviços com a categoria pré-selecionada
-    if (categoryName) {
+  const handleServiceClick = (serviceId: string, categoryName?: string) => {
+    // Navegar para detalhes do serviço ou página de serviços com categoria
+    if (serviceId) {
+      onNavigate(`service-details:${serviceId}`);
+    } else if (categoryName) {
       onNavigate(`services:${categoryName}`);
     } else {
-      // Fallback para navegação geral
       onNavigate('services');
     }
   };
@@ -208,12 +201,14 @@ export function Home({ onNavigate }: HomeProps) {
                 </div>
               ) : latestServices.length > 0 ? (
                 latestServices.map((service) => (
-                  <ServiceCard 
+                  <ServiceCardGrid 
                     key={service.id} 
+                    id={service.id}
                     name={service.name}
-                    icon={service.icon}
-                    color={service.color}
-                    onClick={() => handleServiceClick(service.slug || service.name.toLowerCase())}
+                    category={service.category}
+                    provider={service.provider}
+                    imageUrl={service.imageUrl}
+                    onClick={() => handleServiceClick(service.id, service.slug)}
                   />
                 ))
               ) : (

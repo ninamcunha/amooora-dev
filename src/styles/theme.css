@@ -9,13 +9,15 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
   
-  /* Amooora Colors */
-  --primary: #932d6f; /* Roxo - Cor Primária */
+  /* Amooora Colors - Paleta Oficial */
+  --primary: #932d6f; /* Principal - Magenta/Roxo */
   --primary-foreground: #ffffff;
-  --secondary: #c4532f; /* Laranja - Cor Secundária */
+  --secondary: #dca0c8; /* Secundária - Rosa Claro */
   --secondary-foreground: #ffffff;
-  --accent: #FF6B7A;
+  --accent: #c4532f; /* Laranja */
   --accent-foreground: #ffffff;
+  --tertiary: #3a184f; /* Roxo Escuro */
+  --tertiary-foreground: #ffffff;
   
   --muted: #F5F3F7;
   --muted-foreground: #717182;
@@ -96,6 +98,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);

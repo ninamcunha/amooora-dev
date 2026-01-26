@@ -69,7 +69,7 @@ const servicesData = {
         rating: 4.9,
         reviews: 142,
         price: '$$$$',
-        imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsYXd5ZXIlMjB3b21lbnxlbnwxfHx8fDE3Njc5MDIzOTB8MA&ixlib=rb-4.1.0&q=80&w=1080',
+        imageUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
         verified: true,
       },
       {

@@ -219,77 +219,63 @@ export function Perfil({ onNavigate }: PerfilProps) {
 
         {/* Conteúdo scrollável - padding-top para compensar header fixo */}
         <div className="flex-1 overflow-y-auto pb-24 pt-24">
-          {/* Cabeçalho do Perfil com Gradiente */}
-          <div className="relative bg-gradient-to-br from-[#A84B8E] to-[#8B3A7A] pt-6 pb-6 px-5">
-            <div className="flex items-center gap-4">
-              {/* Avatar à esquerda */}
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 rounded-full bg-white p-1">
-                  <ImageWithFallback
-                    src={displayProfile.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080'}
-                    alt={displayProfile.name}
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                </div>
-              </div>
-
-              {/* Name and Username ao centro */}
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-bold text-white mb-0.5 truncate">{displayProfile.name}</h1>
-                <p className="text-white/80 text-sm truncate">@{username}</p>
-              </div>
-
-              {/* Botão Editar Perfil à direita */}
-              <div className="flex-shrink-0">
-                <button
-                  onClick={() => onNavigate('edit-profile')}
-                  className="flex items-center gap-2 px-4 py-2 bg-white rounded-full font-medium text-[#932d6f] hover:bg-white/90 transition-colors text-sm whitespace-nowrap border border-[#932d6f]/20"
-                >
-                  <Edit className="w-4 h-4" />
-                  Editar Perfil
-                </button>
+          {/* Perfil Header - Estrutura similar à imagem */}
+          <div className="px-5 pt-6 pb-4">
+            {/* Avatar centralizado */}
+            <div className="flex justify-center mb-4">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200">
+                <ImageWithFallback
+                  src={displayProfile.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080'}
+                  alt={displayProfile.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
-          </div>
 
-          {/* Stats Cards */}
-          <div className="px-5 mt-4 mb-6 relative z-10">
-            <div className="grid grid-cols-3 gap-3">
-              <div className="bg-white rounded-2xl p-4 shadow-md text-center">
-                <Calendar className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
-                <div className="font-bold text-lg text-gray-900">{displayStats.eventsCount}</div>
-                <div className="text-xs text-gray-600">Eventos</div>
+            {/* Nome */}
+            <h1 className="text-2xl font-bold text-foreground text-center mb-2">
+              {displayProfile.name}
+            </h1>
+
+            {/* Bio */}
+            <p className="text-sm text-muted-foreground text-center mb-6 max-w-xs mx-auto">
+              {displayProfile.bio || 'Apaixonada por café, cultura e boas conversas. Ativista pelos direitos LGBTQIA+. 🌈'}
+            </p>
+
+            {/* Stats - 3 colunas */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground mb-1">{displayStats.eventsCount}</div>
+                <div className="text-xs text-muted-foreground">Eventos</div>
               </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md text-center">
-                <MapPin className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
-                <div className="font-bold text-lg text-gray-900">{displayStats.placesCount}</div>
-                <div className="text-xs text-gray-600">Lugares</div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground mb-1">{displayStats.placesCount}</div>
+                <div className="text-xs text-muted-foreground">Lugares</div>
               </div>
-              <div className="bg-white rounded-2xl p-4 shadow-md text-center">
-                <Users className="w-5 h-5 text-[#932d6f] mx-auto mb-2" />
-                <div className="font-bold text-lg text-gray-900">{displayStats.friendsCount}</div>
-                <div className="text-xs text-gray-600">Amigos</div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-foreground mb-1">{displayStats.friendsCount}</div>
+                <div className="text-xs text-muted-foreground">Amigos</div>
               </div>
             </div>
-          </div>
 
-          {/* Meus Favoritos */}
-          <div className="px-5 mb-6">
-            <button 
-              onClick={() => onNavigate('favoritos')}
-              className="w-full bg-white rounded-2xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-[#932d6f]/10 rounded-xl flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-[#932d6f]" />
-                </div>
-                <div className="text-left">
-                  <h2 className="text-base font-bold text-gray-900">Meus Favoritos</h2>
-                  <p className="text-sm text-gray-500">Veja todos os seus favoritos salvos</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-gray-400" />
-            </button>
+            {/* Botões de Ação - Meus Favoritos e Editar Perfil */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {/* Meus Favoritos - Padrão da tag "Seguro" */}
+              <button
+                onClick={() => onNavigate('favoritos')}
+                className="px-4 py-3 rounded-full font-medium text-sm transition-colors bg-primary/10 text-primary hover:bg-primary/20"
+              >
+                Meus Favoritos
+              </button>
+              
+              {/* Editar Perfil - Padrão da tag "Seguro" */}
+              <button
+                onClick={() => onNavigate('edit-profile')}
+                className="px-4 py-3 rounded-full font-medium text-sm transition-colors bg-primary/10 text-primary hover:bg-primary/20"
+              >
+                Editar Perfil
+              </button>
+            </div>
           </div>
 
           {/* Locais Favoritos */}

@@ -64,7 +64,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
         {[...Array(5)].map((_, index) => (
           <Star 
             key={index}
-            className={`w-3.5 h-3.5 ${index < rating ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-300'}`}
+            className={`w-3.5 h-3.5 ${index < rating ? 'fill-primary text-primary' : 'text-gray-300'}`}
           />
         ))}
       </div>
@@ -185,7 +185,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             </div>
             {/* Botão Favoritar */}
             <button className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors">
-              <Heart className="w-5 h-5 text-[#932d6f]" />
+              <Heart className="w-5 h-5 text-primary" />
             </button>
           </div>
 
@@ -201,7 +201,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
               {displayEvent.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-[#932d6f]/10 text-[#932d6f] rounded-full text-xs font-medium"
+                  className="px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium"
                 >
                   {tag}
                 </span>
@@ -219,14 +219,14 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             <h3 className="text-base font-bold text-gray-900 mb-3">Quando</h3>
             <div className="space-y-3">
               <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+                <Calendar className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-900">{displayEvent.date}</p>
                   <p className="text-sm text-gray-600">{displayEvent.dayOfWeek}</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+                <Clock className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-900">
                     {displayEvent.startTime}
@@ -243,7 +243,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             
             {/* Endereço acima do mapa */}
             <div className="flex items-start gap-3 mb-3">
-              <MapPin className="w-5 h-5 text-[#932d6f] flex-shrink-0 mt-0.5" />
+              <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="font-semibold text-gray-900 leading-tight">
                   {displayEvent.name} - {displayEvent.location}
@@ -287,7 +287,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayEvent.location)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full mt-3 py-3 px-4 text-sm text-[#932d6f] font-semibold border border-[#932d6f] rounded-xl hover:bg-[#932d6f]/5 transition-colors flex items-center justify-center gap-2"
+                  className="w-full mt-3 py-3 px-4 text-sm text-primary font-semibold border border-primary rounded-xl hover:bg-primary/5 transition-colors flex items-center justify-center gap-2"
                 >
                   Ver no Google Maps
                   <MapPin className="w-4 h-4" />
@@ -308,7 +308,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             <h3 className="text-base font-bold text-gray-900 mb-2">Ingresso</h3>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-bold text-lg text-[#932d6f]">{displayEvent.price}</p>
+                <p className="font-bold text-lg text-primary">{displayEvent.price}</p>
                 <p className="text-sm text-gray-600">{displayEvent.priceDetails}</p>
               </div>
             </div>
@@ -339,7 +339,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             <ul className="space-y-2">
               {displayEvent.rules.map((rule, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                  <span className="text-[#932d6f] mt-1">•</span>
+                  <span className="text-primary mt-1">•</span>
                   <span>{rule}</span>
                 </li>
               ))}
@@ -351,7 +351,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             <div className="flex gap-2 overflow-x-auto">
               <button 
                 onClick={handleShare}
-                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+                className="flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium whitespace-nowrap hover:bg-primary/20 transition-colors"
               >
                 <Share2 className="w-4 h-4" />
                 {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
@@ -372,7 +372,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                   <h3 className="text-lg font-bold text-gray-900">Avaliações</h3>
                   {reviewCount > 0 && (
                     <div className="flex items-center gap-2 mt-1">
-                      <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
+                      <Star className="w-4 h-4 fill-primary text-primary" />
                       <span className="font-bold text-black text-base">
                         {averageRating.toFixed(1)} ({reviewCount})
                       </span>
@@ -382,7 +382,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                 {eventId && (
                   <button 
                     onClick={() => onNavigate?.(`create-review:event:${eventId}`)}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+                    className="flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium whitespace-nowrap hover:bg-primary/20 transition-colors"
                   >
                     <Star className="w-4 h-4" />
                     Avaliar
@@ -424,7 +424,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                 {eventId && (
                   <button
                     onClick={() => onNavigate?.(`create-review:event:${eventId}`)}
-                    className="mt-3 px-4 py-2 bg-[#932d6f] text-white rounded-full text-sm font-medium hover:bg-[#932d6f]/90 transition-colors"
+                    className="mt-3 px-4 py-2 bg-primary text-white rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
                   >
                     Seja o primeiro a avaliar
                   </button>
@@ -444,8 +444,8 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
               onClick={handleInterestedClick}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all ${
                 isInterested
-                  ? 'bg-[#FF6B7A] text-white'
-                  : 'border-2 border-[#FF6B7A] text-[#FF6B7A] hover:bg-[#FF6B7A]/5'
+                  ? 'bg-secondary text-white'
+                  : 'border-2 border-secondary text-secondary hover:bg-secondary/5'
               }`}
             >
               <Star className={`w-5 h-5 ${isInterested ? 'fill-white' : ''}`} />
@@ -455,8 +455,8 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
               onClick={handleGoingClick}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all ${
                 isGoing
-                  ? 'bg-[#932d6f] text-white'
-                  : 'bg-gradient-to-r from-[#932d6f] to-[#FF6B7A] text-white hover:shadow-lg'
+                  ? 'bg-primary text-white'
+                  : 'bg-gradient-to-r from-primary to-accent text-white hover:shadow-lg'
               }`}
             >
               <CheckCircle className="w-5 h-5" />

@@ -105,7 +105,7 @@ export function Eventos({ onNavigate }: EventosProps) {
       imageUrl: event.imageUrl || event.image || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
       category: {
         label: event.category || 'Evento',
-        color: '#932d6f',
+        color: '#c4532f', // Accent color
       },
       price: event.price && event.price > 0 ? `R$ ${event.price.toFixed(2)}` : 'Gratuito',
       isPaid: event.price ? event.price > 0 : false,

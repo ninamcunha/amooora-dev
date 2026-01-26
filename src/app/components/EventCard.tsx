@@ -1,6 +1,5 @@
 import { Clock, MapPin, Users } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { DateBadge } from './DateBadge';
 
 interface EventCardProps {
   name: string;
@@ -44,7 +43,9 @@ export function EventCard({ name, date, time, location, participants, imageUrl, 
           </div>
         </div>
         <div className="flex-shrink-0">
-          <DateBadge date={date} />
+          <span className="bg-[#F8F0ED] text-[#B05E3D] px-3 py-1.5 rounded-full text-xs font-bold">
+            {date}
+          </span>
         </div>
       </div>
     </div>

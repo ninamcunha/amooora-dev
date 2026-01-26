@@ -1,7 +1,6 @@
 import { Calendar, Clock, MapPin, Users, Heart, ArrowRight } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Tag } from './Tag';
-import { DateBadge } from './DateBadge';
+import { Badge } from './Badge';
 import { useFavorites } from '../hooks/useFavorites';
 
 interface EventCardExpandedProps {
@@ -53,9 +52,11 @@ export function EventCardExpanded({
           alt={name}
           className="w-full h-full object-cover"
         />
-        {/* Date badge */}
+        {/* Date badge - estilo tag bege com texto laranja/vermelho-escuro */}
         <div className="absolute top-3 left-3">
-          <DateBadge date={date} />
+          <span className="bg-[#F8F0ED] text-[#B05E3D] px-3 py-1.5 rounded-full text-xs font-bold">
+            {date}
+          </span>
         </div>
         {/* Favorite button */}
         <button
@@ -78,7 +79,7 @@ export function EventCardExpanded({
         {/* Nome e categoria */}
         <div className="flex items-start justify-between gap-3 mb-2">
           <h3 className="font-semibold text-lg text-primary flex-1">{name}</h3>
-          <Tag color={category.color}>{category.label}</Tag>
+          <Badge variant="accent">{category.label}</Badge>
         </div>
 
         {/* Descrição */}

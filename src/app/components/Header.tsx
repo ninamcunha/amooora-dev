@@ -1,4 +1,5 @@
-import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info } from 'lucide-react';
 import logoAmooora from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 
 interface HeaderProps {
@@ -9,6 +10,42 @@ interface HeaderProps {
 }
 
 export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: HeaderProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Fechar menu ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  const handleMenuClick = (page: string) => {
+    onNavigate?.(page);
+    setIsMenuOpen(false);
+  };
+
+  const menuItems = [
+    { icon: Home, label: 'Início', page: 'home' },
+    { icon: MapPin, label: 'Locais', page: 'places' },
+    { icon: Calendar, label: 'Eventos', page: 'events' },
+    { icon: Scissors, label: 'Serviços', page: 'services' },
+    { icon: MessageSquare, label: 'Comunidade', page: 'community' },
+    { icon: Heart, label: 'Meus Favoritos', page: 'favoritos' },
+    { icon: Settings, label: 'Configurações', page: 'admin' },
+    { icon: Info, label: 'Sobre Amooora', page: 'sobre-amooora' },
+  ];
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 max-w-md mx-auto">
       <div className="flex items-center justify-between px-5 py-4">
@@ -44,15 +81,6 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
             </span>
           </button>
 
-          {/* Botão de Configurações (sempre visível - sem autenticação) */}
-          <button 
-            onClick={() => onNavigate?.('admin')}
-            className="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center hover:bg-yellow-600 transition-colors"
-            title="Área Administrativa"
-          >
-            <Settings className="w-5 h-5 text-white" />
-          </button>
-
           {/* Botão de Perfil */}
           <button 
             onClick={() => onNavigate?.('profile')}
@@ -60,6 +88,41 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
           >
             <UserPen className="w-5 h-5 text-white" />
           </button>
+
+          {/* Menu Hambúrguer - Padrão da tag "Seguro" */}
+          <div className="relative" ref={menuRef}>
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors"
+            >
+              {isMenuOpen ? (
+                <X className="w-5 h-5 text-primary" />
+              ) : (
+                <Menu className="w-5 h-5 text-primary" />
+              )}
+            </button>
+
+            {/* Menu Dropdown */}
+            {isMenuOpen && (
+              <div className="absolute right-0 top-12 w-56 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden z-50">
+                <div className="py-2">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.page}
+                        onClick={() => handleMenuClick(item.page)}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                      >
+                        <Icon className="w-5 h-5 text-primary" />
+                        <span className="text-sm font-medium text-foreground">{item.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

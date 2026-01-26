@@ -12,6 +12,7 @@ import { Notificacoes } from './pages/Notificacoes';
 import { PostDetails } from './pages/PostDetails';
 import { MeusFavoritos } from './pages/MeusFavoritos';
 import { MinhasComunidades } from './pages/MinhasComunidades';
+import { SobreAmooora } from './pages/SobreAmooora';
 import { PlaceDetails } from './components/PlaceDetails';
 import { ServiceDetails } from './components/ServiceDetails';
 import { EventDetails } from './components/EventDetails';
@@ -293,6 +294,13 @@ export default function App() {
         return <AdminCadastrarServico onNavigate={handleNavigate} />;
       case 'admin-cadastrar-evento':
         return <AdminCadastrarEvento onNavigate={handleNavigate} />;
+      case 'sobre-amooora':
+        return (
+          <SobreAmooora 
+            onNavigate={handleNavigate}
+            onBack={() => setCurrentPage('home')}
+          />
+        );
       default:
         return <Welcome onNavigate={handleNavigate} />;
     }

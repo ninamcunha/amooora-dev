@@ -31,10 +31,10 @@ const getTimeAgo = (dateString: string): string => {
 
 // Mapear categoria para cor
 const categoryColors: Record<string, string> = {
-  'Apoio': '#932d6f',
-  'Dicas': '#FF6B7A',
-  'Eventos': '#932d6f',
-  'Geral': '#6366f1',
+  'Apoio': '#932d6f', // Primary
+  'Dicas': '#dca0c8', // Secondary (rosa claro)
+  'Eventos': '#c4532f', // Accent (laranja)
+  'Geral': '#3a184f', // Tertiary (roxo escuro)
 };
 
 export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {

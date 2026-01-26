@@ -9,8 +9,6 @@ import { FilterModal, FilterOptions } from '../components/FilterModal';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonListExpanded } from '../components/Skeleton';
 import { usePlaces } from '../hooks/usePlaces';
-import { usePlaceReviews } from '../hooks/useReviews';
-import { calculateAverageRating } from '../services/reviews';
 import { useFilterPreferences } from '../hooks/useFilterPreferences';
 import { useAdmin } from '../hooks/useAdmin';
 
@@ -47,6 +45,8 @@ export function Locais({ onNavigate }: LocaisProps) {
   // Gerar tags mockadas baseadas na descrição do lugar (simulação)
   const getPlaceTags = useMemo(() => {
     return (place: typeof places[0]): string[] => {
+      if (!place) return [];
+      
       const tags: string[] = [];
       const desc = (place.description || '').toLowerCase();
       
