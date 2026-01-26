@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info } from 'lucide-react';
+import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info, Map } from 'lucide-react';
 import logoAmooora from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 
 interface HeaderProps {
@@ -41,6 +41,7 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
     { icon: Calendar, label: 'Eventos', page: 'events' },
     { icon: Scissors, label: 'Serviços', page: 'services' },
     { icon: MessageSquare, label: 'Comunidade', page: 'community' },
+    { icon: Map, label: 'Mapa', page: 'mapa' },
     { icon: Heart, label: 'Meus Favoritos', page: 'favoritos' },
     { icon: Settings, label: 'Configurações', page: 'admin' },
     { icon: Info, label: 'Sobre Amooora', page: 'sobre-amooora' },

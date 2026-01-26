@@ -13,6 +13,7 @@ import { PostDetails } from './pages/PostDetails';
 import { MeusFavoritos } from './pages/MeusFavoritos';
 import { MinhasComunidades } from './pages/MinhasComunidades';
 import { SobreAmooora } from './pages/SobreAmooora';
+import { Mapa } from './pages/Mapa';
 import { PlaceDetails } from './components/PlaceDetails';
 import { ServiceDetails } from './components/ServiceDetails';
 import { EventDetails } from './components/EventDetails';
@@ -297,6 +298,13 @@ export default function App() {
       case 'sobre-amooora':
         return (
           <SobreAmooora 
+            onNavigate={handleNavigate}
+            onBack={() => setCurrentPage('home')}
+          />
+        );
+      case 'mapa':
+        return (
+          <Mapa 
             onNavigate={handleNavigate}
             onBack={() => setCurrentPage('home')}
           />
