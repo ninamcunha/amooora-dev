@@ -16,89 +16,7 @@ import { createPost, getCommunityPosts, getPostReplies } from '../services/commu
 import { MessageSquare } from 'lucide-react';
 import { Community } from '../services/communities';
 
-// Dados mockados de comunidades (fallback caso não haja dados no banco)
-const mockCommunities = [
-  {
-    id: 'apoio',
-    name: 'Apoio',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop',
-    description: 'Espaço seguro para compartilhar experiências e buscar apoio',
-    membersCount: 1243,
-    postsCount: 567,
-  },
-  {
-    id: 'saude-mental',
-    name: 'Saúde Mental',
-    avatar: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&h=200&fit=crop',
-    description: 'Bem-estar mental e autocuidado',
-    membersCount: 892,
-    postsCount: 334,
-  },
-  {
-    id: 'relacionamentos',
-    name: 'Relacionamentos',
-    avatar: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=200&h=200&fit=crop',
-    description: 'Experiências e dicas sobre relacionamentos',
-    membersCount: 1567,
-    postsCount: 445,
-  },
-  {
-    id: 'carreira',
-    name: 'Carreira',
-    avatar: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=200&h=200&fit=crop',
-    description: 'Networking e oportunidades profissionais',
-    membersCount: 678,
-    postsCount: 234,
-  },
-  {
-    id: 'eventos',
-    name: 'Eventos',
-    avatar: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=200&h=200&fit=crop',
-    description: 'Eventos e encontros da comunidade',
-    membersCount: 2134,
-    postsCount: 892,
-  },
-  {
-    id: 'arte-cultura',
-    name: 'Arte & Cultura',
-    avatar: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=200&h=200&fit=crop',
-    description: 'Criações artísticas e cultura LGBTQIA+',
-    membersCount: 987,
-    postsCount: 456,
-  },
-  {
-    id: 'esportes',
-    name: 'Esportes',
-    avatar: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=200&h=200&fit=crop',
-    description: 'Atividades físicas e esportes inclusivos',
-    membersCount: 543,
-    postsCount: 189,
-  },
-  {
-    id: 'viagens',
-    name: 'Viagens',
-    avatar: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200&h=200&fit=crop',
-    description: 'Destinos LGBTQIA+ friendly',
-    membersCount: 1123,
-    postsCount: 378,
-  },
-  {
-    id: 'beleza-estilo',
-    name: 'Beleza & Estilo',
-    avatar: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=200&h=200&fit=crop',
-    description: 'Dicas de beleza, moda e estilo',
-    membersCount: 1456,
-    postsCount: 623,
-  },
-  {
-    id: 'familia',
-    name: 'Família',
-    avatar: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=200&h=200&fit=crop',
-    description: 'Família e paternidade/maternidade',
-    membersCount: 789,
-    postsCount: 267,
-  },
-];
+// Dados mockados removidos - agora usamos apenas dados do banco de dados
 
 // Mapear categoria para cor
 const categoryColors: Record<string, string> = {
@@ -212,27 +130,16 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
   }, [posts]);
 
   // Buscar comunidades do banco de dados
-  const { communities: dbCommunities } = useCommunities();
+  const { communities: dbCommunities, loading: communitiesLoading } = useCommunities();
 
-  // Usar comunidades do banco ou fallback para mock
+  // Usar apenas comunidades do banco (sem fallback para mock)
   const communities = useMemo(() => {
-    if (dbCommunities && dbCommunities.length > 0) {
-      return dbCommunities;
+    // Retornar array vazio enquanto carrega ou se não houver dados
+    if (communitiesLoading || !dbCommunities) {
+      return [];
     }
-    // Fallback para mock se não houver dados no banco
-    return mockCommunities.map((mock) => ({
-      id: mock.id,
-      name: mock.name,
-      description: mock.description,
-      image: mock.avatar,
-      imageUrl: mock.avatar,
-      icon: undefined,
-      category: undefined,
-      membersCount: mock.membersCount,
-      postsCount: mock.postsCount,
-      isActive: true,
-    }));
-  }, [dbCommunities]);
+    return dbCommunities;
+  }, [dbCommunities, communitiesLoading]);
 
   // Função para obter ícone baseado na categoria
   const getCommunityIcon = (community: Community): React.ReactNode => {
@@ -326,13 +233,9 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
   
   // Mapear comunidades para o formato do CreatePostForm
   const communitiesForForm = useMemo(() => {
+    // Retornar array vazio se não houver comunidades (sem fallback para mock)
     if (!communities || communities.length === 0) {
-      // Fallback para mock se não houver dados no banco
-      return mockCommunities.map((mock) => ({
-        id: mock.id,
-        name: mock.name,
-        avatar: mock.avatar,
-      }));
+      return [];
     }
     return communities.map((c) => ({
       id: c.id,
@@ -437,15 +340,17 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
           </div>
 
           {/* Carrossel de Comunidades em Destaque */}
-          <CommunityCardCarousel
-            communities={communitiesForCarousel}
-            onCommunityClick={(communityId) => {
-              onNavigate(`community-details:${communityId}`);
-            }}
-            onJoinClick={(communityId) => {
-              onNavigate(`community-details:${communityId}`);
-            }}
-          />
+          {!communitiesLoading && communitiesForCarousel.length > 0 && (
+            <CommunityCardCarousel
+              communities={communitiesForCarousel}
+              onCommunityClick={(communityId) => {
+                onNavigate(`community-details:${communityId}`);
+              }}
+              onJoinClick={(communityId) => {
+                onNavigate(`community-details:${communityId}`);
+              }}
+            />
+          )}
 
           {/* Tabs: Meu feed / Minhas comunidades */}
           <div className="px-5 mb-4">
