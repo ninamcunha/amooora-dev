@@ -181,9 +181,7 @@ export function Home({ onNavigate }: HomeProps) {
               <HighlightCard
                 title="Lugares Seguros"
                 subtitle="Descubra locais acolhedores"
-                imageUrl={limitedPlaces.length > 0 && limitedPlaces[0]?.imageUrl 
-                  ? limitedPlaces[0].imageUrl 
-                  : 'https://images.unsplash.com/photo-1518611012118-696072cad802?w=800&q=80'}
+                imageUrl="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80"
                 icon={MapPin}
                 onClick={() => onNavigate('places')}
               />
