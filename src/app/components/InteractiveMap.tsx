@@ -48,10 +48,14 @@ export function InteractiveMap({
   const [mapError, setMapError] = useState<string | null>(null);
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_K;
   
-  // Log para debug (apenas em desenvolvimento)
-  if (import.meta.env.DEV) {
-    console.log('🗺️ Google Maps API Key:', apiKey ? `✅ Configurada (${apiKey.substring(0, 10)}...)` : '❌ Não configurada');
-  }
+  // Log para debug (sempre, para ajudar no troubleshooting)
+  console.log('🗺️ Google Maps API Key Check:', {
+    hasApiKey: !!apiKey,
+    apiKeyLength: apiKey?.length || 0,
+    apiKeyPreview: apiKey ? `${apiKey.substring(0, 10)}...` : 'não configurada',
+    envVar: 'VITE_GOOGLE_MAPS_API_K',
+    allEnvVars: Object.keys(import.meta.env).filter(k => k.includes('GOOGLE') || k.includes('MAPS'))
+  });
   
   // #region agent log
   fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:api-key-check',message:'Verificando API key',data:{hasApiKey:!!apiKey,apiKeyLength:apiKey?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
