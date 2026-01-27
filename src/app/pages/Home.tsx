@@ -12,6 +12,8 @@ import { usePlaces } from '../hooks/usePlaces';
 import { useEvents } from '../hooks/useEvents';
 import { useServices } from '../hooks/useServices';
 import { useAdmin } from '../hooks/useAdmin';
+import { HighlightCard } from '../components/HighlightCard';
+import { InteractiveMap } from '../components/InteractiveMap';
 
 // Mapeamento de categorias para ícones
 const categoryIconMap: { [key: string]: LucideIcon } = {
@@ -57,6 +59,43 @@ export function Home({ onNavigate }: HomeProps) {
   const limitedPlaces = places.slice(0, 3);
   const limitedEvents = events.slice(0, 3);
 
+  // Preparar locais e eventos para o mapa (apenas os que têm coordenadas)
+  const mapLocations = useMemo(() => {
+    const locations: Array<{
+      id: string;
+      name: string;
+      address?: string;
+      lat: number;
+      lng: number;
+      category?: string;
+      imageUrl?: string;
+      type: 'place' | 'event';
+    }> = [];
+
+    // Adicionar locais com coordenadas
+    places
+      .filter((place) => place.latitude && place.longitude)
+      .slice(0, 10) // Limitar a 10 locais para o mapa na home
+      .forEach((place) => {
+        locations.push({
+          id: place.id,
+          name: place.name,
+          address: place.address,
+          lat: Number(place.latitude),
+          lng: Number(place.longitude),
+          category: place.category,
+          imageUrl: place.imageUrl || place.image,
+          type: 'place',
+        });
+      });
+
+    // Adicionar eventos com localização (se tiverem coordenadas no futuro)
+    // Por enquanto, eventos precisam de geocoding, então vamos pular
+    // Se quiser incluir eventos, precisaria fazer geocoding aqui também
+
+    return locations;
+  }, [places]);
+
   // Pegar os últimos 6 serviços cadastrados para grid 2 colunas (já ordenados por created_at DESC)
   const latestServices = useMemo(() => {
     if (!services || services.length === 0) {
@@ -95,7 +134,7 @@ export function Home({ onNavigate }: HomeProps) {
         {/* Main content com scroll - padding-top para compensar header fixo */}
         <main className="flex-1 overflow-y-auto px-5 py-6 space-y-8 pb-24 pt-28">
           {/* Campo de Busca */}
-          <div className="mb-2">
+          <div className="mb-6">
             <button
               onClick={() => setIsSearchOpen(true)}
               className="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors text-left"
@@ -104,6 +143,81 @@ export function Home({ onNavigate }: HomeProps) {
               <span className="text-sm text-gray-500 flex-1">Buscar locais, eventos e serviços...</span>
             </button>
           </div>
+
+          {/* Card do Mapa */}
+          <section className="mb-8">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Amooora Recomenda</h2>
+              <p className="text-sm text-gray-600">Confira os lugares e eventos sáficos.</p>
+            </div>
+            <div 
+              onClick={() => onNavigate('mapa')}
+              className="w-full bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer"
+            >
+              <InteractiveMap
+                locations={mapLocations}
+                height="280px"
+                onMarkerClick={(location) => {
+                  if (location.type === 'place') {
+                    onNavigate(`place-details:${location.id}`);
+                  } else if (location.type === 'event') {
+                    onNavigate(`event-details:${location.id}`);
+                  }
+                }}
+              />
+            </div>
+          </section>
+
+          {/* Seção: Destaques */}
+          <section className="mb-8">
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-1">Destaques</h2>
+              <p className="text-sm text-gray-600">Explore os melhores locais, eventos e serviços</p>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide -mx-5 px-5">
+              {/* Card Locais */}
+              <HighlightCard
+                title="Lugares Seguros"
+                subtitle="Descubra locais acolhedores"
+                imageUrl={limitedPlaces.length > 0 && limitedPlaces[0]?.imageUrl 
+                  ? limitedPlaces[0].imageUrl 
+                  : 'https://images.unsplash.com/photo-1518611012118-696072cad802?w=800&q=80'}
+                icon={MapPin}
+                onClick={() => onNavigate('places')}
+              />
+              
+              {/* Card Eventos */}
+              <HighlightCard
+                title="Eventos"
+                subtitle="Participe de eventos incríveis"
+                imageUrl={limitedEvents.length > 0 && limitedEvents[0]?.imageUrl 
+                  ? limitedEvents[0].imageUrl 
+                  : 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80'}
+                icon={Calendar}
+                onClick={() => onNavigate('events')}
+              />
+              
+              {/* Card Serviços */}
+              <HighlightCard
+                title="Serviços"
+                subtitle="Encontre profissionais especializados"
+                imageUrl={latestServices.length > 0 && latestServices[0]?.imageUrl 
+                  ? latestServices[0].imageUrl 
+                  : 'https://images.unsplash.com/photo-1556155092-490a1ba16284?w=800&q=80'}
+                icon={Scissors}
+                onClick={() => onNavigate('services')}
+              />
+              
+              {/* Card Comunidade */}
+              <HighlightCard
+                title="Comunidade"
+                subtitle="Conecte-se com outras pessoas"
+                imageUrl="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80"
+                icon={MessageCircle}
+                onClick={() => onNavigate('community')}
+              />
+            </div>
+          </section>
 
           {/* Seção: Lugares Seguros Próximos */}
           <section>
