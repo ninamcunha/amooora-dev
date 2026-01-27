@@ -9,6 +9,7 @@ export interface CommunityCardData {
   membersCount?: number;
   postsCount?: number;
   rating?: number;
+  category?: string;
 }
 
 interface CommunityCardProps {
@@ -29,10 +30,10 @@ export function CommunityCard({ community, onClick }: CommunityCardProps) {
   return (
     <div 
       onClick={onClick}
-      className="bg-white rounded-2xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow mb-4 cursor-pointer relative"
+      className="bg-white rounded-2xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow cursor-pointer relative flex flex-col"
     >
       {/* Imagem de fundo */}
-      <div className="relative h-56 overflow-hidden">
+      <div className="relative h-40 overflow-hidden">
         <ImageWithFallback 
           src={avatar} 
           alt={name}
@@ -42,19 +43,19 @@ export function CommunityCard({ community, onClick }: CommunityCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
         
         {/* Conteúdo sobre a imagem */}
-        <div className="absolute bottom-0 left-0 right-0 p-5">
-          <h3 className="text-2xl font-bold text-white mb-2">{name}</h3>
-          <div className="flex items-center gap-2 text-white">
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          <h3 className="text-lg font-bold text-white mb-1.5 line-clamp-2">{name}</h3>
+          <div className="flex items-center gap-1.5 text-white flex-wrap">
             {rating !== undefined && (
               <>
-                <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                <span className="text-base font-semibold">{rating}</span>
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+                <span className="text-sm font-semibold">{rating}</span>
               </>
             )}
             {membersCount !== undefined && (
               <>
-                <span className="text-base">•</span>
-                <span className="text-base">({formatMembers(membersCount)})</span>
+                <span className="text-sm">•</span>
+                <span className="text-xs">({formatMembers(membersCount)})</span>
               </>
             )}
           </div>
@@ -62,16 +63,16 @@ export function CommunityCard({ community, onClick }: CommunityCardProps) {
       </div>
 
       {/* Botão "Ver Comunidade" */}
-      <div className="p-4">
+      <div className="p-3 flex-1 flex items-end">
         <button
           onClick={(e) => {
             e.stopPropagation();
             onClick?.();
           }}
-          className="w-full px-4 py-3 bg-white border-2 border-primary text-primary rounded-xl font-medium hover:bg-primary/5 transition-colors flex items-center justify-center gap-2"
+          className="w-full px-3 py-2 bg-white border-2 border-primary text-primary rounded-xl font-medium hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5 text-sm"
         >
           <span>Ver Comunidade</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>

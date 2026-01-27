@@ -32,8 +32,7 @@ export function CommunityCardCarousel({
         {communities.map((community) => (
           <div
             key={community.id}
-            className="flex-shrink-0 w-[280px] bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer"
-            onClick={() => onCommunityClick?.(community.id)}
+            className="flex-shrink-0 w-[280px] bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all"
           >
             {/* Imagem do card */}
             <div className="relative w-full h-40 overflow-hidden">
@@ -64,13 +63,15 @@ export function CommunityCardCarousel({
               </p>
 
               {/* Botões de ação */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 {/* Botão de membros */}
                 <button
+                  type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                   }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-full text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors relative z-10"
                 >
                   <Users className="w-3.5 h-3.5" />
                   <span>
@@ -82,11 +83,13 @@ export function CommunityCardCarousel({
 
                 {/* Botão Entrar */}
                 <button
+                  type="button"
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
-                    onJoinClick?.(community.id);
+                    onCommunityClick?.(community.id);
                   }}
-                  className="flex-1 px-4 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-semibold hover:bg-gray-800 transition-colors"
+                  className="flex-1 px-4 py-2 bg-primary text-white rounded-full text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer"
                 >
                   Entrar
                 </button>

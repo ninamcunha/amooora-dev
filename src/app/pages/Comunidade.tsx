@@ -1,20 +1,21 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Header } from '../components/Header';
 import { CommunityPostCard } from '../components/CommunityPostCard';
-import { CommunityList } from '../components/CommunityList';
 import { CommunityCardCarousel } from '../components/CommunityCardCarousel';
-import { MessageCircle, Heart, Users, Calendar, Palette, Briefcase, Plane, Sparkles, Home } from 'lucide-react';
 import { CreatePostForm } from '../components/CreatePostForm';
+import { MessageCircle, Heart, Users, Calendar, Sparkles } from 'lucide-react';
 import { BottomNav } from '../components/BottomNav';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonListExpanded } from '../components/Skeleton';
 import { InfiniteScroll } from '../components/InfiniteScroll';
 import { useAdmin } from '../hooks/useAdmin';
 import { useCommunityPosts } from '../hooks/useCommunityPosts';
+import { useCommunities } from '../hooks/useCommunities';
 import { createPost } from '../services/community';
 import { MessageSquare } from 'lucide-react';
+import { Community } from '../services/communities';
 
-// Dados mockados de comunidades (temas LGBTQIA+)
+// Dados mockados de comunidades (fallback caso não haja dados no banco)
 const mockCommunities = [
   {
     id: 'apoio',
@@ -128,6 +129,7 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
   const [activeTab, setActiveTab] = useState<'feed' | 'communities'>('feed');
   const [selectedCommunityId, setSelectedCommunityId] = useState<string | null>(null);
 
+
   // Usar hook para buscar posts do banco (sem filtros de busca/categoria por padrão)
   const { posts, loading, error, hasMore, loadMore, refetch } = useCommunityPosts({
     category: undefined,
@@ -135,129 +137,83 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
     limit: 20,
   });
 
-  // Buscar imagens dos posts por categoria para usar nos cards de comunidades
-  const getCommunityImage = useCallback((category: string): string => {
-    // Buscar primeiro post com imagem dessa categoria
-    const postWithImage = posts.find(
-      (post) => post.category === category && post.image
-    );
-    
-    if (postWithImage?.image) {
-      return postWithImage.image;
-    }
-    
-    // Fallback para avatar da comunidade
-    const community = mockCommunities.find((c) => {
-      const communityCategoryMap: Record<string, string> = {
-        'apoio': 'Apoio',
-        'saude-mental': 'Apoio',
-        'relacionamentos': 'Geral',
-        'carreira': 'Geral',
-        'eventos': 'Eventos',
-        'arte-cultura': 'Geral',
-        'esportes': 'Geral',
-        'viagens': 'Dicas',
-        'beleza-estilo': 'Dicas',
-        'familia': 'Apoio',
-      };
-      return communityCategoryMap[c.id] === category;
-    });
-    
-    return community?.avatar || 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80';
+
+
+  // Filtrar posts baseado no tab ativo
+  const filteredPosts = useMemo(() => {
+    // "Meu feed" - mostrar todos os posts
+    return posts;
   }, [posts]);
 
-  // Ícones para cada comunidade
-  const communityIcons: Record<string, React.ReactNode> = {
-    'apoio': <Heart className="w-6 h-6 text-white" />,
-    'saude-mental': <Heart className="w-6 h-6 text-white" />,
-    'relacionamentos': <Users className="w-6 h-6 text-white" />,
-    'carreira': <Briefcase className="w-6 h-6 text-white" />,
-    'eventos': <Calendar className="w-6 h-6 text-white" />,
-    'arte-cultura': <Palette className="w-6 h-6 text-white" />,
-    'esportes': <Users className="w-6 h-6 text-white" />,
-    'viagens': <Plane className="w-6 h-6 text-white" />,
-    'beleza-estilo': <Sparkles className="w-6 h-6 text-white" />,
-    'familia': <Home className="w-6 h-6 text-white" />,
+  // Buscar comunidades do banco de dados
+  const { communities: dbCommunities } = useCommunities();
+
+  // Usar comunidades do banco ou fallback para mock
+  const communities = useMemo(() => {
+    if (dbCommunities && dbCommunities.length > 0) {
+      return dbCommunities;
+    }
+    // Fallback para mock se não houver dados no banco
+    return mockCommunities.map((mock) => ({
+      id: mock.id,
+      name: mock.name,
+      description: mock.description,
+      image: mock.avatar,
+      imageUrl: mock.avatar,
+      icon: undefined,
+      category: undefined,
+      membersCount: mock.membersCount,
+      postsCount: mock.postsCount,
+      isActive: true,
+    }));
+  }, [dbCommunities]);
+
+  // Função para obter ícone baseado na categoria
+  const getCommunityIcon = (community: Community): React.ReactNode => {
+    const iconMap: Record<string, React.ReactNode> = {
+      'Apoio': <Heart className="w-6 h-6 text-white" />,
+      'Dicas': <Sparkles className="w-6 h-6 text-white" />,
+      'Eventos': <Calendar className="w-6 h-6 text-white" />,
+      'Geral': <Users className="w-6 h-6 text-white" />,
+    };
+    
+    return iconMap[community.category || ''] || <MessageCircle className="w-6 h-6 text-white" />;
   };
 
   // Mapear comunidades para o formato do carrossel
   const communitiesForCarousel = useMemo(() => {
-    const communityCategoryMap: Record<string, string> = {
-      'apoio': 'Apoio',
-      'saude-mental': 'Apoio',
-      'relacionamentos': 'Geral',
-      'carreira': 'Geral',
-      'eventos': 'Eventos',
-      'arte-cultura': 'Geral',
-      'esportes': 'Geral',
-      'viagens': 'Dicas',
-      'beleza-estilo': 'Dicas',
-      'familia': 'Apoio',
-    };
-
-    return mockCommunities.map((community) => {
-      const category = communityCategoryMap[community.id] || 'Geral';
-      return {
-        id: community.id,
-        name: community.name,
-        description: community.description,
-        imageUrl: getCommunityImage(category),
-        icon: communityIcons[community.id] || <MessageCircle className="w-6 h-6 text-white" />,
-        membersCount: community.membersCount,
-        postsCount: community.postsCount,
-      };
-    });
-  }, [posts, getCommunityImage]);
-
-  // Filtrar posts baseado no tab ativo
-  const filteredPosts = useMemo(() => {
-    if (activeTab === 'communities' && selectedCommunityId) {
-      // Filtrar por comunidade selecionada
-      // Mapear ID de comunidade para categoria
-      const communityCategoryMap: Record<string, string> = {
-        'apoio': 'Apoio',
-        'saude-mental': 'Apoio',
-        'relacionamentos': 'Geral',
-        'carreira': 'Geral',
-        'eventos': 'Eventos',
-        'arte-cultura': 'Geral',
-        'esportes': 'Geral',
-        'viagens': 'Dicas',
-        'beleza-estilo': 'Dicas',
-        'familia': 'Apoio',
-      };
-      const category = communityCategoryMap[selectedCommunityId];
-      if (category) {
-        return posts.filter((post) => post.category === category);
-      }
-    }
-    // "Meu feed" - mostrar todos os posts
-    return posts;
-  }, [posts, activeTab, selectedCommunityId]);
-
+    return communities.map((community) => ({
+      id: community.id,
+      name: community.name,
+      description: community.description,
+      imageUrl: community.image || community.imageUrl || 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80',
+      icon: getCommunityIcon(community),
+      membersCount: community.membersCount || 0,
+      postsCount: community.postsCount || 0,
+    }));
+  }, [communities]);
+  
   // Mapear comunidades para o formato do CreatePostForm
-  const communitiesForForm = mockCommunities.map((c) => ({
-    id: c.id,
-    name: c.name,
-    avatar: c.avatar,
-  }));
-
+  const communitiesForForm = useMemo(() => {
+    if (!communities || communities.length === 0) {
+      // Fallback para mock se não houver dados no banco
+      return mockCommunities.map((mock) => ({
+        id: mock.id,
+        name: mock.name,
+        avatar: mock.avatar,
+      }));
+    }
+    return communities.map((c) => ({
+      id: c.id,
+      name: c.name,
+      avatar: c.image || c.imageUrl || '',
+    }));
+  }, [communities]);
 
   const handleCreatePost = async (content: string, communityId: string) => {
-    // Mapear ID de comunidade para categoria
-    const communityCategoryMap: Record<string, string> = {
-      'apoio': 'Apoio',
-      'saude-mental': 'Apoio',
-      'relacionamentos': 'Geral',
-      'carreira': 'Geral',
-      'eventos': 'Eventos',
-      'arte-cultura': 'Geral',
-      'esportes': 'Geral',
-      'viagens': 'Dicas',
-      'beleza-estilo': 'Dicas',
-      'familia': 'Apoio',
-    };
-    const category = communityCategoryMap[communityId] || 'Geral';
+    // Buscar categoria da comunidade selecionada
+    const selectedCommunity = communities.find((c) => c.id === communityId);
+    const category = selectedCommunity?.category || 'Geral';
     
     // Usar primeiras palavras do conteúdo como título (ou criar um título padrão)
     const title = content.split('\n')[0].substring(0, 100) || 'Novo Post';
@@ -306,7 +262,12 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
           <div className="px-5 pt-6 pb-4">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-semibold text-primary">Comunidade</h1>
-              <button className="text-sm text-primary font-medium">Ver todas</button>
+              <button 
+                onClick={() => onNavigate('minhas-comunidades')}
+                className="text-sm text-accent font-medium hover:opacity-80 transition-opacity"
+              >
+                Ver todas
+              </button>
             </div>
           </div>
 
@@ -314,12 +275,10 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
           <CommunityCardCarousel
             communities={communitiesForCarousel}
             onCommunityClick={(communityId) => {
-              setSelectedCommunityId(communityId);
-              setActiveTab('communities');
+              onNavigate(`community-details:${communityId}`);
             }}
             onJoinClick={(communityId) => {
-              // Ação ao clicar em "Entrar" - pode ser implementada depois
-              console.log('Entrar na comunidade:', communityId);
+              onNavigate(`community-details:${communityId}`);
             }}
           />
 

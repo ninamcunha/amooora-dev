@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, MapPin, Calendar, Scissors, Search, Edit, Trash2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Scissors, Search, Edit, Trash2, Users } from 'lucide-react';
 import { getPlaces } from '../services/places';
 import { getEvents } from '../services/events';
 import { getServices } from '../services/services';
+import { getCommunities } from '../services/communities';
 import { Place, Event, Service } from '../types';
+import { Community } from '../services/communities';
 
 interface AdminEditarConteudosProps {
   onNavigate: (page: string) => void;
 }
 
-type ContentType = 'all' | 'places' | 'events' | 'services';
+type ContentType = 'all' | 'places' | 'events' | 'services' | 'communities';
 
 export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) {
   const [activeTab, setActiveTab] = useState<ContentType>('all');
@@ -19,20 +21,23 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
   const [places, setPlaces] = useState<Place[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
 
   useEffect(() => {
     const loadContent = async () => {
       setLoading(true);
       try {
-        const [placesData, eventsData, servicesData] = await Promise.all([
+        const [placesData, eventsData, servicesData, communitiesData] = await Promise.all([
           getPlaces().then(r => r.data || []),
           getEvents(),
           getServices(),
+          getCommunities(),
         ]);
         
         setPlaces(placesData);
         setEvents(eventsData);
         setServices(servicesData);
+        setCommunities(communitiesData);
       } catch (error) {
         console.error('Erro ao carregar conteúdos:', error);
       } finally {
@@ -58,13 +63,20 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
     s.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleEdit = (type: 'place' | 'event' | 'service', id: string) => {
+  const filteredCommunities = communities.filter(c =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.category?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleEdit = (type: 'place' | 'event' | 'service' | 'community', id: string) => {
     if (type === 'place') {
       onNavigate(`admin-editar-local:${id}`);
     } else if (type === 'event') {
       onNavigate(`admin-editar-evento:${id}`);
     } else if (type === 'service') {
       onNavigate(`admin-editar-servico:${id}`);
+    } else if (type === 'community') {
+      onNavigate(`admin-editar-comunidade:${id}`);
     }
   };
 
@@ -144,6 +156,17 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
             >
               <Scissors className="w-4 h-4 inline mr-1" />
               Serviços
+            </button>
+            <button
+              onClick={() => setActiveTab('communities')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                activeTab === 'communities'
+                  ? 'bg-primary text-white'
+                  : 'bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <Users className="w-4 h-4 inline mr-1" />
+              Comunidades
             </button>
           </div>
         </div>
@@ -261,6 +284,43 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
                             </div>
                             <button
                               onClick={() => handleEdit('service', service.id)}
+                              className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
+                              title="Editar"
+                            >
+                              <Edit className="w-5 h-5 text-primary" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Comunidades */}
+              {(activeTab === 'all' || activeTab === 'communities') && (
+                <div className="mb-6">
+                  <h2 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    Comunidades ({filteredCommunities.length})
+                  </h2>
+                  {filteredCommunities.length === 0 ? (
+                    <p className="text-sm text-gray-500 py-4">Nenhuma comunidade encontrada</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {filteredCommunities.map((community) => (
+                        <div
+                          key={community.id}
+                          className="bg-white border border-gray-200 rounded-xl p-4 hover:bg-gray-50 transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 mb-1 truncate">{community.name}</h3>
+                              <p className="text-xs text-gray-600 mb-2">{community.category}</p>
+                              <p className="text-xs text-gray-500 line-clamp-2">{community.description}</p>
+                            </div>
+                            <button
+                              onClick={() => handleEdit('community', community.id)}
                               className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center transition-colors"
                               title="Editar"
                             >

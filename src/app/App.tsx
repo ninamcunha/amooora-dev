@@ -28,6 +28,9 @@ import { AdminEditarConteudos } from './pages/AdminEditarConteudos';
 import { AdminEditarLocal } from './pages/AdminEditarLocal';
 import { AdminEditarEvento } from './pages/AdminEditarEvento';
 import { AdminEditarServico } from './pages/AdminEditarServico';
+import { AdminCadastrarComunidade } from './pages/AdminCadastrarComunidade';
+import { AdminEditarComunidade } from './pages/AdminEditarComunidade';
+import { CommunityDetails } from './pages/CommunityDetails';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
@@ -36,6 +39,7 @@ export default function App() {
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
   const [selectedPostId, setSelectedPostId] = useState<string | undefined>(undefined);
+  const [selectedCommunityId, setSelectedCommunityId] = useState<string | undefined>(undefined);
 
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
 
@@ -188,6 +192,14 @@ export default function App() {
       const serviceId = page.split(':')[1];
       setSelectedServiceId(serviceId);
       setCurrentPage('admin-editar-servico');
+    } else if (page.startsWith('admin-editar-comunidade:')) {
+      const communityId = page.split(':')[1];
+      setSelectedServiceId(communityId); // Reutilizando selectedServiceId temporariamente
+      setCurrentPage('admin-editar-comunidade');
+    } else if (page.startsWith('community-details:')) {
+      const communityId = page.split(':')[1];
+      setSelectedCommunityId(communityId);
+      setCurrentPage('community-details');
     } else {
       setSelectedCategory(undefined); // Limpar categoria ao navegar para outras páginas
       // #region agent log
@@ -279,6 +291,17 @@ export default function App() {
         );
       case 'community':
         return <Comunidade onNavigate={handleNavigate} />;
+      case 'community-details':
+        return (
+          <CommunityDetails
+            communityId={selectedCommunityId || ''}
+            onNavigate={handleNavigate}
+            onBack={() => {
+              setCurrentPage('community');
+              setSelectedCommunityId(undefined);
+            }}
+          />
+        );
       case 'minhas-comunidades':
         return (
           <MinhasComunidades 
@@ -317,6 +340,8 @@ export default function App() {
         return <AdminCadastrarServico onNavigate={handleNavigate} />;
       case 'admin-cadastrar-evento':
         return <AdminCadastrarEvento onNavigate={handleNavigate} />;
+      case 'admin-cadastrar-comunidade':
+        return <AdminCadastrarComunidade onNavigate={handleNavigate} />;
       case 'admin-editar-conteudos':
         return <AdminEditarConteudos onNavigate={handleNavigate} />;
       case 'admin-editar-local':
@@ -325,6 +350,8 @@ export default function App() {
         return <AdminEditarEvento eventId={selectedEventId} onNavigate={handleNavigate} />;
       case 'admin-editar-servico':
         return <AdminEditarServico serviceId={selectedServiceId} onNavigate={handleNavigate} />;
+      case 'admin-editar-comunidade':
+        return <AdminEditarComunidade communityId={selectedServiceId} onNavigate={handleNavigate} />;
       case 'sobre-amooora':
         return (
           <SobreAmooora 

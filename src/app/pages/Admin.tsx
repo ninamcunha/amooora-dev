@@ -1,4 +1,4 @@
-import { ArrowLeft, UserPlus, MapPin, Calendar, Scissors, LogOut, Edit } from 'lucide-react';
+import { ArrowLeft, UserPlus, MapPin, Calendar, Scissors, LogOut, Edit, Users } from 'lucide-react';
 import { signOut } from '../../lib/auth';
 
 interface AdminProps {
@@ -50,6 +50,13 @@ export function Admin({ onNavigate }: AdminProps) {
       description: 'Criar novo evento na plataforma',
       icon: Calendar,
       color: 'bg-orange-500',
+    },
+    {
+      id: 'admin-cadastrar-comunidade',
+      title: 'Cadastrar Comunidade',
+      description: 'Criar nova comunidade na plataforma',
+      icon: Users,
+      color: 'bg-purple-500',
     },
   ];
 

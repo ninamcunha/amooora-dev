@@ -30,6 +30,12 @@ Vá em **Storage** → **Create bucket** e crie os seguintes buckets:
 - **File size limit**: 5MB
 - **Allowed MIME types**: `image/jpeg, image/jpg, image/png, image/webp, image/gif`
 
+#### Bucket: `communities`
+- **Nome**: `communities`
+- **Público**: ✅ Marque como público
+- **File size limit**: 5MB
+- **Allowed MIME types**: `image/jpeg, image/jpg, image/png, image/webp, image/gif`
+
 ### 3. Configurar Políticas RLS (Row Level Security)
 
 Para cada bucket criado, você precisa configurar políticas RLS:
@@ -93,6 +99,16 @@ CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = '
 CREATE POLICY "Authenticated Upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'events' AND auth.role() = 'authenticated');
 CREATE POLICY "Authenticated Update" ON storage.objects FOR UPDATE USING (bucket_id = 'events' AND auth.role() = 'authenticated');
 CREATE POLICY "Authenticated Delete" ON storage.objects FOR DELETE USING (bucket_id = 'events' AND auth.role() = 'authenticated');
+
+-- Criar bucket communities
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES ('communities', 'communities', true, 5242880, ARRAY['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']);
+
+-- Políticas para bucket communities
+CREATE POLICY "Public Access communities" ON storage.objects FOR SELECT USING (bucket_id = 'communities');
+CREATE POLICY "Authenticated Upload communities" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'communities' AND auth.role() = 'authenticated');
+CREATE POLICY "Authenticated Update communities" ON storage.objects FOR UPDATE USING (bucket_id = 'communities' AND auth.role() = 'authenticated');
+CREATE POLICY "Authenticated Delete communities" ON storage.objects FOR DELETE USING (bucket_id = 'communities' AND auth.role() = 'authenticated');
 ```
 
 ## ✅ Verificar se está funcionando
@@ -100,13 +116,14 @@ CREATE POLICY "Authenticated Delete" ON storage.objects FOR DELETE USING (bucket
 1. Acesse o painel administrativo na aplicação
 2. Tente cadastrar um Local/Serviço/Evento com uma imagem
 3. Se funcionar, você verá a mensagem de sucesso
-4. Verifique no **Storage** → **places/services/events** se a imagem foi enviada
+4. Verifique no **Storage** → **places/services/events/communities** se a imagem foi enviada
 
 ## 🔧 Solução de Problemas
 
 ### Erro: "Bucket not found"
 - Verifique se os buckets foram criados corretamente
-- Confirme que os nomes são exatamente: `places`, `services`, `events`
+- Confirme que os nomes são exatamente: `places`, `services`, `events`, `communities`
+- **Solução rápida**: Execute o arquivo `SQL/SQL_CREATE_BUCKET_COMMUNITIES.sql` no SQL Editor do Supabase
 
 ### Erro: "new row violates row-level security policy"
 - Verifique se as políticas RLS foram configuradas

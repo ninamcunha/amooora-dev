@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Send, ChevronDown, Globe } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
@@ -11,14 +11,27 @@ export interface Community {
 interface CreatePostFormProps {
   communities: Community[];
   userAvatar?: string;
+  defaultCommunityId?: string;
   onSubmit: (content: string, communityId: string) => Promise<void>;
 }
 
-export function CreatePostForm({ communities, userAvatar, onSubmit }: CreatePostFormProps) {
+export function CreatePostForm({ communities, userAvatar, defaultCommunityId, onSubmit }: CreatePostFormProps) {
   const [content, setContent] = useState('');
-  const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
+  const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(
+    defaultCommunityId ? communities.find(c => c.id === defaultCommunityId) || null : null
+  );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Atualizar comunidade selecionada quando defaultCommunityId mudar
+  useEffect(() => {
+    if (defaultCommunityId && communities.length > 0) {
+      const community = communities.find(c => c.id === defaultCommunityId);
+      if (community) {
+        setSelectedCommunity(community);
+      }
+    }
+  }, [defaultCommunityId, communities]);
 
   const handleSubmit = async () => {
     if (!content.trim() || !selectedCommunity) return;
@@ -61,17 +74,18 @@ export function CreatePostForm({ communities, userAvatar, onSubmit }: CreatePost
 
         {/* Seletor de comunidade e botão publicar */}
         <div className="flex items-center gap-3">
-          <div className="relative flex-1">
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full px-3 py-2 bg-transparent border-0 focus:outline-none text-sm text-foreground flex items-center gap-2 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              <Globe className="w-4 h-4 text-muted-foreground" />
-              <span className={selectedCommunity ? 'text-foreground' : 'text-muted-foreground'}>
-                {selectedCommunity ? selectedCommunity.name : 'Escolher comunidade'}
-              </span>
-              <ChevronDown className={`w-4 h-4 text-muted-foreground ml-auto transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-            </button>
+          {communities.length > 1 ? (
+            <div className="relative flex-1">
+              <button
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="w-full px-3 py-2 bg-transparent border-0 focus:outline-none text-sm text-foreground flex items-center gap-2 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <Globe className="w-4 h-4 text-muted-foreground" />
+                <span className={selectedCommunity ? 'text-foreground' : 'text-muted-foreground'}>
+                  {selectedCommunity ? selectedCommunity.name : 'Escolher comunidade'}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-muted-foreground ml-auto transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
 
             {/* Dropdown de comunidades */}
             {isDropdownOpen && (
@@ -103,7 +117,13 @@ export function CreatePostForm({ communities, userAvatar, onSubmit }: CreatePost
                 </div>
               </>
             )}
-          </div>
+            </div>
+          ) : selectedCommunity ? (
+            <div className="flex-1 flex items-center gap-2 px-3 py-2">
+              <Globe className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-foreground">{selectedCommunity.name}</span>
+            </div>
+          ) : null}
 
           <button
             onClick={handleSubmit}
