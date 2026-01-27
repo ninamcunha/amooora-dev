@@ -1,10 +1,11 @@
-import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, CheckCircle, Star, User, MessageCircle } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, CheckCircle, Star, User, MessageCircle, CheckCircle2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { useEvent } from '../hooks/useEvents';
 import { useEventReviews } from '../hooks/useReviews';
+import { useAttendedEvents } from '../hooks/useAttendedEvents';
 import { Review } from '../types';
 import { calculateAverageRating } from '../services/reviews';
 import { shareContent, getShareUrl, getShareText } from '../utils/share';
@@ -18,6 +19,7 @@ interface EventDetailsProps {
 export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps) {
   const { event, loading, error } = useEvent(eventId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useEventReviews(eventId);
+  const { hasAttended, toggleAttendedEvent } = useAttendedEvents();
   const [isGoing, setIsGoing] = useState(false);
   const [isInterested, setIsInterested] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
@@ -150,6 +152,12 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
     setIsInterested(!isInterested);
     if (!isInterested) {
       setIsGoing(false);
+    }
+  };
+
+  const handleAttendedClick = () => {
+    if (eventId) {
+      toggleAttendedEvent(eventId);
     }
   };
 
@@ -439,28 +447,39 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
 
         {/* Barra de Ação Fixa no Bottom */}
         <div className="absolute bottom-16 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 shadow-lg">
-          <div className="max-w-md mx-auto flex gap-3">
+          <div className="max-w-md mx-auto flex gap-2">
             <button
               onClick={handleInterestedClick}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
                 isInterested
                   ? 'bg-secondary text-white'
                   : 'border-2 border-secondary text-secondary hover:bg-secondary/5'
               }`}
             >
-              <Star className={`w-5 h-5 ${isInterested ? 'fill-white' : ''}`} />
+              <Star className={`w-4 h-4 ${isInterested ? 'fill-white' : ''}`} />
               {isInterested ? 'Interessada' : 'Tenho Interesse'}
             </button>
             <button
               onClick={handleGoingClick}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
                 isGoing
                   ? 'bg-primary text-white'
-                  : 'bg-gradient-to-r from-primary to-accent text-white hover:shadow-lg'
+                  : 'bg-primary text-white hover:bg-primary/90'
               }`}
             >
-              <CheckCircle className="w-5 h-5" />
+              <CheckCircle className="w-4 h-4" />
               {isGoing ? 'Confirmado!' : 'Vou Comparecer'}
+            </button>
+            <button
+              onClick={handleAttendedClick}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
+                eventId && hasAttended(eventId)
+                  ? 'bg-accent text-white'
+                  : 'border-2 border-accent text-accent hover:bg-accent/5'
+              }`}
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              {eventId && hasAttended(eventId) ? 'Eu Fui!' : 'Eu Fui'}
             </button>
           </div>
         </div>

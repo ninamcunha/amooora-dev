@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Settings, Edit, Calendar, MapPin, Heart, Star, Users, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { BottomNav } from '../components/BottomNav';
 import { Header } from '../components/Header';
 import { useProfile } from '../hooks/useProfile';
 import { useAdmin } from '../hooks/useAdmin';
+import { useAttendedEvents } from '../hooks/useAttendedEvents';
+import { useEvents } from '../hooks/useEvents';
 import { 
   getProfileStats, 
   getSavedPlaces, 
   getUpcomingEvents, 
-  getAttendedEvents, 
   getUserReviews,
   type SavedPlace,
   type UpcomingEvent,
-  type AttendedEvent,
   type UserReview,
 } from '../services/profile';
 
@@ -24,6 +24,8 @@ interface PerfilProps {
 export function Perfil({ onNavigate }: PerfilProps) {
   const { profile, loading: profileLoading } = useProfile();
   const { isAdmin } = useAdmin();
+  const { getAttendedEvents: getAttendedEventIds } = useAttendedEvents();
+  const { events: allEvents } = useEvents();
   const [stats, setStats] = useState({ eventsCount: 0, placesCount: 0, friendsCount: 0 });
   const [favoritePlaces, setFavoritePlaces] = useState<SavedPlace[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
@@ -159,7 +161,35 @@ export function Perfil({ onNavigate }: PerfilProps) {
   // Usar dados reais ou mock
   const displayFavoritePlaces = favoritePlaces.length > 0 ? favoritePlaces : mockFavoritePlaces;
   const displayUpcomingEvents = upcomingEvents.length > 0 ? upcomingEvents : mockUpcomingEvents;
-  const displayAttendedEvents = attendedEvents.length > 0 ? attendedEvents : mockAttendedEvents;
+  // Buscar eventos participados do localStorage e mapear para eventos completos
+  const attendedEventIds = getAttendedEventIds();
+  const displayAttendedEventsFromStorage = useMemo(() => {
+    if (!allEvents || allEvents.length === 0) return [];
+    
+    return attendedEventIds
+      .map(eventId => {
+        const event = allEvents.find(e => e.id === eventId);
+        if (!event) return null;
+        
+        const eventDate = new Date(event.date);
+        const day = eventDate.getDate().toString().padStart(2, '0');
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const month = months[eventDate.getMonth()];
+        
+        return {
+          id: event.id,
+          event_id: event.id,
+          name: event.name,
+          date: `${day} ${month}`,
+          location: event.location || 'Local não informado',
+        };
+      })
+      .filter((event): event is AttendedEvent => event !== null);
+  }, [attendedEventIds, allEvents]);
+
+  const displayAttendedEvents = displayAttendedEventsFromStorage.length > 0 
+    ? displayAttendedEventsFromStorage 
+    : (attendedEvents.length > 0 ? attendedEvents : mockAttendedEvents);
   const displayReviews = myReviews.length > 0 ? myReviews : mockReviews;
   
   // Stats mockados se não houver dados
