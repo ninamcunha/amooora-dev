@@ -15,6 +15,7 @@ import { useAdmin } from '../hooks/useAdmin';
 import { HighlightCard } from '../components/HighlightCard';
 import { InteractiveMap } from '../components/InteractiveMap';
 import lugaresSegurosImage from '../../assets/lugaresseguros.png';
+import comunidadesImage from '../../assets/comunidades.png';
 
 // Mapeamento de categorias para ícones
 const categoryIconMap: { [key: string]: LucideIcon } = {
@@ -213,7 +214,7 @@ export function Home({ onNavigate }: HomeProps) {
               <HighlightCard
                 title="Comunidade"
                 subtitle="Conecte-se com outras pessoas"
-                imageUrl="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80"
+                imageUrl={comunidadesImage}
                 icon={MessageCircle}
                 onClick={() => onNavigate('community')}
               />
