@@ -63,19 +63,23 @@ export const shareContent = async (data: ShareData): Promise<boolean> => {
  * Gerar URL de compartilhamento para um item específico
  * Usa formato de URL padrão com barra para facilitar roteamento
  */
-export const getShareUrl = (type: 'place' | 'event' | 'service', id: string): string => {
+export const getShareUrl = (type: 'place' | 'event' | 'service' | 'community', id: string): string => {
   const baseUrl = window.location.origin;
+  if (type === 'community') {
+    return `${baseUrl}/#/community-details/${id}`;
+  }
   return `${baseUrl}/#/${type}-details/${id}`;
 };
 
 /**
  * Gerar texto de compartilhamento padrão
  */
-export const getShareText = (type: 'place' | 'event' | 'service', name: string): string => {
+export const getShareText = (type: 'place' | 'event' | 'service' | 'community', name: string): string => {
   const messages = {
     place: `Confira este local LGBTQIA+ friendly: ${name}`,
     event: `Não perca este evento: ${name}`,
     service: `Confira este serviço: ${name}`,
+    community: `Confira esta comunidade: ${name}`,
   };
   return messages[type];
 };

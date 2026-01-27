@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { ArrowLeft, Users, MessageCircle, Heart, Calendar, Palette, Briefcase, Plane, Sparkles, Home } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { ArrowLeft, Users, MessageCircle, Heart, Calendar, Palette, Briefcase, Plane, Sparkles, Home, Star, Share2, Flag, UserPlus } from 'lucide-react';
 import { Header } from '../components/Header';
 import { CommunityPostCard } from '../components/CommunityPostCard';
 import { CreatePostForm } from '../components/CreatePostForm';
@@ -7,11 +7,15 @@ import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonListExpanded } from '../components/Skeleton';
 import { InfiniteScroll } from '../components/InfiniteScroll';
+import { BottomNav } from '../components/BottomNav';
 import { useAdmin } from '../hooks/useAdmin';
 import { useCommunity } from '../hooks/useCommunities';
 import { useCommunityPosts } from '../hooks/useCommunityPosts';
 import { createPost } from '../services/community';
 import { MessageSquare } from 'lucide-react';
+import { shareContent, getShareUrl, getShareText } from '../utils/share';
+import { joinCommunity, leaveCommunity, isUserMember } from '../services/communities';
+import { supabase } from '../../lib/supabase';
 
 // Mapear categoria para cor
 const categoryColors: Record<string, string> = {
@@ -55,6 +59,10 @@ interface CommunityDetailsProps {
 export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityDetailsProps) {
   const { isAdmin } = useAdmin();
   const { community, loading: communityLoading, error: communityError } = useCommunity(communityId);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
+  const [communityRating, setCommunityRating] = useState<number>(0);
+  const [ratingCount, setRatingCount] = useState<number>(0);
   
   // Buscar posts da categoria da comunidade
   const { posts, loading: postsLoading, error: postsError, hasMore, loadMore, refetch } = useCommunityPosts({
@@ -62,6 +70,107 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
     searchQuery: undefined,
     limit: 20,
   });
+
+  // Verificar se usuário está seguindo a comunidade
+  useEffect(() => {
+    const checkFollowing = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user && communityId) {
+          const member = await isUserMember(communityId, user.id);
+          setIsFollowing(member);
+        }
+      } catch (error) {
+        console.error('Erro ao verificar se está seguindo:', error);
+      }
+    };
+    checkFollowing();
+  }, [communityId]);
+
+  // Buscar avaliações da comunidade (placeholder - será implementado depois)
+  useEffect(() => {
+    // Por enquanto, usar rating mockado ou do banco se existir
+    // TODO: Implementar sistema de avaliações para comunidades
+    if (community) {
+      // Mock: usar rating se existir, senão usar valor padrão
+      // Quando sistema de avaliações estiver pronto, buscar do banco
+      setCommunityRating(4.5); // Valor mockado por enquanto
+      setRatingCount(0); // Será atualizado quando avaliações estiverem implementadas
+    }
+  }, [community]);
+
+  // Handler para seguir/deixar de seguir
+  const handleFollow = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        // Se não estiver logado, preparar para quando login estiver ativo
+        console.log('Usuário não logado - funcionalidade será ativada quando login estiver funcionando');
+        // Por enquanto, apenas alternar visualmente
+        setIsFollowing(!isFollowing);
+        return;
+      }
+
+      if (isFollowing) {
+        await leaveCommunity(communityId, user.id);
+        setIsFollowing(false);
+      } else {
+        await joinCommunity(communityId, user.id);
+        setIsFollowing(true);
+      }
+    } catch (error) {
+      console.error('Erro ao seguir/deixar de seguir comunidade:', error);
+    }
+  };
+
+  // Handler para compartilhar
+  const handleShare = async () => {
+    if (!community) return;
+    
+    const shared = await shareContent({
+      title: community.name,
+      text: getShareText('community', community.name),
+      url: getShareUrl('community', communityId),
+    });
+
+    if (shared) {
+      setShareSuccess(true);
+      setTimeout(() => setShareSuccess(false), 2000);
+    }
+  };
+
+  // Handler para avaliar - mostrar avaliações existentes
+  const handleRate = () => {
+    // Por enquanto, apenas mostrar avaliações
+    // Quando sistema de avaliações estiver pronto, pode navegar para página de avaliação
+    // onNavigate(`create-review:community:${communityId}`);
+    // Por enquanto, apenas scroll para seção de avaliações se existir
+  };
+
+  // Handler para denunciar
+  const handleReport = () => {
+    // Navegar para página de denúncia (será criada depois)
+    onNavigate(`report:community:${communityId}`);
+  };
+
+  // Renderizar estrelas de avaliação
+  const renderStars = (rating: number) => {
+    return (
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`w-4 h-4 ${
+              star <= Math.round(rating) ? 'fill-primary text-primary' : 'text-gray-300'
+            }`}
+          />
+        ))}
+        {ratingCount > 0 && (
+          <span className="text-sm text-gray-600 ml-1">({ratingCount})</span>
+        )}
+      </div>
+    );
+  };
 
   // Converter posts para o formato esperado pelo CommunityPostCard
   const postsForCards = useMemo(() => {
@@ -204,6 +313,49 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
             </div>
           </div>
 
+          {/* Botões de Ação */}
+          <div className="px-5 py-4 bg-white border-b border-gray-100">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              <button
+                onClick={handleFollow}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+              >
+                <UserPlus className="w-4 h-4" />
+                {isFollowing ? 'Seguindo' : 'Seguir'}
+              </button>
+              <button
+                onClick={handleRate}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+              >
+                <Star className="w-4 h-4" />
+                Avaliar
+              </button>
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+              >
+                <Share2 className="w-4 h-4" />
+                {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
+              </button>
+              <button
+                onClick={handleReport}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+              >
+                <Flag className="w-4 h-4" />
+                Denunciar
+              </button>
+            </div>
+          </div>
+
+          {/* Avaliação - sempre mostrar quando houver avaliações */}
+          {ratingCount > 0 && (
+            <div className="px-5 py-3 bg-white border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                {renderStars(communityRating)}
+              </div>
+            </div>
+          )}
+
           {/* Formulário de Criação de Post */}
           {community.category && (
             <div className="px-5 pt-6">
@@ -250,6 +402,9 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
             )}
           </div>
         </div>
+
+        {/* Navegação inferior fixa */}
+        <BottomNav activeItem="community" onItemClick={onNavigate} />
       </div>
     </div>
   );

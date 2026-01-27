@@ -3,7 +3,8 @@ import { Header } from '../components/Header';
 import { CommunityPostCard } from '../components/CommunityPostCard';
 import { CommunityCardCarousel } from '../components/CommunityCardCarousel';
 import { CreatePostForm } from '../components/CreatePostForm';
-import { MessageCircle, Heart, Users, Calendar, Sparkles } from 'lucide-react';
+import { CategoryFilter } from '../components/CategoryFilter';
+import { MessageCircle, Heart, Users, Calendar, Sparkles, Search, Filter } from 'lucide-react';
 import { BottomNav } from '../components/BottomNav';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonListExpanded } from '../components/Skeleton';
@@ -11,7 +12,7 @@ import { InfiniteScroll } from '../components/InfiniteScroll';
 import { useAdmin } from '../hooks/useAdmin';
 import { useCommunityPosts } from '../hooks/useCommunityPosts';
 import { useCommunities } from '../hooks/useCommunities';
-import { createPost } from '../services/community';
+import { createPost, getCommunityPosts, getPostReplies } from '../services/community';
 import { MessageSquare } from 'lucide-react';
 import { Community } from '../services/communities';
 
@@ -124,18 +125,83 @@ interface ComunidadeProps {
   onNavigate: (page: string) => void;
 }
 
+const categories = ['Todos', 'Apoio', 'Dicas', 'Eventos', 'Geral'];
+
 export function Comunidade({ onNavigate }: ComunidadeProps) {
   const { isAdmin } = useAdmin();
   const [activeTab, setActiveTab] = useState<'feed' | 'communities'>('feed');
   const [selectedCommunityId, setSelectedCommunityId] = useState<string | null>(null);
-
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('Todos');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [communityPostsMap, setCommunityPostsMap] = useState<Record<string, any[]>>({});
 
   // Usar hook para buscar posts do banco (sem filtros de busca/categoria por padrão)
   const { posts, loading, error, hasMore, loadMore, refetch } = useCommunityPosts({
-    category: undefined,
+    category: activeCategory !== 'Todos' ? activeCategory : undefined,
     searchQuery: undefined,
     limit: 20,
   });
+
+  // Buscar posts de todas as comunidades para busca (incluindo replies)
+  // Carregar apenas quando houver busca ativa para otimizar performance
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setCommunityPostsMap({});
+      return;
+    }
+
+    const fetchAllCommunityPosts = async () => {
+      try {
+        const { data } = await getCommunityPosts(undefined, 500, 0);
+        const postsByCommunity: Record<string, any[]> = {};
+        
+        // Agrupar posts por categoria (que corresponde à comunidade)
+        // Limitar busca de replies apenas aos primeiros 50 posts para performance
+        const postsToProcess = data.slice(0, 50);
+        
+        for (const post of postsToProcess) {
+          const category = post.category || 'Geral';
+          if (!postsByCommunity[category]) {
+            postsByCommunity[category] = [];
+          }
+          
+          // Buscar replies do post para incluir na busca (apenas se necessário)
+          try {
+            const replies = await getPostReplies(post.id);
+            const postWithReplies = {
+              ...post,
+              replies: replies,
+            };
+            postsByCommunity[category].push(postWithReplies);
+          } catch (error) {
+            // Se falhar ao buscar replies, adicionar post sem replies
+            postsByCommunity[category].push(post);
+          }
+        }
+        
+        // Adicionar posts restantes sem replies para busca básica
+        for (const post of data.slice(50)) {
+          const category = post.category || 'Geral';
+          if (!postsByCommunity[category]) {
+            postsByCommunity[category] = [];
+          }
+          postsByCommunity[category].push(post);
+        }
+        
+        setCommunityPostsMap(postsByCommunity);
+      } catch (error) {
+        console.error('Erro ao buscar posts das comunidades:', error);
+      }
+    };
+    
+    // Debounce para evitar muitas buscas
+    const timeoutId = setTimeout(() => {
+      fetchAllCommunityPosts();
+    }, 300);
+    
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
 
 
@@ -180,9 +246,74 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
     return iconMap[community.category || ''] || <MessageCircle className="w-6 h-6 text-white" />;
   };
 
-  // Mapear comunidades para o formato do carrossel
+  // Filtrar comunidades baseado na busca
+  const filteredCommunities = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return communities;
+    }
+
+    const query = searchQuery.toLowerCase();
+    
+    return communities.filter((community) => {
+      // Buscar no título
+      if (community.name.toLowerCase().includes(query)) {
+        return true;
+      }
+      
+      // Buscar na descrição
+      if (community.description?.toLowerCase().includes(query)) {
+        return true;
+      }
+      
+      // Buscar em posts/comentários da comunidade
+      const category = community.category || 'Geral';
+      const communityPosts = communityPostsMap[category] || [];
+      
+      const hasMatchingPost = communityPosts.some((post: any) => {
+        // Buscar no título do post
+        if (post.title?.toLowerCase().includes(query)) {
+          return true;
+        }
+        // Buscar no conteúdo do post
+        if (post.content?.toLowerCase().includes(query)) {
+          return true;
+        }
+        // Buscar em replies/comentários do post
+        if (post.replies && Array.isArray(post.replies)) {
+          const hasMatchingReply = post.replies.some((reply: any) => {
+            // Buscar no conteúdo do comentário
+            if (reply.content?.toLowerCase().includes(query)) {
+              return true;
+            }
+            // Buscar em replies aninhadas
+            if (reply.replies && Array.isArray(reply.replies)) {
+              return reply.replies.some((nestedReply: any) => 
+                nestedReply.content?.toLowerCase().includes(query)
+              );
+            }
+            return false;
+          });
+          if (hasMatchingReply) {
+            return true;
+          }
+        }
+        return false;
+      });
+      
+      return hasMatchingPost;
+    });
+  }, [communities, searchQuery, communityPostsMap]);
+
+  // Mapear comunidades filtradas para o formato do carrossel
   const communitiesForCarousel = useMemo(() => {
-    return communities.map((community) => ({
+    // Aplicar filtro de categoria também
+    let filtered = filteredCommunities;
+    
+    if (activeCategory !== 'Todos') {
+      filtered = filtered.filter((c) => c.category === activeCategory);
+    }
+    
+    return filtered.map((community) => ({
       id: community.id,
       name: community.name,
       description: community.description,
@@ -191,7 +322,7 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
       membersCount: community.membersCount || 0,
       postsCount: community.postsCount || 0,
     }));
-  }, [communities]);
+  }, [filteredCommunities, activeCategory]);
   
   // Mapear comunidades para o formato do CreatePostForm
   const communitiesForForm = useMemo(() => {
@@ -262,13 +393,47 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
           <div className="px-5 pt-6 pb-4">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-semibold text-primary">Comunidade</h1>
-              <button 
-                onClick={() => onNavigate('minhas-comunidades')}
-                className="text-sm text-accent font-medium hover:opacity-80 transition-opacity"
-              >
-                Ver todas
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  title="Filtros"
+                >
+                  <Filter className="w-5 h-5 text-accent" />
+                </button>
+                <button 
+                  onClick={() => onNavigate('minhas-comunidades')}
+                  className="text-sm text-accent font-medium hover:opacity-80 transition-opacity"
+                >
+                  Ver todas
+                </button>
+              </div>
             </div>
+
+            {/* Campo de Busca */}
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Buscar por título, descrição ou mensagens..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Filtro de Categorias (mostrar quando filtro estiver aberto) */}
+            {isFilterOpen && (
+              <div className="mb-4">
+                <CategoryFilter
+                  categories={categories}
+                  activeCategory={activeCategory}
+                  onCategoryChange={setActiveCategory}
+                />
+              </div>
+            )}
           </div>
 
           {/* Carrossel de Comunidades em Destaque */}

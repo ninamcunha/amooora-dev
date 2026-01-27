@@ -49,6 +49,22 @@ export function CreateReview({
       });
 
       setSuccess(true);
+      
+      // Disparar evento customizado para atualizar reviews com detalhes do tipo
+      const reviewType = placeId ? 'place' : serviceId ? 'service' : 'event';
+      const reviewId = placeId || serviceId || eventId;
+      
+      console.log('[CreateReview] Disparando evento review-created:', { reviewType, reviewId });
+      window.dispatchEvent(new CustomEvent('review-created', {
+        detail: {
+          placeId,
+          serviceId,
+          eventId,
+          reviewType,
+          reviewId
+        }
+      }));
+      
       // Aguardar um pouco antes de voltar para mostrar feedback
       setTimeout(() => {
         if (onBack) {

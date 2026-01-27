@@ -60,14 +60,51 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
   const averageRating = reviews.length > 0 ? calculateAverageRating(reviews) : place?.rating || 0;
   const reviewCount = reviews.length || place?.reviewCount || 0;
 
-  // Refetch reviews quando voltar da página de criação
+  // Escutar evento customizado de atualização de reviews (apenas quando necessário)
   useEffect(() => {
-    const handleFocus = () => {
-      refetchReviews();
+    if (!placeId) return;
+
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const handleReviewCreated = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      // Verificar se o evento é para este placeId específico
+      if (customEvent.detail?.placeId && customEvent.detail.placeId !== placeId) {
+        console.log('[PlaceDetails] Review criado para outro local, ignorando');
+        return;
+      }
+
+      console.log('[PlaceDetails] Review criado, aguardando antes de refetch...');
+      // Limpar timeout anterior se existir
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      // Pequeno delay para garantir que o banco foi atualizado
+      timeoutId = setTimeout(() => {
+        console.log('[PlaceDetails] Fazendo refetch após criação de review');
+        refetchReviews();
+      }, 800);
     };
+
+    const handleFocus = () => {
+      console.log('[PlaceDetails] Window focus, fazendo refetch');
+      if (placeId) {
+        refetchReviews();
+      }
+    };
+
+    window.addEventListener('review-created', handleReviewCreated);
     window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [refetchReviews]);
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      window.removeEventListener('review-created', handleReviewCreated);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [placeId, refetchReviews]);
 
   const renderStars = (rating: number) => {
     return (

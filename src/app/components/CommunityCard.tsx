@@ -71,7 +71,7 @@ export function CommunityCard({ community, onClick }: CommunityCardProps) {
           }}
           className="w-full px-3 py-2 bg-white border-2 border-primary text-primary rounded-xl font-medium hover:bg-primary/5 transition-colors flex items-center justify-center gap-1.5 text-sm"
         >
-          <span>Ver Comunidade</span>
+          <span>Abrir</span>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>

@@ -1,4 +1,4 @@
-import { Users, MessageCircle } from 'lucide-react';
+import { Users, MessageCircle, Star } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 export interface CommunityCard {
@@ -15,18 +15,20 @@ interface CommunityCardCarouselProps {
   communities: CommunityCard[];
   onCommunityClick?: (communityId: string) => void;
   onJoinClick?: (communityId: string) => void;
+  onViewAll?: () => void;
 }
 
 export function CommunityCardCarousel({ 
   communities, 
   onCommunityClick,
-  onJoinClick 
+  onJoinClick,
+  onViewAll
 }: CommunityCardCarouselProps) {
   return (
     <div className="px-5 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900">Comunidades em Destaque</h2>
-        <button className="text-sm text-accent font-medium hover:opacity-80 transition-opacity">Ver todas</button>
+      <div className="flex items-center gap-2 mb-4">
+        <Star className="w-5 h-5" style={{ color: '#c4532f' }} />
+        <h2 className="text-xl font-bold text-gray-900">Em destaque</h2>
       </div>
       <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide -mx-5 px-5">
         {communities.map((community) => (

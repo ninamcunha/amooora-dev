@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Settings, Edit, Calendar, MapPin, Heart, Star, Users, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Settings, Edit, Calendar, MapPin, Heart, Star, Users, ChevronRight, CheckCircle2, MessageCircle, Briefcase } from 'lucide-react';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { BottomNav } from '../components/BottomNav';
 import { Header } from '../components/Header';
@@ -12,9 +12,11 @@ import {
   getSavedPlaces, 
   getUpcomingEvents, 
   getUserReviews,
+  getFollowedCommunities,
   type SavedPlace,
   type UpcomingEvent,
   type UserReview,
+  type FollowedCommunity,
 } from '../services/profile';
 
 interface PerfilProps {
@@ -31,6 +33,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
   const [attendedEvents, setAttendedEvents] = useState<AttendedEvent[]>([]);
   const [myReviews, setMyReviews] = useState<UserReview[]>([]);
+  const [followedCommunities, setFollowedCommunities] = useState<FollowedCommunity[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,12 +47,13 @@ export function Perfil({ onNavigate }: PerfilProps) {
         setLoading(true);
         
         // Carregar todos os dados do perfil em paralelo
-        const [statsData, placesData, upcomingData, attendedData, reviewsData] = await Promise.all([
+        const [statsData, placesData, upcomingData, attendedData, reviewsData, communitiesData] = await Promise.all([
           getProfileStats(profile.id),
           getSavedPlaces(profile.id),
           getUpcomingEvents(profile.id),
           getAttendedEvents(profile.id),
           getUserReviews(profile.id),
+          getFollowedCommunities(profile.id),
         ]);
 
         setStats(statsData);
@@ -57,6 +61,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
         setUpcomingEvents(upcomingData);
         setAttendedEvents(attendedData);
         setMyReviews(reviewsData);
+        setFollowedCommunities(communitiesData);
       } catch (error) {
         console.error('Erro ao carregar dados do perfil:', error);
       } finally {
@@ -190,7 +195,11 @@ export function Perfil({ onNavigate }: PerfilProps) {
   const displayAttendedEvents = displayAttendedEventsFromStorage.length > 0 
     ? displayAttendedEventsFromStorage 
     : (attendedEvents.length > 0 ? attendedEvents : mockAttendedEvents);
-  const displayReviews = myReviews.length > 0 ? myReviews : mockReviews;
+  
+  // Separar reviews por tipo
+  const placeReviews = myReviews.filter(review => review.place_id);
+  const serviceReviews = myReviews.filter(review => review.service_id);
+  const eventReviews = myReviews.filter(review => review.event_id);
   
   // Stats mockados se não houver dados
   const displayStats = stats.eventsCount > 0 || stats.placesCount > 0 || stats.friendsCount > 0
@@ -349,6 +358,53 @@ export function Perfil({ onNavigate }: PerfilProps) {
             </div>
           </div>
 
+          {/* Comunidades que Sigo */}
+          <div className="px-5 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-gray-900">Comunidades que Sigo</h2>
+              <button 
+                onClick={() => onNavigate('minhas-comunidades')}
+                className="text-sm text-[#932d6f] font-medium flex items-center gap-1"
+              >
+                Ver todas
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {followedCommunities.length > 0 ? (
+                followedCommunities.slice(0, 4).map((community) => (
+                  <div 
+                    key={community.id} 
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => onNavigate(`community-details:${community.community_id}`)}
+                  >
+                    <div className="relative h-24">
+                      <ImageWithFallback
+                        src={community.imageUrl}
+                        alt={community.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-semibold text-sm text-gray-900 mb-1 truncate">{community.name}</h3>
+                      <p className="text-xs text-gray-500 mb-2 line-clamp-1">{community.description}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Users className="w-3 h-3" />
+                        <span>{community.membersCount >= 1000 ? `${(community.membersCount / 1000).toFixed(1)}k` : community.membersCount}</span>
+                        <MessageCircle className="w-3 h-3 ml-1" />
+                        <span>{community.postsCount || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-2 text-center py-8 text-sm text-muted-foreground">
+                  Você ainda não segue nenhuma comunidade
+                </div>
+              )}
+            </div>
+          </div>
+
           {/* Próximos Eventos */}
           <div className="px-5 mb-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Próximos Eventos</h2>
@@ -470,37 +526,96 @@ export function Perfil({ onNavigate }: PerfilProps) {
             </div>
           </div>
 
-          {/* Minhas Reviews */}
+          {/* Minhas Reviews - Separadas por tipo */}
           <div className="px-5 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-900">Minhas Reviews</h2>
-              <button className="text-sm text-[#932d6f] font-medium flex items-center gap-1">
-                Ver todas
-                <ChevronRight className="w-4 h-4" />
-              </button>
             </div>
-            <div className="space-y-3">
-              {displayReviews.length > 0 ? (
-                displayReviews.map((review) => (
-                  <div key={review.id} className="bg-white rounded-2xl p-4 border border-gray-100">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-semibold text-sm text-gray-900 mb-1">
-                          {review.placeName || review.serviceName || review.eventName || 'Item avaliado'}
-                        </h3>
-                        {renderStars(review.rating)}
-                      </div>
-                      <span className="text-xs text-gray-500">{review.date}</span>
-                    </div>
-                    <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-sm text-muted-foreground">
-                  Nenhuma avaliação ainda
+
+            {/* Reviews de Locais */}
+            {placeReviews.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <MapPin className="w-5 h-5 text-[#932d6f]" />
+                  <h3 className="text-base font-semibold text-gray-900">Locais</h3>
                 </div>
-              )}
-            </div>
+                <div className="space-y-3">
+                  {placeReviews.map((review) => (
+                    <div key={review.id} className="bg-white rounded-2xl p-4 border border-gray-100">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="font-semibold text-sm text-gray-900 mb-1">
+                            {review.placeName || 'Local avaliado'}
+                          </h3>
+                          {renderStars(review.rating)}
+                        </div>
+                        <span className="text-xs text-gray-500">{review.date}</span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Reviews de Serviços */}
+            {serviceReviews.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Briefcase className="w-5 h-5 text-[#932d6f]" />
+                  <h3 className="text-base font-semibold text-gray-900">Serviços</h3>
+                </div>
+                <div className="space-y-3">
+                  {serviceReviews.map((review) => (
+                    <div key={review.id} className="bg-white rounded-2xl p-4 border border-gray-100">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="font-semibold text-sm text-gray-900 mb-1">
+                            {review.serviceName || 'Serviço avaliado'}
+                          </h3>
+                          {renderStars(review.rating)}
+                        </div>
+                        <span className="text-xs text-gray-500">{review.date}</span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Reviews de Eventos */}
+            {eventReviews.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Calendar className="w-5 h-5 text-[#932d6f]" />
+                  <h3 className="text-base font-semibold text-gray-900">Eventos</h3>
+                </div>
+                <div className="space-y-3">
+                  {eventReviews.map((review) => (
+                    <div key={review.id} className="bg-white rounded-2xl p-4 border border-gray-100">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="font-semibold text-sm text-gray-900 mb-1">
+                            {review.eventName || 'Evento avaliado'}
+                          </h3>
+                          {renderStars(review.rating)}
+                        </div>
+                        <span className="text-xs text-gray-500">{review.date}</span>
+                      </div>
+                      <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Mensagem quando não há reviews */}
+            {placeReviews.length === 0 && serviceReviews.length === 0 && eventReviews.length === 0 && (
+              <div className="text-center py-8 text-sm text-muted-foreground">
+                Nenhuma avaliação ainda
+              </div>
+            )}
           </div>
         </div>
 

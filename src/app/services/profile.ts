@@ -45,6 +45,17 @@ export interface UserReview {
   date: string;
 }
 
+export interface FollowedCommunity {
+  id: string;
+  community_id: string;
+  name: string;
+  description: string;
+  category?: string;
+  imageUrl: string;
+  membersCount: number;
+  postsCount: number;
+}
+
 /**
  * Busca estatísticas do perfil do usuário logado
  */
@@ -242,8 +253,7 @@ export const getUserReviews = async (userId: string): Promise<UserReview[]> => {
         events:event_id (name)
       `)
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(5);
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Erro ao buscar reviews do usuário:', error);
@@ -271,6 +281,50 @@ export const getUserReviews = async (userId: string): Promise<UserReview[]> => {
     });
   } catch (error) {
     console.error('Erro ao buscar reviews do usuário:', error);
+    return [];
+  }
+};
+
+/**
+ * Busca comunidades que o usuário segue
+ */
+export const getFollowedCommunities = async (userId: string): Promise<FollowedCommunity[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('community_members')
+      .select(`
+        id,
+        community_id,
+        communities:community_id (
+          name,
+          description,
+          category,
+          image,
+          members_count,
+          posts_count
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error('Erro ao buscar comunidades seguidas:', error);
+      return [];
+    }
+
+    return (data || []).map((item: any) => ({
+      id: item.id,
+      community_id: item.community_id,
+      name: item.communities?.name || 'Comunidade desconhecida',
+      description: item.communities?.description || '',
+      category: item.communities?.category || undefined,
+      imageUrl: item.communities?.image || 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80',
+      membersCount: item.communities?.members_count || 0,
+      postsCount: item.communities?.posts_count || 0,
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar comunidades seguidas:', error);
     return [];
   }
 };

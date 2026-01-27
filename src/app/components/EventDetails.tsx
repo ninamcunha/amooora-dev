@@ -1,14 +1,21 @@
-import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, CheckCircle, Star, User, MessageCircle, CheckCircle2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, CheckCircle, Star, User, MessageCircle, CheckCircle2, Send } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
+import { InteractiveMap } from './InteractiveMap';
 import { useEvent } from '../hooks/useEvents';
 import { useEventReviews } from '../hooks/useReviews';
 import { useAttendedEvents } from '../hooks/useAttendedEvents';
 import { Review } from '../types';
 import { calculateAverageRating } from '../services/reviews';
 import { shareContent, getShareUrl, getShareText } from '../utils/share';
+import { geocodeAddress } from '../services/geocoding';
+
+interface ReviewWithReplies extends Review {
+  likes?: number;
+  replies?: ReviewWithReplies[];
+}
 
 interface EventDetailsProps {
   eventId?: string;
@@ -23,6 +30,10 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   const [isGoing, setIsGoing] = useState(false);
   const [isInterested, setIsInterested] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
+  const [eventCoordinates, setEventCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [geocodingLoading, setGeocodingLoading] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
 
   const handleShare = async () => {
     if (!event || !eventId) return;
@@ -40,7 +51,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   };
 
   // Converter reviews reais para o formato esperado
-  const reviews: Review[] = realReviews.map(review => ({
+  const reviews: ReviewWithReplies[] = realReviews.map(review => ({
     ...review,
     avatar: review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080',
     author: review.author || review.userName || 'Usuário',
@@ -51,14 +62,94 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   const averageRating = reviews.length > 0 ? calculateAverageRating(reviews) : 0;
   const reviewCount = reviews.length;
 
-  // Refetch reviews quando voltar da página de criação
+  // Escutar evento customizado de atualização de reviews (apenas quando necessário)
   useEffect(() => {
-    const handleFocus = () => {
-      refetchReviews();
+    if (!eventId) return;
+
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const handleReviewCreated = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      // Verificar se o evento é para este eventId específico
+      if (customEvent.detail?.eventId && customEvent.detail.eventId !== eventId) {
+        console.log('[EventDetails] Review criado para outro evento, ignorando');
+        return;
+      }
+
+      console.log('[EventDetails] Review criado, aguardando antes de refetch...');
+      // Limpar timeout anterior se existir
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
+      // Pequeno delay para garantir que o banco foi atualizado
+      timeoutId = setTimeout(() => {
+        console.log('[EventDetails] Fazendo refetch após criação de review');
+        refetchReviews();
+      }, 800);
     };
+
+    const handleFocus = () => {
+      console.log('[EventDetails] Window focus, fazendo refetch');
+      if (eventId) {
+        refetchReviews();
+      }
+    };
+
+    window.addEventListener('review-created', handleReviewCreated);
     window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [refetchReviews]);
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      window.removeEventListener('review-created', handleReviewCreated);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [eventId, refetchReviews]);
+
+  // Geocodificar endereço do evento quando disponível
+  useEffect(() => {
+    if (!event?.location || event.location === 'Local não informado') {
+      setEventCoordinates(null);
+      return;
+    }
+
+    const loadEventCoordinates = async () => {
+      setGeocodingLoading(true);
+      try {
+        const result = await geocodeAddress(event.location);
+        if (result) {
+          setEventCoordinates({ lat: result.lat, lng: result.lng });
+        } else {
+          setEventCoordinates(null);
+        }
+      } catch (error) {
+        console.error('Erro ao fazer geocoding do evento:', error);
+        setEventCoordinates(null);
+      } finally {
+        setGeocodingLoading(false);
+      }
+    };
+
+    loadEventCoordinates();
+  }, [event?.location]);
+
+  // Preparar location para o InteractiveMap
+  const mapLocation = useMemo(() => {
+    if (!eventCoordinates || !event) return null;
+
+    return {
+      id: event.id,
+      name: event.name,
+      address: event.location,
+      lat: eventCoordinates.lat,
+      lng: eventCoordinates.lng,
+      category: event.category,
+      imageUrl: event.image || event.imageUrl,
+      type: 'event' as const,
+    };
+  }, [eventCoordinates, event]);
 
   const renderStars = (rating: number) => {
     return (
@@ -265,30 +356,24 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             {/* Mapa com endereço do evento */}
             {displayEvent.location && displayEvent.location !== 'Local não informado' && (
               <>
-                <div className="w-full h-64 bg-gray-200 rounded-xl overflow-hidden relative mb-3">
-                  {/* Botão "Ver mapa ampliado" */}
-                  <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayEvent.location)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="absolute top-3 left-3 z-10 bg-white px-3 py-1.5 rounded-lg shadow-md text-sm text-blue-600 font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"
-                  >
-                    <MapPin className="w-4 h-4" />
-                    Ver mapa ampliado
-                  </a>
-
-                  {/* Mapa do Google Maps com endereço do evento */}
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    loading="lazy"
-                    allowFullScreen
-                    referrerPolicy="no-referrer-when-downgrade"
-                    src={`https://www.google.com/maps?q=${encodeURIComponent(displayEvent.location)}&output=embed`}
-                    title={`Mapa: ${displayEvent.location}`}
-                  />
-                </div>
+                {geocodingLoading ? (
+                  <div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
+                    <p className="text-sm text-gray-500">Carregando mapa...</p>
+                  </div>
+                ) : mapLocation ? (
+                  <div className="w-full h-64 rounded-xl overflow-hidden mb-3">
+                    <InteractiveMap
+                      locations={[mapLocation]}
+                      center={eventCoordinates || undefined}
+                      height="256px"
+                      zoom={15}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
+                    <p className="text-sm text-gray-500">Não foi possível carregar o mapa</p>
+                  </div>
+                )}
 
                 {/* Botão "Ver no Google Maps" */}
                 <a
@@ -371,32 +456,12 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             </div>
           </div>
 
-          {/* Seção de Reviews */}
-          <div className="bg-white border-b border-gray-100">
-            {/* Header da Seção */}
-            <div className="px-4 py-4 border-b border-gray-100">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h3 className="text-lg font-bold text-gray-900">Avaliações</h3>
-                  {reviewCount > 0 && (
-                    <div className="flex items-center gap-2 mt-1">
-                      <Star className="w-4 h-4 fill-primary text-primary" />
-                      <span className="font-bold text-black text-base">
-                        {averageRating.toFixed(1)} ({reviewCount})
-                      </span>
-                    </div>
-                  )}
-                </div>
-                {eventId && (
-                  <button 
-                    onClick={() => onNavigate?.(`create-review:event:${eventId}`)}
-                    className="flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium whitespace-nowrap hover:bg-primary/20 transition-colors"
-                  >
-                    <Star className="w-4 h-4" />
-                    Avaliar
-                  </button>
-                )}
-              </div>
+          {/* Seção de Comentários */}
+          <div className="mt-6 pb-32">
+            <div className="px-4 pb-3 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-900">
+                Comentários ({reviews.length})
+              </h3>
             </div>
 
             {/* Lista de Reviews */}
@@ -406,48 +471,56 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
               </div>
             ) : reviews.length > 0 ? (
               reviews.map((review) => (
-                <div key={review.id} className="px-4 py-4 border-b border-gray-100">
-                  {/* Header do Review */}
-                  <div className="flex items-start gap-3 mb-2">
-                    <img
-                      src={review.avatar} 
-                      alt={review.author}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-bold text-gray-900 text-sm">{review.author}</h4>
-                      <p className="text-xs text-gray-500">Avaliação postada {review.date}</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {renderStars(review.rating)}
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
-                </div>
+                <ReviewItem 
+                  key={review.id} 
+                  review={review}
+                  onReply={(id) => setReplyingTo(replyingTo === id ? null : id)}
+                  replyingTo={replyingTo}
+                  replyText={replyText}
+                  onReplyTextChange={setReplyText}
+                  onSendReply={(id) => {
+                    // Respostas serão implementadas depois quando tiver sistema de comentários completo
+                    console.log('Resposta:', { reviewId: id, text: replyText });
+                    setReplyText('');
+                    setReplyingTo(null);
+                  }}
+                />
               ))
             ) : (
-              <div className="px-4 py-8 text-center">
-                <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Ainda não há avaliações para este evento</p>
-                {eventId && (
-                  <button
-                    onClick={() => onNavigate?.(`create-review:event:${eventId}`)}
-                    className="mt-3 px-4 py-2 bg-primary text-white rounded-full text-sm font-medium hover:bg-primary/90 transition-colors"
-                  >
-                    Seja o primeiro a avaliar
-                  </button>
-                )}
+              <div className="px-4 py-12 text-center">
+                <p className="text-muted-foreground">Nenhum comentário ainda</p>
               </div>
             )}
           </div>
+        </div>
 
-          {/* Espaço extra no final */}
-          <div className="h-6"></div>
+        {/* Campo de Comentário Fixo - Posicionado acima do BottomNav */}
+        <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-border px-4 py-3 z-40">
+          <div className="flex items-center gap-3">
+            <ImageWithFallback
+              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080"
+              alt="Seu avatar"
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+            />
+            <button
+              onClick={() => eventId && onNavigate?.(`create-review:event:${eventId}`)}
+              className="flex-1 px-4 py-2 bg-muted rounded-full border-0 text-left text-sm text-muted-foreground hover:bg-muted/80 transition-colors cursor-pointer"
+            >
+              Escreva uma avaliação...
+            </button>
+            <button
+              onClick={() => eventId && onNavigate?.(`create-review:event:${eventId}`)}
+              className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
+              title="Criar avaliação completa"
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Barra de Ação Fixa no Bottom */}
-        <div className="absolute bottom-16 left-0 right-0 bg-white border-t border-gray-200 px-4 py-3 shadow-lg">
-          <div className="max-w-md mx-auto flex gap-2">
+        <div className="fixed bottom-28 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200 px-4 py-3 shadow-lg z-30">
+          <div className="flex gap-2">
             <button
               onClick={handleInterestedClick}
               className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors border-2 ${
@@ -486,6 +559,122 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
 
         {/* Navegação inferior fixa */}
         <BottomNav activeItem="events" onItemClick={onNavigate!} />
+      </div>
+    </div>
+  );
+}
+
+// Componente para renderizar um review com suporte a respostas
+function ReviewItem({ 
+  review, 
+  onReply, 
+  replyingTo, 
+  replyText, 
+  onReplyTextChange, 
+  onSendReply,
+  isReply = false 
+}: { 
+  review: ReviewWithReplies; 
+  onReply: (id: string) => void;
+  replyingTo: string | null;
+  replyText: string;
+  onReplyTextChange: (text: string) => void;
+  onSendReply: (id: string) => void;
+  isReply?: boolean;
+}) {
+  return (
+    <div className={isReply ? 'ml-12 mt-3' : ''}>
+      <div className="px-4 py-4 border-b border-gray-100">
+        {/* Header do Review */}
+        <div className="flex items-center gap-3 mb-2">
+          <ImageWithFallback
+            src={review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080'}
+            alt={review.author || review.userName || 'Usuário'}
+            className={`${isReply ? 'w-8 h-8' : 'w-10 h-10'} rounded-full object-cover flex-shrink-0`}
+          />
+          <div className="flex-1">
+            <h4 className="font-bold text-gray-900 text-sm">{review.author || review.userName || 'Usuário'}</h4>
+            <p className="text-xs text-gray-500">{review.date || (review.createdAt ? new Date(review.createdAt).toLocaleDateString('pt-BR') : 'Data não disponível')}</p>
+          </div>
+        </div>
+
+        {/* Avaliação com Estrelas (apenas para comentários principais) */}
+        {!isReply && review.rating > 0 && (
+          <div className="mb-2">
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, index) => (
+                <Star 
+                  key={index}
+                  className={`w-3.5 h-3.5 ${index < review.rating ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-300'}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Comentário */}
+        <p className="text-sm text-gray-700 leading-relaxed mb-2">{review.comment}</p>
+
+        {/* Ações: Curtir e Responder */}
+        <div className="flex items-center gap-4 mt-2">
+          {review.likes !== undefined && (
+            <button className="flex items-center gap-1.5 text-muted-foreground hover:text-accent transition-colors">
+              <Heart className="w-4 h-4" />
+              <span className="text-xs">{review.likes}</span>
+            </button>
+          )}
+          {!isReply && (
+            <button
+              onClick={() => onReply(review.id)}
+              className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs"
+            >
+              <MessageCircle className="w-4 h-4" />
+              Responder
+            </button>
+          )}
+        </div>
+
+        {/* Campo de resposta */}
+        {replyingTo === review.id && !isReply && (
+          <div className="mt-3 flex gap-2">
+            <input
+              type="text"
+              value={replyText}
+              onChange={(e) => onReplyTextChange(e.target.value)}
+              placeholder="Escreva uma resposta..."
+              className="flex-1 px-3 py-2 text-sm bg-muted rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  onSendReply(review.id);
+                }
+              }}
+            />
+            <button
+              onClick={() => onSendReply(review.id)}
+              className="px-4 py-2 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              Enviar
+            </button>
+          </div>
+        )}
+
+        {/* Respostas aninhadas */}
+        {review.replies && review.replies.length > 0 && (
+          <div className="mt-3">
+            {review.replies.map((reply) => (
+              <ReviewItem
+                key={reply.id}
+                review={reply}
+                onReply={onReply}
+                replyingTo={replyingTo}
+                replyText={replyText}
+                onReplyTextChange={onReplyTextChange}
+                onSendReply={onSendReply}
+                isReply={true}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
