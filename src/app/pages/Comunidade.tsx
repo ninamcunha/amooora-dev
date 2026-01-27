@@ -1,7 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Header } from '../components/Header';
 import { CommunityPostCard } from '../components/CommunityPostCard';
 import { CommunityList } from '../components/CommunityList';
+import { CommunityCardCarousel } from '../components/CommunityCardCarousel';
+import { MessageCircle, Heart, Users, Calendar, Palette, Briefcase, Plane, Sparkles, Home } from 'lucide-react';
 import { CreatePostForm } from '../components/CreatePostForm';
 import { BottomNav } from '../components/BottomNav';
 import { EmptyState } from '../components/EmptyState';
@@ -133,6 +135,80 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
     limit: 20,
   });
 
+  // Buscar imagens dos posts por categoria para usar nos cards de comunidades
+  const getCommunityImage = useCallback((category: string): string => {
+    // Buscar primeiro post com imagem dessa categoria
+    const postWithImage = posts.find(
+      (post) => post.category === category && post.image
+    );
+    
+    if (postWithImage?.image) {
+      return postWithImage.image;
+    }
+    
+    // Fallback para avatar da comunidade
+    const community = mockCommunities.find((c) => {
+      const communityCategoryMap: Record<string, string> = {
+        'apoio': 'Apoio',
+        'saude-mental': 'Apoio',
+        'relacionamentos': 'Geral',
+        'carreira': 'Geral',
+        'eventos': 'Eventos',
+        'arte-cultura': 'Geral',
+        'esportes': 'Geral',
+        'viagens': 'Dicas',
+        'beleza-estilo': 'Dicas',
+        'familia': 'Apoio',
+      };
+      return communityCategoryMap[c.id] === category;
+    });
+    
+    return community?.avatar || 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80';
+  }, [posts]);
+
+  // Ícones para cada comunidade
+  const communityIcons: Record<string, React.ReactNode> = {
+    'apoio': <Heart className="w-6 h-6 text-white" />,
+    'saude-mental': <Heart className="w-6 h-6 text-white" />,
+    'relacionamentos': <Users className="w-6 h-6 text-white" />,
+    'carreira': <Briefcase className="w-6 h-6 text-white" />,
+    'eventos': <Calendar className="w-6 h-6 text-white" />,
+    'arte-cultura': <Palette className="w-6 h-6 text-white" />,
+    'esportes': <Users className="w-6 h-6 text-white" />,
+    'viagens': <Plane className="w-6 h-6 text-white" />,
+    'beleza-estilo': <Sparkles className="w-6 h-6 text-white" />,
+    'familia': <Home className="w-6 h-6 text-white" />,
+  };
+
+  // Mapear comunidades para o formato do carrossel
+  const communitiesForCarousel = useMemo(() => {
+    const communityCategoryMap: Record<string, string> = {
+      'apoio': 'Apoio',
+      'saude-mental': 'Apoio',
+      'relacionamentos': 'Geral',
+      'carreira': 'Geral',
+      'eventos': 'Eventos',
+      'arte-cultura': 'Geral',
+      'esportes': 'Geral',
+      'viagens': 'Dicas',
+      'beleza-estilo': 'Dicas',
+      'familia': 'Apoio',
+    };
+
+    return mockCommunities.map((community) => {
+      const category = communityCategoryMap[community.id] || 'Geral';
+      return {
+        id: community.id,
+        name: community.name,
+        description: community.description,
+        imageUrl: getCommunityImage(category),
+        icon: communityIcons[community.id] || <MessageCircle className="w-6 h-6 text-white" />,
+        membersCount: community.membersCount,
+        postsCount: community.postsCount,
+      };
+    });
+  }, [posts, getCommunityImage]);
+
   // Filtrar posts baseado no tab ativo
   const filteredPosts = useMemo(() => {
     if (activeTab === 'communities' && selectedCommunityId) {
@@ -234,12 +310,16 @@ export function Comunidade({ onNavigate }: ComunidadeProps) {
             </div>
           </div>
 
-          {/* Lista de Comunidades */}
-          <CommunityList
-            communities={mockCommunities}
+          {/* Carrossel de Comunidades em Destaque */}
+          <CommunityCardCarousel
+            communities={communitiesForCarousel}
             onCommunityClick={(communityId) => {
               setSelectedCommunityId(communityId);
               setActiveTab('communities');
+            }}
+            onJoinClick={(communityId) => {
+              // Ação ao clicar em "Entrar" - pode ser implementada depois
+              console.log('Entrar na comunidade:', communityId);
             }}
           />
 
