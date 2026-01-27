@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { MapPin } from 'lucide-react';
-import customPinIcon from '../../assets/map-pin.png';
+import customPinIcon from '../../assets/map-pin.PNG';
 
 interface Location {
   id: string;
