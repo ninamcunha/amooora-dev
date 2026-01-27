@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { MapPin } from 'lucide-react';
+import customPinIcon from '../../assets/map-pin.png';
 
 interface Location {
   id: string;
@@ -140,6 +141,20 @@ export function InteractiveMap({
     );
   }
 
+  // Configurar ícone customizado do pin
+  // Criar o ícone apenas quando o Google Maps estiver disponível
+  const getCustomIcon = () => {
+    if (typeof google === 'undefined' || !google.maps) {
+      return undefined;
+    }
+    
+    return {
+      url: customPinIcon,
+      scaledSize: new google.maps.Size(32, 32), // Tamanho similar ao pin padrão (32x32px)
+      anchor: new google.maps.Point(16, 32), // Ponto de ancoragem na base do pin (centro horizontal, base vertical)
+    };
+  };
+
   const onMapLoad = (mapInstance: google.maps.Map) => {
     // #region agent log
     fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:onMapLoad',message:'Mapa carregado com sucesso',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
@@ -207,6 +222,7 @@ export function InteractiveMap({
               onMarkerClick?.(location);
             }}
             title={location.name}
+            icon={getCustomIcon()}
           />
         ))}
 
