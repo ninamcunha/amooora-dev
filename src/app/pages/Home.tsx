@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles, Briefcase, Stethoscope, GraduationCap, ShoppingBag, UtensilsCrossed, Palette, Dumbbell, Music, BookOpen, Camera, Car, Home as HomeIcon, UserCheck, Building2, Search } from 'lucide-react';
+import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles, Briefcase, Stethoscope, GraduationCap, ShoppingBag, UtensilsCrossed, Palette, Dumbbell, Music, BookOpen, Camera, Car, Home as HomeIcon, UserCheck, Building2, Search, Star } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Header } from '../components/Header';
 import { SectionHeader } from '../components/SectionHeader';
@@ -150,7 +150,10 @@ export function Home({ onNavigate }: HomeProps) {
           {/* Card do Mapa */}
           <section className="mb-8">
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">Amooora Recomenda</h2>
+              <div className="flex items-center gap-2 mb-1">
+                <MapPin className="w-5 h-5 text-accent" style={{ color: '#c4532f' }} />
+                <h2 className="text-xl font-bold text-gray-900">Amooora Recomenda</h2>
+              </div>
               <p className="text-sm text-gray-600">Confira os lugares e eventos sáficos.</p>
             </div>
             <div 
@@ -176,7 +179,10 @@ export function Home({ onNavigate }: HomeProps) {
           {/* Seção: Destaques */}
           <section className="mb-8">
             <div className="mb-4">
-              <h2 className="text-xl font-bold text-gray-900 mb-1">Destaques</h2>
+              <div className="flex items-center gap-2 mb-1">
+                <Star className="w-5 h-5 text-accent" style={{ color: '#c4532f' }} />
+                <h2 className="text-xl font-bold text-gray-900">Destaques</h2>
+              </div>
               <p className="text-sm text-gray-600">Explore os melhores locais, eventos e serviços</p>
             </div>
             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide -mx-5 px-5">
