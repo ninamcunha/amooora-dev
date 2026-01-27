@@ -450,35 +450,35 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
           <div className="max-w-md mx-auto flex gap-2">
             <button
               onClick={handleInterestedClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors border-2 ${
                 isInterested
-                  ? 'bg-secondary text-white'
-                  : 'bg-white border-2 border-secondary text-secondary hover:bg-secondary/5'
+                  ? 'bg-secondary/10 text-secondary border-secondary/20'
+                  : 'bg-white border-secondary text-secondary hover:bg-secondary/5'
               }`}
             >
-              <Star className={`w-4 h-4 ${isInterested ? 'fill-white' : ''}`} />
+              <Star className={`w-4 h-4 ${isInterested ? 'fill-secondary text-secondary' : ''}`} />
               {isInterested ? 'Interessada' : 'Tenho Interesse'}
             </button>
             <button
               onClick={handleGoingClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors border-2 ${
                 isGoing
-                  ? 'bg-primary text-white'
-                  : 'bg-white border-2 border-primary text-primary hover:bg-primary/5'
+                  ? 'bg-primary/10 text-primary border-primary/20'
+                  : 'bg-white border-primary text-primary hover:bg-primary/5'
               }`}
             >
-              <CheckCircle className="w-4 h-4" />
+              <CheckCircle className={`w-4 h-4 ${isGoing ? 'text-primary' : ''}`} />
               {isGoing ? 'Confirmado!' : 'Vou Comparecer'}
             </button>
             <button
               onClick={handleAttendedClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors border-2 ${
                 eventId && hasAttended(eventId)
-                  ? 'bg-accent text-white'
-                  : 'bg-white border-2 border-accent text-accent hover:bg-accent/5'
+                  ? 'bg-accent/10 text-accent border-accent/20'
+                  : 'bg-white border-accent text-accent hover:bg-accent/5'
               }`}
             >
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 className={`w-4 h-4 ${eventId && hasAttended(eventId) ? 'text-accent' : ''}`} />
               {eventId && hasAttended(eventId) ? 'Eu Fui!' : 'Eu Fui'}
             </button>
           </div>
