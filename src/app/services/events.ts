@@ -145,6 +145,80 @@ export const createEvent = async (eventData: {
   }
 };
 
+export const updateEvent = async (
+  id: string,
+  eventData: {
+    name?: string;
+    description?: string;
+    image?: string;
+    date?: string;
+    location?: string;
+    category?: string;
+    price?: number;
+    endTime?: string;
+    isActive?: boolean;
+  }
+): Promise<Event> => {
+  try {
+    const updateData: any = {};
+    
+    if (eventData.name !== undefined) updateData.name = eventData.name;
+    if (eventData.description !== undefined) updateData.description = eventData.description;
+    if (eventData.image !== undefined) updateData.image = eventData.image || null;
+    if (eventData.date !== undefined) updateData.date = eventData.date;
+    if (eventData.location !== undefined) updateData.location = eventData.location;
+    if (eventData.category !== undefined) updateData.category = eventData.category;
+    if (eventData.price !== undefined) updateData.price = eventData.price || null;
+    if (eventData.isActive !== undefined) updateData.is_active = eventData.isActive;
+
+    // Preparar end_time se fornecido
+    if (eventData.endTime !== undefined) {
+      if (eventData.endTime) {
+        const eventDate = eventData.date ? new Date(eventData.date) : new Date();
+        const [hours, minutes] = eventData.endTime.split(':');
+        eventDate.setHours(parseInt(hours || '0', 10), parseInt(minutes || '0', 10), 0, 0);
+        updateData.end_time = eventDate.toISOString();
+      } else {
+        updateData.end_time = null;
+      }
+    }
+
+    const { data, error } = await supabase
+      .from('events')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erro ao atualizar evento:', error);
+      throw new Error(`Erro ao atualizar evento: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Erro ao atualizar evento: nenhum dado retornado');
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      image: data.image || undefined,
+      imageUrl: data.image || undefined,
+      date: data.date,
+      time: data.date ? new Date(data.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : undefined,
+      endTime: data.end_time || undefined,
+      location: data.location,
+      category: data.category,
+      price: data.price ? Number(data.price) : undefined,
+      participants: data.participants_count || 0,
+    };
+  } catch (error) {
+    console.error('Erro ao atualizar evento:', error);
+    throw error;
+  }
+};
+
 export const getEventById = async (id: string): Promise<Event | null> => {
   try {
     const { data, error } = await supabase

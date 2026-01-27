@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import { MapPin } from 'lucide-react';
 
@@ -27,8 +27,8 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = {
-  lat: -23.5505, // São Paulo
-  lng: -46.6333,
+  lat: -23.5259152,
+  lng: -46.6709052,
 };
 
 const defaultZoom = 12;
@@ -40,11 +40,17 @@ export function InteractiveMap({
   height = '400px',
   onMarkerClick,
 }: InteractiveMapProps) {
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:component-entry',message:'InteractiveMap iniciado',data:{locationsCount:locations?.length||0,hasCenter:!!center},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+  // #endregion
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  // #region agent log
+  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:api-key-check',message:'Verificando API key',data:{hasApiKey:!!apiKey,apiKeyLength:apiKey?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+  // #endregion
 
-  // Calcular centro do mapa baseado nos locais (fallback se fitBounds não funcionar)
+  // Calcular centro do mapa baseado nos locais
   const mapCenter = useMemo(() => {
     if (center) return center;
     
@@ -54,27 +60,39 @@ export function InteractiveMap({
     const avgLng = locations.reduce((sum, loc) => sum + loc.lng, 0) / locations.length;
     
     return { lat: avgLat, lng: avgLng };
-  }, [locations, center]);
+  }, [center, locations.length]);
 
-  // Ajustar zoom para mostrar todos os pins quando o mapa ou locais mudarem
-  useEffect(() => {
-    if (map && locations.length > 0) {
-      const bounds = new google.maps.LatLngBounds();
-      
-      // Adicionar todos os locais aos bounds
-      locations.forEach((location) => {
-        bounds.extend(new google.maps.LatLng(location.lat, location.lng));
-      });
+  // Calcular zoom inicial baseado na distribuição dos pins
+  // Zoom mais amplo para mostrar área maior (similar à imagem)
+  const calculatedZoom = useMemo(() => {
+    if (locations.length === 0) return 11; // Zoom amplo padrão
+    if (locations.length === 1) return 13; // Zoom médio para um único local
+    
+    // Calcular a extensão geográfica dos pins
+    const lats = locations.map(loc => loc.lat);
+    const lngs = locations.map(loc => loc.lng);
+    
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+    
+    // Calcular a diferença (span) em graus
+    const latSpan = maxLat - minLat;
+    const lngSpan = maxLng - minLng;
+    const maxSpan = Math.max(latSpan, lngSpan);
+    
+    // Ajustar zoom baseado no span - valores mais baixos = zoom mais amplo
+    // A imagem mostra uma visão bem ampla da cidade, então vamos usar zooms menores
+    if (maxSpan < 0.01) return 12; // Muito próximos (menos de ~1km)
+    if (maxSpan < 0.05) return 11; // Próximos (menos de ~5km)
+    if (maxSpan < 0.1) return 10;  // Médio (menos de ~10km)
+    if (maxSpan < 0.2) return 9;   // Amplo (menos de ~20km)
+    return 8; // Muito amplo (mais de ~20km) - visão da cidade inteira
+  }, [locations.length]);
 
-      // Ajustar o mapa para mostrar todos os pins com padding
-      map.fitBounds(bounds, {
-        top: 50,
-        right: 50,
-        bottom: 50,
-        left: 50,
-      });
-    }
-  }, [map, locations]);
+  // Removido fitBounds automático para evitar loops
+  // O mapa usa o centro calculado automaticamente via mapCenter
 
   if (!apiKey) {
     return (
@@ -99,7 +117,32 @@ export function InteractiveMap({
   }
 
   const onMapLoad = (mapInstance: google.maps.Map) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:onMapLoad',message:'Mapa carregado com sucesso',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
     setMap(mapInstance);
+    
+    // Ajustar o mapa para mostrar todos os pins quando houver múltiplos locais
+    // Usar fitBounds para mostrar área ampla similar à imagem
+    if (locations.length > 1) {
+      const bounds = new google.maps.LatLngBounds();
+      locations.forEach(location => {
+        bounds.extend(new google.maps.LatLng(location.lat, location.lng));
+      });
+      
+      // Aplicar padding maior para mostrar área mais ampla (similar à imagem)
+      // E definir zoom máximo para não ficar muito próximo
+      mapInstance.fitBounds(bounds, {
+        padding: { top: 100, right: 100, bottom: 100, left: 100 }
+      });
+      
+      // Garantir que o zoom não fique muito próximo (máximo zoom 13)
+      // Isso mantém a visão ampla mostrada na imagem
+      const currentZoom = mapInstance.getZoom();
+      if (currentZoom && currentZoom > 13) {
+        mapInstance.setZoom(13);
+      }
+    }
   };
 
   return (
@@ -107,11 +150,11 @@ export function InteractiveMap({
       <GoogleMap
         mapContainerStyle={{ ...mapContainerStyle, height }}
         center={mapCenter}
-        zoom={zoom}
+        zoom={calculatedZoom}
         onLoad={onMapLoad}
         options={{
           disableDefaultUI: false,
-          zoomControl: true,
+          zoomControl: false,
           streetViewControl: false,
           mapTypeControl: false,
           fullscreenControl: true,

@@ -295,6 +295,89 @@ export const createService = async (serviceData: {
   }
 };
 
+export const updateService = async (
+  id: string,
+  serviceData: {
+    name?: string;
+    description?: string;
+    image?: string;
+    category?: string;
+    categorySlug?: string;
+    price?: number;
+    provider?: string;
+    phone?: string;
+    whatsapp?: string;
+    address?: string;
+    specialties?: string[];
+    hours?: Record<string, string>;
+    isActive?: boolean;
+  }
+): Promise<Service> => {
+  try {
+    const updateData: any = {};
+    
+    if (serviceData.name !== undefined) updateData.name = serviceData.name;
+    if (serviceData.description !== undefined) updateData.description = serviceData.description;
+    if (serviceData.image !== undefined) updateData.image = serviceData.image || null;
+    if (serviceData.category !== undefined) updateData.category = serviceData.category;
+    if (serviceData.categorySlug !== undefined) updateData.category_slug = serviceData.categorySlug;
+    if (serviceData.price !== undefined) updateData.price = serviceData.price || null;
+    if (serviceData.provider !== undefined) updateData.provider = serviceData.provider || null;
+    if (serviceData.phone !== undefined) updateData.phone = serviceData.phone || null;
+    if (serviceData.whatsapp !== undefined) updateData.whatsapp = serviceData.whatsapp || null;
+    if (serviceData.address !== undefined) updateData.address = serviceData.address || null;
+    if (serviceData.isActive !== undefined) updateData.is_active = serviceData.isActive;
+
+    // Preparar especialidades como array JSON
+    if (serviceData.specialties !== undefined) {
+      const specialtiesArray = serviceData.specialties.length > 0 ? serviceData.specialties : null;
+      updateData.specialties = specialtiesArray;
+    }
+
+    // Preparar horários
+    if (serviceData.hours !== undefined) {
+      updateData.hours = serviceData.hours && Object.keys(serviceData.hours).length > 0 ? serviceData.hours : null;
+    }
+
+    const { data, error } = await supabase
+      .from('services')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erro ao atualizar serviço:', error);
+      throw new Error(`Erro ao atualizar serviço: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Erro ao atualizar serviço: nenhum dado retornado');
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      image: data.image,
+      imageUrl: data.image,
+      price: data.price ? Number(data.price) : undefined,
+      category: data.category,
+      categorySlug: data.category_slug,
+      rating: Number(data.rating) || 0,
+      provider: data.provider || undefined,
+      phone: data.phone || undefined,
+      whatsapp: data.whatsapp || undefined,
+      address: data.address || undefined,
+      specialties: data.specialties ? (Array.isArray(data.specialties) ? data.specialties : []) : undefined,
+      hours: data.hours || undefined,
+    };
+  } catch (error) {
+    console.error('Erro ao atualizar serviço:', error);
+    throw error;
+  }
+};
+
 export const getServicesByCategory = async (categorySlug: string): Promise<Service[]> => {
   try {
     const { data, error } = await supabase

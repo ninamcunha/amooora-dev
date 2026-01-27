@@ -207,6 +207,69 @@ export const createPlace = async (placeData: {
   }
 };
 
+export const updatePlace = async (
+  id: string,
+  placeData: {
+    name?: string;
+    description?: string;
+    image?: string;
+    address?: string;
+    category?: string;
+    latitude?: number;
+    longitude?: number;
+    isSafe?: boolean;
+    rating?: number;
+  }
+): Promise<Place> => {
+  try {
+    const updateData: any = {};
+    
+    if (placeData.name !== undefined) updateData.name = placeData.name;
+    if (placeData.description !== undefined) updateData.description = placeData.description || null;
+    if (placeData.image !== undefined) updateData.image = placeData.image || null;
+    if (placeData.address !== undefined) updateData.address = placeData.address || null;
+    if (placeData.category !== undefined) updateData.category = placeData.category;
+    if (placeData.latitude !== undefined) updateData.latitude = placeData.latitude || null;
+    if (placeData.longitude !== undefined) updateData.longitude = placeData.longitude || null;
+    if (placeData.isSafe !== undefined) updateData.is_safe = placeData.isSafe;
+    if (placeData.rating !== undefined) updateData.rating = placeData.rating;
+
+    const { data, error } = await supabase
+      .from('places')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Erro ao atualizar local:', error);
+      throw new Error(`Erro ao atualizar local: ${error.message}`);
+    }
+
+    if (!data) {
+      throw new Error('Erro ao atualizar local: nenhum dado retornado');
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description || undefined,
+      image: data.image,
+      imageUrl: data.image,
+      address: data.address || undefined,
+      rating: Number(data.rating) || 0,
+      category: data.category,
+      latitude: data.latitude ? Number(data.latitude) : undefined,
+      longitude: data.longitude ? Number(data.longitude) : undefined,
+      reviewCount: data.review_count || 0,
+      isSafe: data.is_safe ?? true,
+    };
+  } catch (error) {
+    console.error('Erro ao atualizar local:', error);
+    throw error;
+  }
+};
+
 export const getPlaceById = async (id: string): Promise<Place | null> => {
   try {
     // Validar se o ID é um UUID válido

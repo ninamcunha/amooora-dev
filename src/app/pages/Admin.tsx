@@ -1,4 +1,4 @@
-import { ArrowLeft, UserPlus, MapPin, Calendar, Scissors, LogOut } from 'lucide-react';
+import { ArrowLeft, UserPlus, MapPin, Calendar, Scissors, LogOut, Edit } from 'lucide-react';
 import { signOut } from '../../lib/auth';
 
 interface AdminProps {
@@ -22,6 +22,13 @@ export function Admin({ onNavigate }: AdminProps) {
       description: 'Criar novo usuário no sistema',
       icon: UserPlus,
       color: 'bg-[#932d6f]',
+    },
+    {
+      id: 'admin-editar-conteudos',
+      title: 'Editar Conteúdos',
+      description: 'Editar locais, eventos e serviços cadastrados',
+      icon: Edit,
+      color: 'bg-accent',
     },
     {
       id: 'admin-cadastrar-local',

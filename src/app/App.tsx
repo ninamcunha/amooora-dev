@@ -24,6 +24,10 @@ import { AdminCadastro } from './pages/AdminCadastro';
 import { AdminCadastrarLocal } from './pages/AdminCadastrarLocal';
 import { AdminCadastrarServico } from './pages/AdminCadastrarServico';
 import { AdminCadastrarEvento } from './pages/AdminCadastrarEvento';
+import { AdminEditarConteudos } from './pages/AdminEditarConteudos';
+import { AdminEditarLocal } from './pages/AdminEditarLocal';
+import { AdminEditarEvento } from './pages/AdminEditarEvento';
+import { AdminEditarServico } from './pages/AdminEditarServico';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
@@ -131,6 +135,9 @@ export default function App() {
   }, []);
 
   const handleNavigate = (page: string) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:handleNavigate',message:'handleNavigate chamado',data:{page,currentPage},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    // #endregion
     setPreviousPage(currentPage);
     
     // Verificar se a página contém um ID (formato: 'place-details:id', 'event-details:id' ou 'service-details:id')
@@ -169,8 +176,23 @@ export default function App() {
         setSelectedEventId(itemId);
       }
       setCurrentPage('create-review');
+    } else if (page.startsWith('admin-editar-local:')) {
+      const placeId = page.split(':')[1];
+      setSelectedPlaceId(placeId);
+      setCurrentPage('admin-editar-local');
+    } else if (page.startsWith('admin-editar-evento:')) {
+      const eventId = page.split(':')[1];
+      setSelectedEventId(eventId);
+      setCurrentPage('admin-editar-evento');
+    } else if (page.startsWith('admin-editar-servico:')) {
+      const serviceId = page.split(':')[1];
+      setSelectedServiceId(serviceId);
+      setCurrentPage('admin-editar-servico');
     } else {
       setSelectedCategory(undefined); // Limpar categoria ao navegar para outras páginas
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:handleNavigate-else',message:'Navegando para página simples',data:{page},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
       setCurrentPage(page);
     }
   };
@@ -295,6 +317,14 @@ export default function App() {
         return <AdminCadastrarServico onNavigate={handleNavigate} />;
       case 'admin-cadastrar-evento':
         return <AdminCadastrarEvento onNavigate={handleNavigate} />;
+      case 'admin-editar-conteudos':
+        return <AdminEditarConteudos onNavigate={handleNavigate} />;
+      case 'admin-editar-local':
+        return <AdminEditarLocal placeId={selectedPlaceId} onNavigate={handleNavigate} />;
+      case 'admin-editar-evento':
+        return <AdminEditarEvento eventId={selectedEventId} onNavigate={handleNavigate} />;
+      case 'admin-editar-servico':
+        return <AdminEditarServico serviceId={selectedServiceId} onNavigate={handleNavigate} />;
       case 'sobre-amooora':
         return (
           <SobreAmooora 
@@ -303,12 +333,22 @@ export default function App() {
           />
         );
       case 'mapa':
-        return (
-          <Mapa 
-            onNavigate={handleNavigate}
-            onBack={() => setCurrentPage('home')}
-          />
-        );
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:mapa-case',message:'Rota mapa detectada, tentando renderizar componente',data:{currentPage},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        try {
+          return (
+            <Mapa 
+              onNavigate={handleNavigate}
+              onBack={() => setCurrentPage('home')}
+            />
+          );
+        } catch (error) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:mapa-case-catch',message:'Erro ao renderizar Mapa',data:{error:error instanceof Error?error.message:String(error),stack:error instanceof Error?error.stack:undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+          // #endregion
+          return <div>Erro ao carregar mapa: {error instanceof Error ? error.message : String(error)}</div>;
+        }
       default:
         return <Welcome onNavigate={handleNavigate} />;
     }
