@@ -450,10 +450,10 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
           <div className="max-w-md mx-auto flex gap-2">
             <button
               onClick={handleInterestedClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors ${
                 isInterested
                   ? 'bg-secondary text-white'
-                  : 'border-2 border-secondary text-secondary hover:bg-secondary/5'
+                  : 'bg-white border-2 border-secondary text-secondary hover:bg-secondary/5'
               }`}
             >
               <Star className={`w-4 h-4 ${isInterested ? 'fill-white' : ''}`} />
@@ -461,10 +461,10 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             </button>
             <button
               onClick={handleGoingClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors ${
                 isGoing
                   ? 'bg-primary text-white'
-                  : 'bg-primary text-white hover:bg-primary/90'
+                  : 'bg-white border-2 border-primary text-primary hover:bg-primary/5'
               }`}
             >
               <CheckCircle className="w-4 h-4" />
@@ -472,10 +472,10 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             </button>
             <button
               onClick={handleAttendedClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl font-semibold text-xs transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors ${
                 eventId && hasAttended(eventId)
                   ? 'bg-accent text-white'
-                  : 'border-2 border-accent text-accent hover:bg-accent/5'
+                  : 'bg-white border-2 border-accent text-accent hover:bg-accent/5'
               }`}
             >
               <CheckCircle2 className="w-4 h-4" />
