@@ -46,7 +46,7 @@ export function InteractiveMap({
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_K;
   
   // Log para debug (apenas em desenvolvimento)
   if (import.meta.env.DEV) {

@@ -3,7 +3,7 @@
  * Converte endereços em coordenadas (latitude, longitude)
  */
 
-const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_K;
 
 export interface GeocodeResult {
   lat: number;

@@ -22,7 +22,7 @@
 
 Preencha os campos:
 
-- **Name (Nome):** `VITE_GOOGLE_MAPS_API_KEY`
+- **Name (Nome):** `VITE_GOOGLE_MAPS_API_K`
 - **Value (Valor):** `AIzaSyDlR1OgLBoDMXf1usqfdKkiG-6x6j7fTwc`
 - **Environment (Ambiente):** Selecione:
   - ✅ **Production** (Produção)
@@ -78,7 +78,7 @@ Para proteger sua API key, configure as restrições:
 
 2. **Verifique se a variável está correta**
    - No Vercel, vá em Settings → Environment Variables
-   - Confirme que `VITE_GOOGLE_MAPS_API_KEY` está listada
+   - Confirme que `VITE_GOOGLE_MAPS_API_K` está listada
    - Confirme que o valor está correto (sem espaços extras)
 
 3. **Verifique as APIs no Google Cloud Console**
@@ -97,7 +97,7 @@ Para proteger sua API key, configure as restrições:
 
 ## 📝 Checklist
 
-- [ ] Variável `VITE_GOOGLE_MAPS_API_KEY` adicionada no Vercel
+- [ ] Variável `VITE_GOOGLE_MAPS_API_K` adicionada no Vercel
 - [ ] Variável configurada para Production, Preview e Development
 - [ ] Redeploy realizado no Vercel
 - [ ] Restrições de HTTP referrers configuradas no Google Cloud Console
