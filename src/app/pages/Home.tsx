@@ -16,6 +16,7 @@ import { HighlightCard } from '../components/HighlightCard';
 import { InteractiveMap } from '../components/InteractiveMap';
 import lugaresSegurosImage from '../../assets/lugaresseguros.png';
 import comunidadesImage from '../../assets/comunidades.png';
+import eventosImage from '../../assets/eventos.png';
 
 // Mapeamento de categorias para ícones
 const categoryIconMap: { [key: string]: LucideIcon } = {
@@ -192,9 +193,7 @@ export function Home({ onNavigate }: HomeProps) {
               <HighlightCard
                 title="Eventos"
                 subtitle="Participe de eventos incríveis"
-                imageUrl={limitedEvents.length > 0 && limitedEvents[0]?.imageUrl 
-                  ? limitedEvents[0].imageUrl 
-                  : 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&q=80'}
+                imageUrl={eventosImage}
                 icon={Calendar}
                 onClick={() => onNavigate('events')}
               />
