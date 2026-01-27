@@ -152,17 +152,19 @@ export function Home({ onNavigate }: HomeProps) {
             </div>
             <div 
               onClick={() => onNavigate('mapa')}
-              className="w-full bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer"
+              className="w-full bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all cursor-pointer active:scale-[0.98]"
             >
               <InteractiveMap
                 locations={mapLocations}
                 height="280px"
                 onMarkerClick={(location) => {
-                  if (location.type === 'place') {
-                    onNavigate(`place-details:${location.id}`);
-                  } else if (location.type === 'event') {
-                    onNavigate(`event-details:${location.id}`);
-                  }
+                  // Prevenir navegação dupla - o card já navega para o mapa
+                  // Se quiser navegar direto para o local, pode descomentar:
+                  // if (location.type === 'place') {
+                  //   onNavigate(`place-details:${location.id}`);
+                  // } else if (location.type === 'event') {
+                  //   onNavigate(`event-details:${location.id}`);
+                  // }
                 }}
               />
             </div>

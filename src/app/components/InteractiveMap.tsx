@@ -45,7 +45,14 @@ export function InteractiveMap({
   // #endregion
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  
+  // Log para debug (apenas em desenvolvimento)
+  if (import.meta.env.DEV) {
+    console.log('🗺️ Google Maps API Key:', apiKey ? `✅ Configurada (${apiKey.substring(0, 10)}...)` : '❌ Não configurada');
+  }
+  
   // #region agent log
   fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:api-key-check',message:'Verificando API key',data:{hasApiKey:!!apiKey,apiKeyLength:apiKey?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
   // #endregion
@@ -99,7 +106,20 @@ export function InteractiveMap({
       <div className="w-full rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center" style={{ height }}>
         <div className="text-center p-4">
           <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-          <p className="text-sm text-gray-600">Chave da API do Google Maps não configurada</p>
+          <p className="text-sm text-gray-600 mb-2">Mapa não disponível</p>
+          <p className="text-xs text-gray-500">Toque para ver o mapa completo</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (mapError) {
+    return (
+      <div className="w-full rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center" style={{ height }}>
+        <div className="text-center p-4">
+          <MapPin className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm text-gray-600 mb-2">Erro ao carregar mapa</p>
+          <p className="text-xs text-gray-500">{mapError}</p>
         </div>
       </div>
     );
@@ -146,7 +166,21 @@ export function InteractiveMap({
   };
 
   return (
-    <LoadScript googleMapsApiKey={apiKey}>
+    <LoadScript 
+      googleMapsApiKey={apiKey}
+      loadingElement={
+        <div className="w-full rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 flex items-center justify-center" style={{ height }}>
+          <div className="text-center p-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+            <p className="text-sm text-gray-600">Carregando mapa...</p>
+          </div>
+        </div>
+      }
+      onError={(error) => {
+        console.error('❌ Erro ao carregar Google Maps:', error);
+        setMapError('Não foi possível carregar o mapa. Verifique sua conexão.');
+      }}
+    >
       <GoogleMap
         mapContainerStyle={{ ...mapContainerStyle, height }}
         center={mapCenter}
