@@ -1,15 +1,16 @@
 import { Calendar } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Header } from '../components/Header';
 import { SearchBar } from '../components/SearchBar';
 import { CategoryFilter } from '../components/CategoryFilter';
 import { EventCardExpanded } from '../components/EventCardExpanded';
-import { EventsMap } from '../components/EventsMap';
+import { InteractiveMap } from '../components/InteractiveMap';
 import { BottomNav } from '../components/BottomNav';
 import { EmptyState } from '../components/EmptyState';
 import { SkeletonListExpanded } from '../components/Skeleton';
 import { useEvents } from '../hooks/useEvents';
 import { useAdmin } from '../hooks/useAdmin';
+import { geocodeAddress } from '../services/geocoding';
 
 const categories = ['Todos', 'Hoje', 'Semana', 'Gratuitos'];
 
@@ -22,6 +23,8 @@ export function Eventos({ onNavigate }: EventosProps) {
   const { isAdmin } = useAdmin();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
+  const [geocodingCache, setGeocodingCache] = useState<Record<string, { lat: number; lng: number }>>({});
+  const geocodingProcessedRef = useRef<Set<string>>(new Set());
 
   // Formatar data para exibição
   const formatDate = (dateString: string) => {
@@ -112,6 +115,75 @@ export function Eventos({ onNavigate }: EventosProps) {
     }));
   }, [filteredEvents]);
 
+  // Geocoding dos eventos filtrados
+  useEffect(() => {
+    if (loading || !filteredEvents || filteredEvents.length === 0) return;
+
+    const loadEventCoordinates = async () => {
+      const eventsNeedingGeocoding = filteredEvents.filter(
+        (event) => event.location && 
+                   !geocodingProcessedRef.current.has(event.location)
+      );
+
+      if (eventsNeedingGeocoding.length === 0) return;
+
+      try {
+        // Marcar todos como processados ANTES de fazer as requisições
+        eventsNeedingGeocoding.forEach((event) => {
+          if (event.location) {
+            geocodingProcessedRef.current.add(event.location);
+          }
+        });
+
+        const newCache: Record<string, { lat: number; lng: number }> = { ...geocodingCache };
+
+        // Geocodificar eventos que precisam (com delay para evitar rate limiting)
+        for (const event of eventsNeedingGeocoding) {
+          if (event.location) {
+            const result = await geocodeAddress(event.location);
+            if (result) {
+              newCache[event.location] = { lat: result.lat, lng: result.lng };
+            }
+            // Delay de 200ms entre requisições
+            await new Promise((resolve) => setTimeout(resolve, 200));
+          }
+        }
+
+        // Atualizar cache apenas uma vez no final
+        if (Object.keys(newCache).length > Object.keys(geocodingCache).length) {
+          setGeocodingCache(newCache);
+        }
+      } catch (error) {
+        console.error('Erro ao fazer geocoding dos eventos:', error);
+      }
+    };
+
+    loadEventCoordinates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredEvents.length, loading]);
+
+  // Preparar eventos para o mapa
+  const mapEvents = useMemo(() => {
+    return filteredEvents
+      .filter((event) => {
+        // Incluir apenas eventos que têm localização e coordenadas (via geocoding)
+        return event.location && geocodingCache[event.location];
+      })
+      .map((event) => {
+        const coords = geocodingCache[event.location!];
+        return {
+          id: event.id,
+          name: event.name,
+          address: event.location,
+          lat: coords.lat,
+          lng: coords.lng,
+          category: event.category?.label || 'Evento',
+          imageUrl: event.imageUrl,
+          type: 'event' as const,
+        };
+      });
+  }, [filteredEvents, geocodingCache]);
+
   return (
     <div className="min-h-screen bg-muted">
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
@@ -159,15 +231,14 @@ export function Eventos({ onNavigate }: EventosProps) {
           )}
 
           {/* Mapa de Eventos */}
-          {!loading && !error && eventsForCards.length > 0 && (
+          {!loading && !error && mapEvents.length > 0 && (
             <div className="px-5 mb-6">
-              <EventsMap 
-                events={eventsForCards.map(event => ({
-                  id: event.id,
-                  name: event.name,
-                  location: event.location,
-                }))}
+              <InteractiveMap
+                locations={mapEvents}
                 height="300px"
+                onMarkerClick={(location) => {
+                  onNavigate(`event-details:${location.id}`);
+                }}
               />
             </div>
           )}
