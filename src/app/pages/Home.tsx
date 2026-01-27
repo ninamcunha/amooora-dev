@@ -14,6 +14,7 @@ import { useServices } from '../hooks/useServices';
 import { useAdmin } from '../hooks/useAdmin';
 import { HighlightCard } from '../components/HighlightCard';
 import { InteractiveMap } from '../components/InteractiveMap';
+import lugaresSegurosImage from '../../assets/lugaresseguros.png';
 
 // Mapeamento de categorias para ícones
 const categoryIconMap: { [key: string]: LucideIcon } = {
@@ -181,7 +182,7 @@ export function Home({ onNavigate }: HomeProps) {
               <HighlightCard
                 title="Lugares Seguros"
                 subtitle="Descubra locais acolhedores"
-                imageUrl="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&q=80"
+                imageUrl={lugaresSegurosImage}
                 icon={MapPin}
                 onClick={() => onNavigate('places')}
               />
