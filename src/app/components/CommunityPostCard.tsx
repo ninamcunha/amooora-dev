@@ -1,6 +1,6 @@
 import { Heart, MessageCircle, TrendingUp } from 'lucide-react';
 import { useEffect } from 'react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '../shared/components';
 import { Tag } from './Tag';
 import { usePostLikes } from '../hooks/usePostLikes';
 

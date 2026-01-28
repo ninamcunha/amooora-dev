@@ -1,7 +1,5 @@
 import { Star } from 'lucide-react';
-import { ImageWithFallback } from '../shared/components';
-import { Badge } from './Badge';
-import { Rating } from './Rating';
+import { ImageWithFallback, Badge } from '../../../shared/components';
 
 interface PlaceCardProps {
   name: string;
@@ -58,3 +56,4 @@ export function PlaceCard({
     </div>
   );
 }
+

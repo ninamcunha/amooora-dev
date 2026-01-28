@@ -1,9 +1,9 @@
 import { Heart, Star, Share2, Flag, Phone, MessageCircle, Clock, Check, MapPin } from 'lucide-react';
 import { useState } from 'react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Header } from './Header';
-import { BottomNav } from './BottomNav';
-import { useService } from '../hooks/useServices';
+import { ImageWithFallback } from '../shared/components';
+import { Header } from '../shared/components';
+import { BottomNav } from '../shared/components';
+import { useService } from '../features/services';
 import { useServiceReviews } from '../shared/hooks';
 import { calculateAverageRating } from '../shared/services';
 import { Review } from '../shared/types';

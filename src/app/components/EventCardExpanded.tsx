@@ -1,5 +1,5 @@
 import { Calendar, Clock, MapPin, Users, Heart, ArrowRight } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '../shared/components';
 import { Badge } from './Badge';
 import { useFavorites } from '../shared/hooks';
 

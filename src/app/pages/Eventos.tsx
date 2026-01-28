@@ -8,7 +8,7 @@ import { InteractiveMap } from '../components/InteractiveMap';
 import { BottomNav } from '../shared/components';
 import { EmptyState } from '../shared/components';
 import { SkeletonListExpanded } from '../shared/components';
-import { useEvents } from '../hooks/useEvents';
+import { useEvents } from '../features/events';
 import { useAdmin } from '../shared/hooks';
 import { geocodeAddress } from '../shared/services';
 

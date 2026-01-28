@@ -3,12 +3,11 @@ import { MapPin, Calendar, Scissors, MessageCircle, Scale, Heart, Sparkles, Brie
 import type { LucideIcon } from 'lucide-react';
 import { Header } from '../shared/components';
 import { SectionHeader } from '../components/SectionHeader';
-import { PlaceCard } from '../components/PlaceCard';
+import { PlaceCard, usePlaces } from '../features/places';
 import { EventCard, useEvents } from '../features/events';
 import { ServiceCardGrid, useServices } from '../features/services';
 import { BottomNav } from '../shared/components';
 import { GlobalSearch } from '../components/GlobalSearch';
-import { usePlaces } from '../hooks/usePlaces';
 import { useAdmin } from '../shared/hooks';
 import { HighlightCard } from '../components/HighlightCard';
 import { InteractiveMap } from '../components/InteractiveMap';

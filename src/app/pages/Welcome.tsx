@@ -1,4 +1,4 @@
-import logoHome from "../../assets/logo-home.PNG";
+import logoHome from "../../assets/logo-home.png";
 
 interface WelcomeProps {
   onNavigate: (page: string) => void;

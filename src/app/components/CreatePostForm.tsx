@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Send, ChevronDown, Globe } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '../shared/components';
 
 export interface Community {
   id: string;

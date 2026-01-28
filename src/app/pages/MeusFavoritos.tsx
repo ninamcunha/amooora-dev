@@ -7,7 +7,7 @@ import { EventCardExpanded, useEvents } from '../features/events';
 import { ServiceCardExpanded, useServices } from '../features/services';
 import { EmptyState } from '../shared/components';
 import { useFavorites } from '../shared/hooks';
-import { usePlaces } from '../hooks/usePlaces';
+import { usePlaces } from '../features/places';
 import { useAdmin } from '../shared/hooks';
 
 interface MeusFavoritosProps {

@@ -1,14 +1,11 @@
-import { Heart, Star, Check, Share2, Flag, UserPlus, ArrowLeft, MapPin, MessageCircle, Send } from 'lucide-react';
-import { useFavorites } from '../shared/hooks';
+import { Heart, Star, Check, Share2, Flag, UserPlus, MapPin, MessageCircle, Send } from 'lucide-react';
+import { useFavorites, usePlaceReviews } from '../../../shared/hooks';
 import { useState, useEffect } from 'react';
-import { ImageWithFallback } from '../shared/components';
-import { Header } from '../shared/components';
-import { BottomNav } from '../shared/components';
-import { usePlaces } from '../hooks/usePlaces';
-import { usePlaceReviews } from '../shared/hooks';
-import { Review } from '../shared/types';
-import { calculateAverageRating } from '../shared/services';
-import { shareContent, getShareUrl, getShareText } from '../shared/utils';
+import { ImageWithFallback, Header, BottomNav } from '../../../shared/components';
+import { usePlace } from '../hooks/usePlaces';
+import { Review } from '../../../shared/types';
+import { calculateAverageRating } from '../../../shared/services';
+import { shareContent, getShareUrl, getShareText } from '../../../shared/utils';
 
 interface ReviewWithReplies extends Review {
   likes?: number;
@@ -46,41 +43,42 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
     }
   };
 
-  // Converter reviews reais para o formato esperado
   const reviews: ReviewWithReplies[] = realReviews.map(review => ({
     ...review,
-    avatar: review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080',
+    avatar:
+      review.avatar ||
+      review.userAvatar ||
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080',
     author: review.author || review.userName || 'Usuário',
-    date: review.date || (review.createdAt ? new Date(review.createdAt).toLocaleDateString('pt-BR') : 'Data não disponível'),
-    likes: 0, // Por enquanto sem sistema de likes
+    date:
+      review.date ||
+      (review.createdAt
+        ? new Date(review.createdAt).toLocaleDateString('pt-BR')
+        : 'Data não disponível'),
+    likes: 0,
     replies: [],
   }));
 
-  // Calcular rating médio
   const averageRating = reviews.length > 0 ? calculateAverageRating(reviews) : place?.rating || 0;
   const reviewCount = reviews.length || place?.reviewCount || 0;
 
-  // Escutar evento customizado de atualização de reviews (apenas quando necessário)
   useEffect(() => {
     if (!placeId) return;
 
-    let timeoutId: NodeJS.Timeout | null = null;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     const handleReviewCreated = (e: Event) => {
       const customEvent = e as CustomEvent;
-      // Verificar se o evento é para este placeId específico
       if (customEvent.detail?.placeId && customEvent.detail.placeId !== placeId) {
         console.log('[PlaceDetails] Review criado para outro local, ignorando');
         return;
       }
 
       console.log('[PlaceDetails] Review criado, aguardando antes de refetch...');
-      // Limpar timeout anterior se existir
       if (timeoutId) {
         clearTimeout(timeoutId);
       }
       
-      // Pequeno delay para garantir que o banco foi atualizado
       timeoutId = setTimeout(() => {
         console.log('[PlaceDetails] Fazendo refetch após criação de review');
         refetchReviews();
@@ -119,7 +117,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
     );
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-muted">
@@ -138,7 +135,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
     );
   }
 
-  // Error state
   if (error || !place) {
     return (
       <div className="min-h-screen bg-muted">
@@ -160,15 +156,11 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
   return (
     <div className="min-h-screen bg-muted">
       <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
-        {/* Header fixo */}
         <Header onNavigate={onNavigate!} showBackButton onBack={onBack} />
 
-        {/* Conteúdo scrollável - padding-top para compensar header fixo */}
         <div className="flex-1 overflow-y-auto pb-24 pt-24">
-          {/* Galeria de Fotos */}
           <div className="p-4">
             <div className="flex gap-1 h-[200px]">
-              {/* Foto principal */}
               <div className="flex-1 rounded-xl overflow-hidden">
                 <ImageWithFallback
                   src={place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
@@ -177,7 +169,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
                 />
               </div>
               
-              {/* Fotos menores - usando a mesma imagem por enquanto */}
               <div className="flex flex-col gap-1 w-[130px]">
                 <div className="flex-1 rounded-xl overflow-hidden">
                   <ImageWithFallback
@@ -197,9 +188,7 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
             </div>
           </div>
 
-          {/* Informações do Local */}
           <div className="px-4 pb-4">
-            {/* Categoria e Favoritar */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-1 text-[#932d6f] font-bold text-sm">
                 <span>{place.category}</span>
@@ -220,17 +209,14 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               </button>
             </div>
 
-            {/* Nome */}
             <h2 className="text-3xl font-bold text-black mb-2">{place.name}</h2>
 
-            {/* Descrição */}
             {place.description && (
               <p className="text-gray-500 text-sm leading-relaxed mb-3">
                 {place.description}
               </p>
             )}
 
-            {/* Endereço com link para Google Maps */}
             {place.address && (
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address)}`}
@@ -243,25 +229,23 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               </a>
             )}
 
-                  {/* Avaliação */}
-                  <div className="flex items-center gap-2 pt-2">
-                    <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
-                    <span className="font-bold text-black text-lg">
-                      {averageRating.toFixed(1)} ({reviewCount})
-                    </span>
-                  </div>
+            <div className="flex items-center gap-2 pt-2">
+              <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
+              <span className="font-bold text-black text-lg">
+                {averageRating.toFixed(1)} ({reviewCount})
+              </span>
+            </div>
           </div>
 
-          {/* Botões de Ação */}
           <div className="bg-[#fffbfa] px-4 py-3">
             <div className="flex gap-2 overflow-x-auto">
-                    <button 
-                      onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
-                      className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
-                    >
-                      <Check className="w-4 h-4" />
-                      Já fui
-                    </button>
+              <button 
+                onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
+                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+              >
+                <Check className="w-4 h-4" />
+                Já fui
+              </button>
               <button 
                 onClick={handleShare}
                 className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
@@ -280,7 +264,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
             </div>
           </div>
 
-          {/* Seção de Comentários */}
           <div className="mt-6 pb-32">
             <div className="px-4 pb-3 flex items-center justify-between">
               <h3 className="text-lg font-bold text-gray-900">
@@ -288,7 +271,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               </h3>
             </div>
 
-            {/* Lista de Reviews */}
             {reviewsLoading ? (
               <div className="px-4 py-8 text-center">
                 <p className="text-muted-foreground text-sm">Carregando avaliações...</p>
@@ -303,7 +285,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
                   replyText={replyText}
                   onReplyTextChange={setReplyText}
                   onSendReply={(id) => {
-                    // Respostas serão implementadas depois quando tiver sistema de comentários completo
                     console.log('Resposta:', { reviewId: id, text: replyText });
                     setReplyText('');
                     setReplyingTo(null);
@@ -318,7 +299,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
           </div>
         </div>
 
-        {/* Campo de Comentário Fixo - Posicionado acima do BottomNav */}
         <div className="fixed bottom-16 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-border px-4 py-3 z-40">
           <div className="flex items-center gap-3">
             <ImageWithFallback
@@ -342,14 +322,12 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
           </div>
         </div>
 
-        {/* Navegação inferior - z-index maior para ficar acima */}
         <BottomNav activeItem="places" onItemClick={onNavigate} />
       </div>
     </div>
   );
 }
 
-// Componente para renderizar um review com suporte a respostas
 function ReviewItem({ 
   review, 
   onReply, 
@@ -370,7 +348,6 @@ function ReviewItem({
   return (
     <div className={isReply ? 'ml-12 mt-3' : ''}>
       <div className="px-4 py-4 border-b border-gray-100">
-        {/* Header do Review */}
         <div className="flex items-center gap-3 mb-2">
           <ImageWithFallback
             src={review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080'}
@@ -383,24 +360,25 @@ function ReviewItem({
           </div>
         </div>
 
-        {/* Avaliação com Estrelas (apenas para comentários principais) */}
         {!isReply && review.rating > 0 && (
           <div className="mb-2">
             <div className="flex gap-1">
               {[...Array(5)].map((_, index) => (
-                <Star 
+                <Star
                   key={index}
-                  className={`w-3.5 h-3.5 ${index < review.rating ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-300'}`}
+                  className={`w-3.5 h-3.5 ${
+                    index < review.rating
+                      ? 'fill-[#932d6f] text-[#932d6f]'
+                      : 'text-gray-300'
+                  }`}
                 />
               ))}
             </div>
           </div>
         )}
 
-        {/* Comentário */}
         <p className="text-sm text-gray-700 leading-relaxed mb-2">{review.comment}</p>
 
-        {/* Ações: Curtir e Responder */}
         <div className="flex items-center gap-4 mt-2">
           {review.likes !== undefined && (
             <button className="flex items-center gap-1.5 text-muted-foreground hover:text-accent transition-colors">
@@ -419,7 +397,6 @@ function ReviewItem({
           )}
         </div>
 
-        {/* Campo de resposta */}
         {replyingTo === review.id && !isReply && (
           <div className="mt-3 flex gap-2">
             <input
@@ -428,7 +405,7 @@ function ReviewItem({
               onChange={(e) => onReplyTextChange(e.target.value)}
               placeholder="Escreva uma resposta..."
               className="flex-1 px-3 py-2 text-sm bg-muted rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-primary/20"
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   onSendReply(review.id);
                 }
@@ -443,7 +420,6 @@ function ReviewItem({
           </div>
         )}
 
-        {/* Respostas aninhadas */}
         {review.replies && review.replies.length > 0 && (
           <div className="mt-3">
             {review.replies.map((reply) => (
@@ -464,3 +440,4 @@ function ReviewItem({
     </div>
   );
 }
+

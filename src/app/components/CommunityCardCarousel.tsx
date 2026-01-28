@@ -1,5 +1,5 @@
 import { Users, MessageCircle, Star } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '../shared/components';
 
 export interface CommunityCard {
   id: string;

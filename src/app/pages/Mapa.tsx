@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { ArrowLeft, MapPin, Calendar, Filter } from 'lucide-react';
 import { InteractiveMap } from '../components/InteractiveMap';
-import { usePlaces } from '../hooks/usePlaces';
+import { usePlaces } from '../features/places';
 import { useEvents } from '../features/events';
 import { geocodeAddress } from '../shared/services';
-import { Place, Event } from '../shared/types';
+import type { Place, Event } from '../types';
 
 interface MapaProps {
   onNavigate: (page: string) => void;
@@ -14,37 +14,19 @@ interface MapaProps {
 type MapFilter = 'all' | 'places' | 'events';
 
 export function Mapa({ onNavigate, onBack }: MapaProps) {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:component-entry',message:'Componente Mapa iniciado',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-  // #endregion
   const [activeFilter, setActiveFilter] = useState<MapFilter>('all');
   const [geocodingCache, setGeocodingCache] = useState<Record<string, { lat: number; lng: number }>>({});
   const [geocodingInProgress, setGeocodingInProgress] = useState(false);
   const geocodingProcessedRef = useRef<Set<string>>(new Set());
 
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:before-hooks',message:'Antes de chamar hooks usePlaces e useEvents',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-  // #endregion
   const { places, loading: loadingPlaces, error: errorPlaces } = usePlaces();
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:after-usePlaces',message:'usePlaces executado',data:{placesCount:places?.length||0,loading:loadingPlaces,hasError:!!errorPlaces,errorMsg:errorPlaces?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-  // #endregion
   const { events, loading: loadingEvents, error: errorEvents } = useEvents();
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:after-useEvents',message:'useEvents executado',data:{eventsCount:events?.length||0,loading:loadingEvents,hasError:!!errorEvents,errorMsg:errorEvents?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-  // #endregion
 
   // Carregar coordenadas para eventos que não têm latitude/longitude
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:geocoding-effect-entry',message:'useEffect geocoding iniciado',data:{loadingEvents,eventsCount:events?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-    // #endregion
     if (loadingEvents || !events || events.length === 0) return;
 
     const loadEventCoordinates = async () => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:geocoding-function-entry',message:'loadEventCoordinates iniciado',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       // Criar lista de eventos que precisam de geocoding
       const eventsNeedingGeocoding = events.filter(
         (event) => event.location && 
@@ -92,9 +74,6 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
 
   // Preparar locais para o mapa
   const mapPlaces = useMemo(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:mapPlaces-useMemo',message:'mapPlaces useMemo executado',data:{placesLength:places.length,activeFilter,cacheSize:Object.keys(geocodingCache).length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     return places
       .filter((place) => {
         // Filtrar por tipo se necessário
@@ -138,9 +117,6 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
 
   // Preparar eventos para o mapa
   const mapEvents = useMemo(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:mapEvents-useMemo',message:'mapEvents useMemo executado',data:{eventsLength:events.length,activeFilter,cacheSize:Object.keys(geocodingCache).length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     return events
       .filter((event) => {
         // Filtrar por tipo se necessário
@@ -173,18 +149,11 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
 
   // Combinar locais e eventos
   const allLocations = useMemo(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:allLocations-useMemo',message:'allLocations useMemo executado',data:{mapPlacesLength:mapPlaces.length,mapEventsLength:mapEvents.length},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
     const combined = [...mapPlaces, ...mapEvents];
     return combined;
   }, [mapPlaces.length, mapEvents.length]);
 
   const loading = loadingPlaces || loadingEvents || geocodingInProgress;
-
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:before-render',message:'Antes de renderizar JSX',data:{loading,allLocationsCount:allLocations?.length||0,hasErrorPlaces:!!errorPlaces,hasErrorEvents:!!errorEvents},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
 
   return (
     <div className="min-h-screen bg-muted">
@@ -281,12 +250,6 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
             </div>
           ) : (
             <div className="p-5">
-              {/* #region agent log */}
-              {(() => {
-                fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Mapa.tsx:before-InteractiveMap',message:'Antes de renderizar InteractiveMap',data:{allLocationsCount:allLocations?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-                return null;
-              })()}
-              {/* #endregion */}
               <InteractiveMap
                 locations={allLocations}
                 height="500px"

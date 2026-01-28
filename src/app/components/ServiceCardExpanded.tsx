@@ -1,5 +1,5 @@
 import { Star, MapPin, User, Heart, ArrowRight } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '../shared/components';
 import { Tag } from './Tag';
 import { useFavorites } from '../shared/hooks';
 

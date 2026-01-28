@@ -1,5 +1,5 @@
 import { Star, Users } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '../shared/components';
 
 export interface CommunityCardData {
   id: string;

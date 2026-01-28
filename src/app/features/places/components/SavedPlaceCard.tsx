@@ -1,4 +1,4 @@
-import { ImageWithFallback } from '../shared/components';
+import { ImageWithFallback } from '../../../shared/components';
 
 interface SavedPlaceCardProps {
   name: string;
@@ -23,3 +23,4 @@ export function SavedPlaceCard({ name, category, imageUrl }: SavedPlaceCardProps
     </div>
   );
 }
+

@@ -1,7 +1,5 @@
 import { Star, MapPin, ArrowRight } from 'lucide-react';
-import { ImageWithFallback } from '../shared/components';
-import { Badge } from './Badge';
-import { Tag } from './Tag';
+import { ImageWithFallback, Badge, Tag } from '../../../shared/components';
 
 interface PlaceCardExpandedProps {
   name: string;
@@ -94,3 +92,4 @@ export function PlaceCardExpanded({
     </div>
   );
 }
+

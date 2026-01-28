@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Welcome } from './pages/Welcome';
 import { Home } from './pages/Home';
-import { Locais } from './pages/Locais';
+import { Locais, PlaceDetails, AdminCadastrarLocal, AdminEditarLocal } from './features/places';
 import { Servicos } from './features/services';
 import { Eventos } from './features/events';
 import { Comunidade } from './features/communities';
@@ -13,17 +13,14 @@ import { PostDetails, MinhasComunidades } from './features/communities';
 import { MeusFavoritos } from './pages/MeusFavoritos';
 import { SobreAmooora } from './pages/SobreAmooora';
 import { Mapa } from './pages/Mapa';
-import { PlaceDetails } from './components/PlaceDetails';
 import { ServiceDetails, ServiceCategoryList } from './features/services';
 import { EventDetails } from './features/events';
 import { CreateReview } from './pages/CreateReview';
 import { Admin } from './pages/Admin';
 import { AdminCadastro } from './pages/AdminCadastro';
-import { AdminCadastrarLocal } from './pages/AdminCadastrarLocal';
 import { AdminCadastrarServico, AdminEditarServico } from './features/services';
 import { AdminCadastrarEvento } from './features/events';
 import { AdminEditarConteudos } from './pages/AdminEditarConteudos';
-import { AdminEditarLocal } from './pages/AdminEditarLocal';
 import { AdminEditarEvento } from './features/events';
 import { AdminCadastrarComunidade, AdminEditarComunidade, CommunityDetails } from './features/communities';
 
@@ -134,9 +131,6 @@ export default function App() {
   }, []);
 
   const handleNavigate = (page: string) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:handleNavigate',message:'handleNavigate chamado',data:{page,currentPage},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-    // #endregion
     setPreviousPage(currentPage);
     
     // Verificar se a página contém um ID (formato: 'place-details:id', 'event-details:id' ou 'service-details:id')
@@ -197,9 +191,6 @@ export default function App() {
       setCurrentPage('community-details');
     } else {
       setSelectedCategory(undefined); // Limpar categoria ao navegar para outras páginas
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:handleNavigate-else',message:'Navegando para página simples',data:{page},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       setCurrentPage(page);
     }
   };
@@ -355,9 +346,6 @@ export default function App() {
           />
         );
       case 'mapa':
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:mapa-case',message:'Rota mapa detectada, tentando renderizar componente',data:{currentPage},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
         try {
           return (
             <Mapa 
@@ -366,9 +354,6 @@ export default function App() {
             />
           );
         } catch (error) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'App.tsx:mapa-case-catch',message:'Erro ao renderizar Mapa',data:{error:error instanceof Error?error.message:String(error),stack:error instanceof Error?error.stack:undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-          // #endregion
           return <div>Erro ao carregar mapa: {error instanceof Error ? error.message : String(error)}</div>;
         }
       default:

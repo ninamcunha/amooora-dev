@@ -1,6 +1,6 @@
 import { Search, X, MapPin, Calendar, Briefcase, Loader2 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
-import { usePlaces } from '../hooks/usePlaces';
+import { usePlaces } from '../features/places';
 import { useEvents } from '../features/events';
 import { useServices } from '../features/services';
 import { EmptyState } from './EmptyState';

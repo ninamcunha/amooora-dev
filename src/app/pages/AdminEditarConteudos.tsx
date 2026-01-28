@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, MapPin, Calendar, Scissors, Search, Edit, Trash2, Users } from 'lucide-react';
-import { getPlaces } from '../services/places';
+import { getPlaces } from '../features/places';
 import { getEvents } from '../features/events';
 import { getServices } from '../features/services';
 import { getCommunities, Community } from '../features/communities';
-import { Place, Event, Service } from '../shared/types';
+import type { Place, Event, Service } from '../types';
 
 interface AdminEditarConteudosProps {
   onNavigate: (page: string) => void;

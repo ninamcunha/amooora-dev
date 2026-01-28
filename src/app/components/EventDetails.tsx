@@ -1,12 +1,11 @@
 import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, CheckCircle, Star, User, MessageCircle, CheckCircle2, Send } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { Header } from './Header';
-import { BottomNav } from './BottomNav';
+import { ImageWithFallback } from '../shared/components';
+import { Header } from '../shared/components';
+import { BottomNav } from '../shared/components';
 import { InteractiveMap } from './InteractiveMap';
-import { useEvent } from '../hooks/useEvents';
+import { useEvent, useAttendedEvents } from '../features/events';
 import { useEventReviews } from '../shared/hooks';
-import { useAttendedEvents } from '../hooks/useAttendedEvents';
 import { Review } from '../shared/types';
 import { calculateAverageRating } from '../shared/services';
 import { shareContent, getShareUrl, getShareText } from '../shared/utils';

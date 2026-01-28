@@ -41,9 +41,6 @@ export function InteractiveMap({
   height = '400px',
   onMarkerClick,
 }: InteractiveMapProps) {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:component-entry',message:'InteractiveMap iniciado',data:{locationsCount:locations?.length||0,hasCenter:!!center},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-  // #endregion
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
@@ -58,10 +55,6 @@ export function InteractiveMap({
     allEnvVars: Object.keys(import.meta.env).filter(k => k.includes('GOOGLE') || k.includes('MAPS'))
   });
   
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:api-key-check',message:'Verificando API key',data:{hasApiKey:!!apiKey,apiKeyLength:apiKey?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-  // #endregion
-
   // Calcular centro do mapa baseado nos locais
   const mapCenter = useMemo(() => {
     if (center) return center;
@@ -156,9 +149,6 @@ export function InteractiveMap({
   };
 
   const onMapLoad = (mapInstance: google.maps.Map) => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/36ab800b-6558-4486-879e-0991defbb1a3',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'InteractiveMap.tsx:onMapLoad',message:'Mapa carregado com sucesso',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     setMap(mapInstance);
     
     // Ajustar o mapa para mostrar todos os pins quando houver múltiplos locais

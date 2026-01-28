@@ -1,5 +1,5 @@
 import { LucideIcon } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ImageWithFallback } from '../shared/components';
 
 interface HighlightCardProps {
   title: string;
