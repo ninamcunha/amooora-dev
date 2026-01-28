@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info, Map } from 'lucide-react';
-import logoAmooora from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
+import logoAmooora from "../../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 
 interface HeaderProps {
   onNavigate?: (page: string) => void;

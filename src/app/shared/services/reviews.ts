@@ -1,5 +1,5 @@
 import { Review } from '../types';
-import { supabase } from '../../../infra/supabase';
+import { supabase } from '../../infra/supabase';
 
 export const getReviews = async (): Promise<Review[]> => {
   try {

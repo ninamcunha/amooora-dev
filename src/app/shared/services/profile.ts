@@ -1,4 +1,4 @@
-import { supabase } from '../../../infra/supabase';
+import { supabase } from '../../infra/supabase';
 
 export interface ProfileStats {
   eventsCount: number;
