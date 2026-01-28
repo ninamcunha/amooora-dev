@@ -2,7 +2,7 @@ import { Heart, MapPin, Calendar, Briefcase } from 'lucide-react';
 import { useMemo } from 'react';
 import { Header } from '../shared/components';
 import { BottomNav } from '../shared/components';
-import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
+import { PlaceCardExpanded } from '../features/places';
 import { EventCardExpanded, useEvents } from '../features/events';
 import { ServiceCardExpanded, useServices } from '../features/services';
 import { EmptyState } from '../shared/components';
