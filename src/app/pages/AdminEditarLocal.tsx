@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, MapPin, Image, FileText, Tag, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
 import { updatePlace, getPlaceById } from '../services/places';
-import { uploadImage } from '../../lib/storage';
+import { uploadImage } from '../infra/storage';
 
 interface AdminEditarLocalProps {
   placeId?: string;

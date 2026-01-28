@@ -1,7 +1,7 @@
 import { Star, MapPin, User, Heart, ArrowRight } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Tag } from './Tag';
-import { useFavorites } from '../hooks/useFavorites';
+import { useFavorites } from '../shared/hooks';
 
 interface ServiceCardExpandedProps {
   id: string;

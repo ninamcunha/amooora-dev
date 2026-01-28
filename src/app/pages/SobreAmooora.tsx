@@ -1,8 +1,8 @@
 import { ArrowLeft, Info } from 'lucide-react';
-import { Header } from '../components/Header';
-import { BottomNav } from '../components/BottomNav';
-import { useAdmin } from '../hooks/useAdmin';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { Header } from '../shared/components';
+import { BottomNav } from '../shared/components';
+import { useAdmin } from '../shared/hooks';
+import { ImageWithFallback } from '../shared/components';
 
 interface SobreAmoooraProps {
   onNavigate: (page: string) => void;

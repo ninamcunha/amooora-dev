@@ -4,10 +4,10 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { useService } from '../hooks/useServices';
-import { useServiceReviews } from '../hooks/useReviews';
-import { calculateAverageRating } from '../services/reviews';
-import { Review } from '../types';
-import { shareContent, getShareUrl, getShareText } from '../utils/share';
+import { useServiceReviews } from '../shared/hooks';
+import { calculateAverageRating } from '../shared/services';
+import { Review } from '../shared/types';
+import { shareContent, getShareUrl, getShareText } from '../shared/utils';
 
 
 interface ServiceDetailsProps {

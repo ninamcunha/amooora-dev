@@ -1,14 +1,14 @@
 import { Heart, Star, Check, Share2, Flag, UserPlus, ArrowLeft, MapPin, MessageCircle, Send } from 'lucide-react';
-import { useFavorites } from '../hooks/useFavorites';
+import { useFavorites } from '../shared/hooks';
 import { useState, useEffect } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { usePlace } from '../hooks/usePlaces';
-import { usePlaceReviews } from '../hooks/useReviews';
-import { Review } from '../types';
-import { calculateAverageRating } from '../services/reviews';
-import { shareContent, getShareUrl, getShareText } from '../utils/share';
+import { usePlaceReviews } from '../shared/hooks';
+import { Review } from '../shared/types';
+import { calculateAverageRating } from '../shared/services';
+import { shareContent, getShareUrl, getShareText } from '../shared/utils';
 
 interface ReviewWithReplies extends Review {
   likes?: number;

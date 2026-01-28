@@ -1,16 +1,14 @@
 import { Heart, MapPin, Calendar, Briefcase } from 'lucide-react';
 import { useMemo } from 'react';
-import { Header } from '../components/Header';
-import { BottomNav } from '../components/BottomNav';
+import { Header } from '../shared/components';
+import { BottomNav } from '../shared/components';
 import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
-import { EventCardExpanded } from '../components/EventCardExpanded';
-import { ServiceCardExpanded } from '../components/ServiceCardExpanded';
-import { EmptyState } from '../components/EmptyState';
-import { useFavorites } from '../hooks/useFavorites';
+import { EventCardExpanded, useEvents } from '../features/events';
+import { ServiceCardExpanded, useServices } from '../features/services';
+import { EmptyState } from '../shared/components';
+import { useFavorites } from '../shared/hooks';
 import { usePlaces } from '../hooks/usePlaces';
-import { useEvents } from '../hooks/useEvents';
-import { useServices } from '../hooks/useServices';
-import { useAdmin } from '../hooks/useAdmin';
+import { useAdmin } from '../shared/hooks';
 
 interface MeusFavoritosProps {
   onNavigate: (page: string) => void;

@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Header } from '../components/Header';
-import { BottomNav } from '../components/BottomNav';
+import { Header } from '../shared/components';
+import { BottomNav } from '../shared/components';
 import { CommunityCard } from '../components/CommunityCard';
-import { CategoryFilter } from '../components/CategoryFilter';
-import { EmptyState } from '../components/EmptyState';
-import { SkeletonListExpanded } from '../components/Skeleton';
+import { CategoryFilter } from '../shared/components';
+import { EmptyState } from '../shared/components';
+import { SkeletonListExpanded } from '../shared/components';
 import { Users, Search } from 'lucide-react';
-import { useAdmin } from '../hooks/useAdmin';
+import { useAdmin } from '../shared/hooks';
 import { useCommunities } from '../hooks/useCommunities';
 import { Community } from '../services/communities';
 

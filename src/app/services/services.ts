@@ -1,5 +1,5 @@
 import { Service } from '../types';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../infra/supabase';
 
 export const getServices = async (): Promise<Service[]> => {
   try {

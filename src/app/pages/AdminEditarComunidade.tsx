@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Users, Image, FileText, Tag, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
 import { updateCommunity, getCommunityById } from '../services/communities';
-import { uploadImage } from '../../lib/storage';
+import { uploadImage } from '../infra/storage';
 
 interface AdminEditarComunidadeProps {
   communityId?: string;

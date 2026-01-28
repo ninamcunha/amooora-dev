@@ -1,4 +1,4 @@
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../infra/supabase';
 import { CommunityPost, PostReply } from '../types';
 
 // Buscar posts da comunidade ordenados por relevância

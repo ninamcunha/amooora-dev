@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { ArrowLeft, MapPin, Image, FileText, Tag, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
 import { createPlace } from '../services/places';
-import { uploadImage } from '../../lib/storage';
+import { uploadImage } from '../infra/storage';
 
 interface AdminCadastrarLocalProps {
   onNavigate: (page: string) => void;

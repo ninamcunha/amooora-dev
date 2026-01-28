@@ -1,14 +1,14 @@
 import { Briefcase } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
-import { Header } from '../components/Header';
-import { SearchBar } from '../components/SearchBar';
-import { CategoryFilter } from '../components/CategoryFilter';
+import { Header } from '../shared/components';
+import { SearchBar } from '../shared/components';
+import { CategoryFilter } from '../shared/components';
 import { ServiceCardExpanded } from '../components/ServiceCardExpanded';
-import { BottomNav } from '../components/BottomNav';
-import { EmptyState } from '../components/EmptyState';
-import { SkeletonListExpanded } from '../components/Skeleton';
+import { BottomNav } from '../shared/components';
+import { EmptyState } from '../shared/components';
+import { SkeletonListExpanded } from '../shared/components';
 import { useServices } from '../hooks/useServices';
-import { useAdmin } from '../hooks/useAdmin';
+import { useAdmin } from '../shared/hooks';
 
 // Lista de categorias - incluir todas as categorias que podem aparecer no banco de dados
 const categories = ['Todos', 'Terapia', 'Advocacia', 'Costura', 'Marcenaria', 'Pintura', 'Reparos', 'Bem-estar', 'Beleza', 'Saúde', 'Carreira', 'Outros'];

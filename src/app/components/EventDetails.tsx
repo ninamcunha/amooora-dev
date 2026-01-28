@@ -5,12 +5,12 @@ import { Header } from './Header';
 import { BottomNav } from './BottomNav';
 import { InteractiveMap } from './InteractiveMap';
 import { useEvent } from '../hooks/useEvents';
-import { useEventReviews } from '../hooks/useReviews';
+import { useEventReviews } from '../shared/hooks';
 import { useAttendedEvents } from '../hooks/useAttendedEvents';
-import { Review } from '../types';
-import { calculateAverageRating } from '../services/reviews';
-import { shareContent, getShareUrl, getShareText } from '../utils/share';
-import { geocodeAddress } from '../services/geocoding';
+import { Review } from '../shared/types';
+import { calculateAverageRating } from '../shared/services';
+import { shareContent, getShareUrl, getShareText } from '../shared/utils';
+import { geocodeAddress } from '../shared/services';
 
 interface ReviewWithReplies extends Review {
   likes?: number;

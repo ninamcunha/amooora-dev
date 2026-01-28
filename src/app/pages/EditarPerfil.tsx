@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Camera, User, AtSign, MapPin, Heart, AlignLeft, Lock } from 'lucide-react';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
+import { ImageWithFallback } from '../shared/components';
 
 interface EditarPerfilProps {
   onNavigate: (page: string) => void;

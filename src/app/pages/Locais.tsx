@@ -1,16 +1,16 @@
 import { useState, useMemo, useEffect } from 'react';
 import { SlidersHorizontal, MapPin } from 'lucide-react';
-import { Header } from '../components/Header';
-import { SearchBar } from '../components/SearchBar';
-import { CategoryFilter } from '../components/CategoryFilter';
+import { Header } from '../shared/components';
+import { SearchBar } from '../shared/components';
+import { CategoryFilter } from '../shared/components';
 import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
-import { BottomNav } from '../components/BottomNav';
+import { BottomNav } from '../shared/components';
 import { FilterModal, FilterOptions } from '../components/FilterModal';
-import { EmptyState } from '../components/EmptyState';
-import { SkeletonListExpanded } from '../components/Skeleton';
+import { EmptyState } from '../shared/components';
+import { SkeletonListExpanded } from '../shared/components';
 import { usePlaces } from '../hooks/usePlaces';
 import { useFilterPreferences } from '../hooks/useFilterPreferences';
-import { useAdmin } from '../hooks/useAdmin';
+import { useAdmin } from '../shared/hooks';
 
 const categories = ['Todos', 'Cafés', 'Bares', 'Restaurantes', 'Cultura'];
 

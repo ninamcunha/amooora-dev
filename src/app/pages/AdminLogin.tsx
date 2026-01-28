@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, Lock, Mail, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { signIn } from '../../lib/auth';
 import { getCurrentAuthUser } from '../../lib/auth';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../infra/supabase';
 
 interface AdminLoginProps {
   onNavigate: (page: string) => void;

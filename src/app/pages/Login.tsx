@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import logoAmooora from "../../assets/5a07ef013ecd4a0869fe2fae41fafe9f484c2b89.png";
 import { signIn } from '../../lib/auth';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../infra/supabase';
 
 interface LoginProps {
   onNavigate: (page: string) => void;

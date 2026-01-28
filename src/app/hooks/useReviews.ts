@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Review } from '../types';
-import { getReviewsByPlaceId, getReviewsByServiceId, getReviewsByEventId } from '../services/reviews';
+import { getReviewsByPlaceId, getReviewsByServiceId, getReviewsByEventId } from '../../shared/services';
 
 export const usePlaceReviews = (placeId: string | undefined) => {
   const [reviews, setReviews] = useState<Review[]>([]);

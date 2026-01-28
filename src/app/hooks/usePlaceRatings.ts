@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { usePlaceReviews } from './useReviews';
-import { calculateAverageRating } from '../services/reviews';
+import { calculateAverageRating } from '../../shared/services';
 
 /**
  * Hook para calcular rating médio real baseado nas reviews de um lugar

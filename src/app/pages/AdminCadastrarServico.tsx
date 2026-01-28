@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { ArrowLeft, Scissors, Image, FileText, Tag, DollarSign, User, AlertCircle, CheckCircle, Upload, X, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { createService } from '../services/services';
-import { uploadImage } from '../../lib/storage';
+import { uploadImage } from '../infra/storage';
 
 interface AdminCadastrarServicoProps {
   onNavigate: (page: string) => void;

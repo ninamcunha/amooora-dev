@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Scissors, Image, FileText, Tag, DollarSign, User, AlertCircle, CheckCircle, Upload, X, Phone, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { updateService, getServiceById } from '../services/services';
-import { uploadImage } from '../../lib/storage';
+import { uploadImage } from '../infra/storage';
 
 interface AdminEditarServicoProps {
   serviceId?: string;

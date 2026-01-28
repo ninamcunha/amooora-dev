@@ -1,21 +1,21 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ArrowLeft, Users, MessageCircle, Heart, Calendar, Palette, Briefcase, Plane, Sparkles, Home, Star, Share2, Flag, UserPlus } from 'lucide-react';
-import { Header } from '../components/Header';
+import { Header } from '../shared/components';
 import { CommunityPostCard } from '../components/CommunityPostCard';
 import { CreatePostForm } from '../components/CreatePostForm';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { EmptyState } from '../components/EmptyState';
-import { SkeletonListExpanded } from '../components/Skeleton';
+import { ImageWithFallback } from '../shared/components';
+import { EmptyState } from '../shared/components';
+import { SkeletonListExpanded } from '../shared/components';
 import { InfiniteScroll } from '../components/InfiniteScroll';
-import { BottomNav } from '../components/BottomNav';
-import { useAdmin } from '../hooks/useAdmin';
+import { BottomNav } from '../shared/components';
+import { useAdmin } from '../shared/hooks';
 import { useCommunity } from '../hooks/useCommunities';
 import { useCommunityPosts } from '../hooks/useCommunityPosts';
 import { createPost } from '../services/community';
 import { MessageSquare } from 'lucide-react';
-import { shareContent, getShareUrl, getShareText } from '../utils/share';
+import { shareContent, getShareUrl, getShareText } from '../shared/utils';
 import { joinCommunity, leaveCommunity, isUserMember } from '../services/communities';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../infra/supabase';
 
 // Mapear categoria para cor
 const categoryColors: Record<string, string> = {

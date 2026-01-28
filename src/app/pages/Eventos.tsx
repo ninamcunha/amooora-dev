@@ -1,16 +1,16 @@
 import { Calendar } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Header } from '../components/Header';
-import { SearchBar } from '../components/SearchBar';
-import { CategoryFilter } from '../components/CategoryFilter';
+import { Header } from '../shared/components';
+import { SearchBar } from '../shared/components';
+import { CategoryFilter } from '../shared/components';
 import { EventCardExpanded } from '../components/EventCardExpanded';
 import { InteractiveMap } from '../components/InteractiveMap';
-import { BottomNav } from '../components/BottomNav';
-import { EmptyState } from '../components/EmptyState';
-import { SkeletonListExpanded } from '../components/Skeleton';
+import { BottomNav } from '../shared/components';
+import { EmptyState } from '../shared/components';
+import { SkeletonListExpanded } from '../shared/components';
 import { useEvents } from '../hooks/useEvents';
-import { useAdmin } from '../hooks/useAdmin';
-import { geocodeAddress } from '../services/geocoding';
+import { useAdmin } from '../shared/hooks';
+import { geocodeAddress } from '../shared/services';
 
 const categories = ['Todos', 'Hoje', 'Semana', 'Gratuitos'];
 

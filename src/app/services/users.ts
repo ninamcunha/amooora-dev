@@ -1,5 +1,5 @@
 import { User } from '../types';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../infra/supabase';
 
 export const getCurrentUser = async (): Promise<User | null> => {
   try {

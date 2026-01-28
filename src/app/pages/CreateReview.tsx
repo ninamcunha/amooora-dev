@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Star, Camera, Heart, AlertCircle } from 'lucide-react';
-import { Header } from '../components/Header';
-import { BottomNav } from '../components/BottomNav';
-import { createReview } from '../services/reviews';
+import { Header } from '../shared/components';
+import { BottomNav } from '../shared/components';
+import { createReview } from '../shared/services';
 
 interface CreateReviewProps {
   onNavigate: (page: string) => void;

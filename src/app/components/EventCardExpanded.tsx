@@ -1,7 +1,7 @@
 import { Calendar, Clock, MapPin, Users, Heart, ArrowRight } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Badge } from './Badge';
-import { useFavorites } from '../hooks/useFavorites';
+import { useFavorites } from '../shared/hooks';
 
 interface EventCardExpandedProps {
   id: string;

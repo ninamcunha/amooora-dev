@@ -1,8 +1,8 @@
 import { Search, X, MapPin, Calendar, Briefcase, Loader2 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { usePlaces } from '../hooks/usePlaces';
-import { useEvents } from '../hooks/useEvents';
-import { useServices } from '../hooks/useServices';
+import { useEvents } from '../features/events';
+import { useServices } from '../features/services';
 import { EmptyState } from './EmptyState';
 
 interface GlobalSearchProps {

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { ArrowLeft, Calendar, Image, FileText, Tag, DollarSign, MapPin, Clock, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
 import { createEvent } from '../services/events';
-import { uploadImage } from '../../lib/storage';
+import { uploadImage } from '../infra/storage';
 
 interface AdminCadastrarEventoProps {
   onNavigate: (page: string) => void;

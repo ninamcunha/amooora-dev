@@ -1,12 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Settings, Edit, Calendar, MapPin, Heart, Star, Users, ChevronRight, CheckCircle2, MessageCircle, Briefcase } from 'lucide-react';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { BottomNav } from '../components/BottomNav';
-import { Header } from '../components/Header';
+import { ImageWithFallback } from '../shared/components';
+import { BottomNav } from '../shared/components';
+import { Header } from '../shared/components';
 import { useProfile } from '../hooks/useProfile';
-import { useAdmin } from '../hooks/useAdmin';
-import { useAttendedEvents } from '../hooks/useAttendedEvents';
-import { useEvents } from '../hooks/useEvents';
+import { useAdmin } from '../shared/hooks';
+import { useAttendedEvents, useEvents } from '../features/events';
 import { 
   getProfileStats, 
   getSavedPlaces, 

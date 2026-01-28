@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Calendar, Image, FileText, Tag, DollarSign, MapPin, Clock, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
 import { updateEvent, getEventById } from '../services/events';
-import { uploadImage } from '../../lib/storage';
+import { uploadImage } from '../infra/storage';
 
 interface AdminEditarEventoProps {
   eventId?: string;

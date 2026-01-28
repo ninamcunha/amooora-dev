@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Send, MoreVertical, Loader2 } from 'lucide-react';
-import { Header } from '../components/Header';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { Tag } from '../components/Tag';
-import { EmptyState } from '../components/EmptyState';
-import { useAdmin } from '../hooks/useAdmin';
+import { Header } from '../shared/components';
+import { ImageWithFallback } from '../shared/components';
+import { Tag } from '../shared/components';
+import { EmptyState } from '../shared/components';
+import { useAdmin } from '../shared/hooks';
 import { usePost } from '../hooks/useCommunityPosts';
 import { usePostLikes } from '../hooks/usePostLikes';
 import { usePostReplies } from '../hooks/usePostReplies';
-import { PostReply } from '../types';
+import { PostReply } from '../shared/types';
 
 interface PostDetailsProps {
   postId: string;

@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { ArrowLeft, Users, Image, FileText, Tag, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
 import { createCommunity } from '../services/communities';
-import { uploadImage } from '../../lib/storage';
+import { uploadImage } from '../infra/storage';
 
 interface AdminCadastrarComunidadeProps {
   onNavigate: (page: string) => void;

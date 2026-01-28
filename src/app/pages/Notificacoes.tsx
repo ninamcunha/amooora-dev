@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Calendar, Heart, MessageCircle, MapPin, UserPlus, Star, Briefcase, Users, AlertCircle, X } from 'lucide-react';
-import { Header } from '../components/Header';
-import { useAdmin } from '../hooks/useAdmin';
+import { Header } from '../shared/components';
+import { useAdmin } from '../shared/hooks';
 
 interface Notification {
   id: string;

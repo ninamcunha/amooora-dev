@@ -1,7 +1,7 @@
 import { Star, MapPin } from 'lucide-react';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { Header } from '../components/Header';
-import { BottomNav } from '../components/BottomNav';
+import { ImageWithFallback } from '../shared/components';
+import { Header } from '../shared/components';
+import { BottomNav } from '../shared/components';
 
 const servicesData = {
   terapia: {

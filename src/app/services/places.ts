@@ -1,5 +1,5 @@
 import { Place } from '../types';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../infra/supabase';
 
 export const getPlaces = async (
   limit?: number,

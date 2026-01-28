@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { ArrowLeft, MapPin, Calendar, Filter } from 'lucide-react';
 import { InteractiveMap } from '../components/InteractiveMap';
 import { usePlaces } from '../hooks/usePlaces';
-import { useEvents } from '../hooks/useEvents';
-import { geocodeAddress } from '../services/geocoding';
-import { Place, Event } from '../types';
+import { useEvents } from '../features/events';
+import { geocodeAddress } from '../shared/services';
+import { Place, Event } from '../shared/types';
 
 interface MapaProps {
   onNavigate: (page: string) => void;
