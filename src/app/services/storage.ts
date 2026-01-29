@@ -72,11 +72,10 @@ export async function uploadImage(
     const finalFileName = fileName || `${user.id}_${timestamp}_${randomString}.${fileExt}`;
     const filePath = `${folder}/${finalFileName}`;
 
-    // Tentar usar bucket 'amooora-storage' (padrão do projeto) ou 'avatars'
-    let finalBucketName = 'amooora-storage';
-    let uploadError = null;
+    // Tentar usar bucket 'avatars' primeiro (criado pelo usuário)
+    let finalBucketName = 'avatars';
 
-    // Tentar fazer upload no bucket 'amooora-storage' primeiro
+    // Tentar fazer upload no bucket 'avatars' primeiro
     let { data, error } = await supabase.storage
       .from(finalBucketName)
       .upload(filePath, file, {
@@ -84,10 +83,10 @@ export async function uploadImage(
         upsert: false,
       });
 
-    // Se o bucket 'amooora-storage' não existir, tentar 'avatars'
+    // Se o bucket 'avatars' não existir, tentar 'amooora-storage' como fallback
     if (error && error.message.includes('Bucket not found')) {
-      console.warn(`Bucket "${finalBucketName}" não encontrado, tentando "avatars"`);
-      finalBucketName = 'avatars';
+      console.warn(`Bucket "${finalBucketName}" não encontrado, tentando "amooora-storage"`);
+      finalBucketName = 'amooora-storage';
       const retry = await supabase.storage
         .from(finalBucketName)
         .upload(filePath, file, {
@@ -139,15 +138,15 @@ export async function uploadImage(
  */
 export async function deleteImage(filePath: string): Promise<{ success: boolean; error?: string }> {
   try {
-    // Tentar deletar do bucket 'amooora-storage' primeiro
-    let bucketName = 'amooora-storage';
+    // Tentar deletar do bucket 'avatars' primeiro
+    let bucketName = 'avatars';
     let { error } = await supabase.storage
       .from(bucketName)
       .remove([filePath]);
 
-    // Se o bucket não existir, tentar 'avatars'
+    // Se o bucket não existir, tentar 'amooora-storage' como fallback
     if (error && error.message.includes('Bucket not found')) {
-      bucketName = 'avatars';
+      bucketName = 'amooora-storage';
       const retry = await supabase.storage
         .from(bucketName)
         .remove([filePath]);
