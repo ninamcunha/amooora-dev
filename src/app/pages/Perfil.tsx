@@ -425,7 +425,11 @@ export function Perfil({ onNavigate }: PerfilProps) {
             <div className="space-y-3">
               {displayInterestedEvents.length > 0 ? (
                 displayInterestedEvents.map((event) => (
-                  <div key={event.id} className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10">
+                  <div 
+                    key={event.id} 
+                    onClick={() => onNavigate(`event-details:${event.event_id}`)}
+                    className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10 cursor-pointer hover:bg-[#fff5f0] transition-colors"
+                  >
                     <div className="flex items-start gap-3">
                       <div className="w-12 h-12 bg-[#932d6f] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0">
                         <span className="text-xs font-medium">{event.date.split(' ')[1]}</span>
@@ -455,7 +459,11 @@ export function Perfil({ onNavigate }: PerfilProps) {
             <div className="space-y-3">
               {displayUpcomingEvents.length > 0 ? (
                 displayUpcomingEvents.map((event) => (
-                  <div key={event.id} className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10">
+                  <div 
+                    key={event.id} 
+                    onClick={() => onNavigate(`event-details:${event.event_id}`)}
+                    className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10 cursor-pointer hover:bg-[#fff5f0] transition-colors"
+                  >
                     <div className="flex items-start gap-3">
                       <div className="w-12 h-12 bg-[#932d6f] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0">
                         <span className="text-xs font-medium">{event.date.split(' ')[1]}</span>
@@ -485,7 +493,11 @@ export function Perfil({ onNavigate }: PerfilProps) {
             <div className="space-y-2">
               {displayAttendedEvents.length > 0 ? (
                 displayAttendedEvents.map((event) => (
-                  <div key={event.id} className="bg-white rounded-xl p-3 border border-gray-100 flex items-center gap-3">
+                  <div 
+                    key={event.id} 
+                    onClick={() => onNavigate(`event-details:${event.event_id}`)}
+                    className="bg-white rounded-xl p-3 border border-gray-100 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                  >
                     <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                     <div className="flex-1">
                       <h3 className="font-medium text-sm text-gray-900">{event.name}</h3>
