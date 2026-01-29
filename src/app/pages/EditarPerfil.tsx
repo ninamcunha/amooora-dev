@@ -97,7 +97,7 @@ export function EditarPerfil({ onNavigate }: EditarPerfilProps) {
       // Upload da foto se houver nova foto
       let avatarUrl = profile.avatar || null;
       if (avatarFile) {
-        const uploadResult = await uploadImage(avatarFile, 'avatars');
+        const uploadResult = await uploadImage(avatarFile, 'avatars', undefined, 'amooora-storage');
         if (uploadResult.error) {
           setSaveError(`Erro ao fazer upload da foto: ${uploadResult.error}`);
           setIsSaving(false);

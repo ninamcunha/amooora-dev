@@ -72,26 +72,44 @@ export async function uploadImage(
     const finalFileName = fileName || `${user.id}_${timestamp}_${randomString}.${fileExt}`;
     const filePath = `${folder}/${finalFileName}`;
 
-    // Fazer upload
-    const { data, error } = await supabase.storage
-      .from('avatars')
+    // Tentar usar bucket 'amooora-storage' (padrão do projeto) ou 'avatars'
+    let finalBucketName = 'amooora-storage';
+    let uploadError = null;
+
+    // Tentar fazer upload no bucket 'amooora-storage' primeiro
+    let { data, error } = await supabase.storage
+      .from(finalBucketName)
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: false, // Não sobrescrever arquivos existentes
+        upsert: false,
       });
+
+    // Se o bucket 'amooora-storage' não existir, tentar 'avatars'
+    if (error && error.message.includes('Bucket not found')) {
+      console.warn(`Bucket "${finalBucketName}" não encontrado, tentando "avatars"`);
+      finalBucketName = 'avatars';
+      const retry = await supabase.storage
+        .from(finalBucketName)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+        });
+      data = retry.data;
+      error = retry.error;
+    }
 
     if (error) {
       console.error('Erro ao fazer upload:', error);
       return {
         url: '',
         path: '',
-        error: `Erro ao fazer upload: ${error.message}`,
+        error: `Erro ao fazer upload: ${error.message}. Verifique se o bucket "${finalBucketName}" existe no Supabase Storage. Para criar o bucket, acesse o Supabase Dashboard → Storage → New bucket → Nome: "avatars" → Public bucket.`,
       };
     }
 
     // Obter URL pública
     const { data: urlData } = supabase.storage
-      .from('avatars')
+      .from(finalBucketName)
       .getPublicUrl(filePath);
 
     if (!urlData?.publicUrl) {
@@ -121,9 +139,20 @@ export async function uploadImage(
  */
 export async function deleteImage(filePath: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase.storage
-      .from('avatars')
+    // Tentar deletar do bucket 'amooora-storage' primeiro
+    let bucketName = 'amooora-storage';
+    let { error } = await supabase.storage
+      .from(bucketName)
       .remove([filePath]);
+
+    // Se o bucket não existir, tentar 'avatars'
+    if (error && error.message.includes('Bucket not found')) {
+      bucketName = 'avatars';
+      const retry = await supabase.storage
+        .from(bucketName)
+        .remove([filePath]);
+      error = retry.error;
+    }
 
     if (error) {
       console.error('Erro ao deletar imagem:', error);

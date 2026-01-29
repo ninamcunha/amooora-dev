@@ -145,7 +145,7 @@ export function Cadastro({ onNavigate }: CadastroProps) {
 
       // Upload da foto de perfil se houver
       if (avatarFile) {
-        const uploadResult = await uploadImage(avatarFile, 'avatars');
+        const uploadResult = await uploadImage(avatarFile, 'avatars', undefined, 'amooora-storage');
         if (uploadResult.error) {
           setSubmitError(`Erro ao fazer upload da foto: ${uploadResult.error}`);
           setIsLoading(false);
