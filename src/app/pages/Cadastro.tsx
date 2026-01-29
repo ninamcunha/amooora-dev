@@ -51,10 +51,10 @@ export function Cadastro({ onNavigate }: CadastroProps) {
       return;
     }
 
-    // Validar tamanho (5MB)
-    const maxSize = 5 * 1024 * 1024;
+    // Validar tamanho (2MB)
+    const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      setAvatarError('Imagem muito grande. Tamanho máximo: 5MB.');
+      setAvatarError('Imagem muito grande. Tamanho máximo: 2MB.');
       return;
     }
 
@@ -145,7 +145,7 @@ export function Cadastro({ onNavigate }: CadastroProps) {
 
       // Upload da foto de perfil se houver
       if (avatarFile) {
-        const uploadResult = await uploadImage(avatarFile, 'avatars', undefined, 'amooora-storage');
+        const uploadResult = await uploadImage(avatarFile, 'avatars');
         if (uploadResult.error) {
           setSubmitError(`Erro ao fazer upload da foto: ${uploadResult.error}`);
           setIsLoading(false);
@@ -409,7 +409,7 @@ export function Cadastro({ onNavigate }: CadastroProps) {
                     {avatarPreview ? 'Alterar foto' : 'Escolher foto'}
                   </label>
                   <p className="text-xs text-muted-foreground mt-1 text-center">
-                    JPG, PNG ou WEBP • Máx. 5MB
+                    JPG, PNG ou WEBP • Máx. 2MB
                   </p>
                 </div>
               </div>

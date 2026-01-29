@@ -57,10 +57,10 @@ export function EditarPerfil({ onNavigate }: EditarPerfilProps) {
       return;
     }
 
-    // Validar tamanho (5MB)
-    const maxSize = 5 * 1024 * 1024;
+    // Validar tamanho (2MB)
+    const maxSize = 2 * 1024 * 1024;
     if (file.size > maxSize) {
-      setAvatarError('Imagem muito grande. Tamanho máximo: 5MB.');
+      setAvatarError('Imagem muito grande. Tamanho máximo: 2MB.');
       return;
     }
 
@@ -97,7 +97,7 @@ export function EditarPerfil({ onNavigate }: EditarPerfilProps) {
       // Upload da foto se houver nova foto
       let avatarUrl = profile.avatar || null;
       if (avatarFile) {
-        const uploadResult = await uploadImage(avatarFile, 'avatars', undefined, 'amooora-storage');
+        const uploadResult = await uploadImage(avatarFile, 'avatars');
         if (uploadResult.error) {
           setSaveError(`Erro ao fazer upload da foto: ${uploadResult.error}`);
           setIsSaving(false);
@@ -249,7 +249,7 @@ export function EditarPerfil({ onNavigate }: EditarPerfilProps) {
                 {avatarPreview ? 'Alterar foto' : 'Adicionar foto'}
               </button>
               <p className="text-xs text-muted-foreground mt-1">
-                JPG, PNG ou WEBP • Máx. 5MB
+                JPG, PNG ou WEBP • Máx. 2MB
               </p>
             </div>
           </div>
