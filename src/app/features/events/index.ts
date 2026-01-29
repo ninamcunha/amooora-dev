@@ -14,6 +14,8 @@ export { EventsMap } from './components/EventsMap';
 // Hooks
 export { useEvents, useEvent } from './hooks/useEvents';
 export { useAttendedEvents } from './hooks/useAttendedEvents';
+export { useEventInteractions } from './hooks/useEventInteractions';
+export { useEventParticipants } from './hooks/useEventParticipants';
 
 // Services
 export * from './services/events';

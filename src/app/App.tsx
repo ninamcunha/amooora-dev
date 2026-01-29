@@ -16,6 +16,7 @@ import { SobreAmooora } from './pages/SobreAmooora';
 import { Mapa } from './pages/Mapa';
 import { ServiceDetails, ServiceCategoryList } from './features/services';
 import { EventDetails } from './features/events';
+import { EventParticipants } from './features/events/pages/EventParticipants';
 import { CreateReview } from './pages/CreateReview';
 import { Admin } from './pages/Admin';
 import { AdminCadastro } from './pages/AdminCadastro';
@@ -30,6 +31,7 @@ import { useAdmin } from './shared/hooks';
 import { AdminGerenciarUsuarios } from './pages/AdminGerenciarUsuarios';
 import { MinhasPublicacoes } from './pages/MinhasPublicacoes';
 import { AdminConteudosDesativados } from './pages/AdminConteudosDesativados';
+import { ViewProfile } from './pages/ViewProfile';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
@@ -39,6 +41,8 @@ export default function App() {
   const [selectedServiceId, setSelectedServiceId] = useState<string | undefined>(undefined);
   const [selectedPostId, setSelectedPostId] = useState<string | undefined>(undefined);
   const [selectedCommunityId, setSelectedCommunityId] = useState<string | undefined>(undefined);
+  const [selectedParticipantEventId, setSelectedParticipantEventId] = useState<string | undefined>(undefined);
+  const [selectedViewProfileUserId, setSelectedViewProfileUserId] = useState<string | undefined>(undefined);
 
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
 
@@ -296,6 +300,14 @@ export default function App() {
       const postId = page.split(':')[1];
       setSelectedPostId(postId);
       setCurrentPage('post-details');
+    } else if (page.startsWith('event-participants:')) {
+      const eventId = page.split(':')[1];
+      setSelectedParticipantEventId(eventId);
+      setCurrentPage('event-participants');
+    } else if (page.startsWith('view-profile:')) {
+      const userId = page.split(':')[1];
+      setSelectedViewProfileUserId(userId);
+      setCurrentPage('view-profile');
     } else if (page.startsWith('create-review:')) {
       // Formato: 'create-review:place:id', 'create-review:service:id', 'create-review:event:id'
       const parts = page.split(':');
@@ -476,6 +488,28 @@ export default function App() {
               setCurrentPage(previousPage === 'events' ? 'events' : 'home');
               setSelectedEventId(undefined);
             }} 
+          />
+        );
+      case 'event-participants':
+        return (
+          <EventParticipants
+            eventId={selectedParticipantEventId}
+            onNavigate={handleNavigate}
+            onBack={() => {
+              setCurrentPage('event-details');
+              setSelectedParticipantEventId(undefined);
+            }}
+          />
+        );
+      case 'view-profile':
+        return (
+          <ViewProfile
+            userId={selectedViewProfileUserId}
+            onNavigate={handleNavigate}
+            onBack={() => {
+              setCurrentPage(previousPage);
+              setSelectedViewProfileUserId(undefined);
+            }}
           />
         );
       case 'community':

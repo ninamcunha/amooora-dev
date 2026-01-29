@@ -1,4 +1,4 @@
-import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, Star, User, MessageCircle, CheckCircle2, Send } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, Star, User, MessageCircle, CheckCircle2, Send, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { ImageWithFallback } from '../../../shared/components';
 import { Header } from '../../../shared/components';
@@ -7,6 +7,7 @@ import { InteractiveMap } from '../../../components/InteractiveMap';
 import { useEvent } from '../hooks/useEvents';
 import { useEventReviews } from '../../../shared/hooks';
 import { useEventInteractions } from '../hooks/useEventInteractions';
+import { useEventParticipants } from '../hooks/useEventParticipants';
 import { Review } from '../../../shared/types';
 import { calculateAverageRating } from '../../../shared/services';
 import { shareContent, getShareUrl, getShareText } from '../../../shared/utils';
@@ -27,6 +28,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   const { event, loading, error } = useEvent(eventId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useEventReviews(eventId);
   const { isInterested, isAttended, toggleInterest, toggleAttendance } = useEventInteractions(eventId);
+  const { participants, count: participantsCount, loading: participantsLoading } = useEventParticipants(eventId);
   const [shareSuccess, setShareSuccess] = useState(false);
   const [eventCoordinates, setEventCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [geocodingLoading, setGeocodingLoading] = useState(false);
@@ -392,9 +394,56 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
               <h3 className="text-base font-bold text-gray-900">Participantes</h3>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Users className="w-4 h-4" />
-                <span>{displayEvent.goingCount} confirmadas</span>
+                <span>{participantsCount} {participantsCount === 1 ? 'confirmada' : 'confirmadas'}</span>
               </div>
             </div>
+
+            {/* Thumbs dos 5 primeiros participantes */}
+            {participantsLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : participants.length > 0 ? (
+              <>
+                <div 
+                  onClick={() => onNavigate?.(`event-participants:${eventId}`)}
+                  className="flex items-center gap-3 mb-3 cursor-pointer hover:bg-gray-50 -mx-2 px-2 py-2 rounded-lg transition-colors"
+                >
+                  <div className="flex -space-x-2 flex-1">
+                    {participants.slice(0, 5).map((participant) => (
+                      <div
+                        key={participant.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigate?.(`view-profile:${participant.user_id}`);
+                        }}
+                        className="relative"
+                      >
+                        <ImageWithFallback
+                          src={participant.profile.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080'}
+                          alt={participant.profile.name}
+                          className="w-10 h-10 rounded-full object-cover border-2 border-white flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  {participantsCount > 5 && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onNavigate?.(`event-participants:${eventId}`);
+                      }}
+                      className="flex items-center gap-1 text-sm text-primary font-medium hover:text-primary/80 transition-colors"
+                    >
+                      Ver todos
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-gray-500">Nenhum participante confirmado ainda</p>
+            )}
 
             {/* Contador de Interessadas */}
             {displayEvent.interestedCount > 0 && (
