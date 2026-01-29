@@ -1,4 +1,4 @@
-import { Calendar } from 'lucide-react';
+import { Calendar, Plus } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Header } from '../shared/components';
 import { SearchBar } from '../shared/components';
@@ -194,7 +194,16 @@ export function Eventos({ onNavigate }: EventosProps) {
         <div className="flex-1 overflow-y-auto pb-24 pt-24">
           {/* Page Header */}
           <div className="px-5 pt-6 pb-4">
-            <h1 className="text-2xl font-semibold text-primary mb-4">Eventos</h1>
+            <div className="mb-4">
+              <h1 className="text-2xl font-semibold text-primary mb-3">Eventos</h1>
+              <button
+                onClick={() => onNavigate('admin-cadastrar-evento')}
+                className="flex items-center gap-2 px-4 py-2 bg-[#F5EBFF] rounded-full hover:bg-[#E5D5F0] transition-colors border border-primary/10 w-full sm:w-auto"
+              >
+                <Plus className="w-4 h-4 text-primary flex-shrink-0" strokeWidth={2.5} />
+                <span className="text-sm font-medium text-primary">Cadastrar um novo evento</span>
+              </button>
+            </div>
             
             {/* Search */}
             <div className="mb-4">

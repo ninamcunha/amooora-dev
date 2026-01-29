@@ -104,6 +104,9 @@ export const createCommunity = async (communityData: {
   category?: string;
 }): Promise<Community> => {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id;
+
     const { data, error } = await supabase
       .from('communities')
       .insert({
@@ -115,6 +118,7 @@ export const createCommunity = async (communityData: {
         is_active: true,
         members_count: 0,
         posts_count: 0,
+        created_by: userId || null,
       })
       .select()
       .single();

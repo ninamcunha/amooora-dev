@@ -1,4 +1,4 @@
-import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, CheckCircle, Star, User, MessageCircle, CheckCircle2, Send } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, Star, User, MessageCircle, CheckCircle2, Send } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { ImageWithFallback } from '../../../shared/components';
 import { Header } from '../../../shared/components';
@@ -6,7 +6,7 @@ import { BottomNav } from '../../../shared/components';
 import { InteractiveMap } from '../../../components/InteractiveMap';
 import { useEvent } from '../hooks/useEvents';
 import { useEventReviews } from '../../../shared/hooks';
-import { useAttendedEvents } from '../hooks/useAttendedEvents';
+import { useEventInteractions } from '../hooks/useEventInteractions';
 import { Review } from '../../../shared/types';
 import { calculateAverageRating } from '../../../shared/services';
 import { shareContent, getShareUrl, getShareText } from '../../../shared/utils';
@@ -26,9 +26,7 @@ interface EventDetailsProps {
 export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps) {
   const { event, loading, error } = useEvent(eventId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useEventReviews(eventId);
-  const { hasAttended, toggleAttendedEvent } = useAttendedEvents();
-  const [isGoing, setIsGoing] = useState(false);
-  const [isInterested, setIsInterested] = useState(false);
+  const { isInterested, isAttended, toggleInterest, toggleAttendance } = useEventInteractions(eventId);
   const [shareSuccess, setShareSuccess] = useState(false);
   const [eventCoordinates, setEventCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [geocodingLoading, setGeocodingLoading] = useState(false);
@@ -232,25 +230,6 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
     attendees: [], // Lista vazia por enquanto - será implementado depois
   };
 
-  const handleGoingClick = () => {
-    setIsGoing(!isGoing);
-    if (!isGoing) {
-      setIsInterested(false);
-    }
-  };
-
-  const handleInterestedClick = () => {
-    setIsInterested(!isInterested);
-    if (!isInterested) {
-      setIsGoing(false);
-    }
-  };
-
-  const handleAttendedClick = () => {
-    if (eventId) {
-      toggleAttendedEvent(eventId);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-muted">
@@ -444,14 +423,36 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
             <div className="flex gap-2 overflow-x-auto">
               <button 
                 onClick={handleShare}
-                className="flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium whitespace-nowrap hover:bg-primary/20 transition-colors"
+                className="flex items-center gap-2 px-4 py-1.5 bg-[#F5EBFF] text-primary rounded-full text-sm font-medium whitespace-nowrap hover:bg-[#E5D5F0] transition-colors border border-primary/10"
               >
                 <Share2 className="w-4 h-4" />
                 {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
               </button>
-              <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors">
+              <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors border border-[#932d6f]/10">
                 <Flag className="w-4 h-4" />
                 Denunciar
+              </button>
+              <button 
+                onClick={toggleInterest}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
+                  isInterested
+                    ? 'bg-[#E5D5F0] text-[#932d6f] border-[#932d6f]/30'
+                    : 'bg-[#F5EBFF] text-primary border-primary/10 hover:bg-[#E5D5F0]'
+                }`}
+              >
+                <Star className={`w-4 h-4 ${isInterested ? 'fill-primary text-primary' : ''}`} />
+                {isInterested ? 'Confirmado' : 'Tenho interesse'}
+              </button>
+              <button 
+                onClick={toggleAttendance}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
+                  isAttended
+                    ? 'bg-green-100 text-green-700 border-green-300'
+                    : 'bg-[#F5EBFF] text-primary border-primary/10 hover:bg-green-50'
+                }`}
+              >
+                <CheckCircle2 className={`w-4 h-4 ${isAttended ? 'text-green-700' : ''}`} />
+                {isAttended ? 'Fui!' : 'Fui!!'}
               </button>
             </div>
           </div>
@@ -518,44 +519,6 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
           </div>
         </div>
 
-        {/* Barra de Ação Fixa no Bottom */}
-        <div className="fixed bottom-28 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-200 px-4 py-3 shadow-lg z-30">
-          <div className="flex gap-2">
-            <button
-              onClick={handleInterestedClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors border-2 ${
-                isInterested
-                  ? 'bg-secondary/10 text-secondary border-secondary/20'
-                  : 'bg-white border-secondary text-secondary hover:bg-secondary/5'
-              }`}
-            >
-              <Star className={`w-4 h-4 ${isInterested ? 'fill-secondary text-secondary' : ''}`} />
-              {isInterested ? 'Interessada' : 'Tenho Interesse'}
-            </button>
-            <button
-              onClick={handleGoingClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors border-2 ${
-                isGoing
-                  ? 'bg-primary/10 text-primary border-primary/20'
-                  : 'bg-white border-primary text-primary hover:bg-primary/5'
-              }`}
-            >
-              <CheckCircle className={`w-4 h-4 ${isGoing ? 'text-primary' : ''}`} />
-              {isGoing ? 'Confirmado!' : 'Vou Comparecer'}
-            </button>
-            <button
-              onClick={handleAttendedClick}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-semibold text-xs transition-colors border-2 ${
-                eventId && hasAttended(eventId)
-                  ? 'bg-accent/10 text-accent border-accent/20'
-                  : 'bg-white border-accent text-accent hover:bg-accent/5'
-              }`}
-            >
-              <CheckCircle2 className={`w-4 h-4 ${eventId && hasAttended(eventId) ? 'text-accent' : ''}`} />
-              {eventId && hasAttended(eventId) ? 'Eu Fui!' : 'Eu Fui'}
-            </button>
-          </div>
-        </div>
 
         {/* Navegação inferior fixa */}
         <BottomNav activeItem="events" onItemClick={onNavigate!} />

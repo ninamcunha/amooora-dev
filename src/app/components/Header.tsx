@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info, Map } from 'lucide-react';
+import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info, Map, LogOut } from 'lucide-react';
 import logoAmooora from "../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
+import { supabase } from '../infra/supabase';
 
 interface HeaderProps {
   onNavigate?: (page: string) => void;
@@ -30,8 +31,21 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
     };
   }, [isMenuOpen]);
 
-  const handleMenuClick = (page: string) => {
-    onNavigate?.(page);
+  const handleMenuClick = async (page: string) => {
+    if (page === 'logout') {
+      // Fazer logout completo
+      try {
+        await supabase.auth.signOut();
+        // Navegar para welcome após logout
+        onNavigate?.('welcome');
+      } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+        // Mesmo com erro, tentar navegar para welcome
+        onNavigate?.('welcome');
+      }
+    } else {
+      onNavigate?.(page);
+    }
     setIsMenuOpen(false);
   };
 
@@ -43,8 +57,9 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
     { icon: MessageSquare, label: 'Comunidade', page: 'community' },
     { icon: Map, label: 'Mapa', page: 'mapa' },
     { icon: Heart, label: 'Meus Favoritos', page: 'favoritos' },
-    { icon: Settings, label: 'Configurações', page: 'admin' },
+    ...(isAdmin ? [{ icon: Settings, label: 'Admin', page: 'admin' }] : []),
     { icon: Info, label: 'Sobre Amooora', page: 'sobre-amooora' },
+    { icon: LogOut, label: 'Sair', page: 'logout' },
   ];
 
   return (
@@ -107,17 +122,30 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
             {isMenuOpen && (
               <div className="absolute right-0 top-12 w-56 bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden z-50">
                 <div className="py-2">
-                  {menuItems.map((item) => {
+                  {menuItems.map((item, index) => {
                     const Icon = item.icon;
+                    const isLogout = item.page === 'logout';
+                    const showSeparator = isLogout && index > 0;
+                    
                     return (
-                      <button
-                        key={item.page}
-                        onClick={() => handleMenuClick(item.page)}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
-                      >
-                        <Icon className="w-5 h-5 text-primary" />
-                        <span className="text-sm font-medium text-foreground">{item.label}</span>
-                      </button>
+                      <div key={item.page}>
+                        {showSeparator && (
+                          <div className="border-t border-gray-200 my-1" />
+                        )}
+                        <button
+                          onClick={() => handleMenuClick(item.page)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                            isLogout 
+                              ? 'hover:bg-red-50 text-red-600' 
+                              : 'hover:bg-gray-50'
+                          }`}
+                        >
+                          <Icon className={`w-5 h-5 ${isLogout ? 'text-red-600' : 'text-primary'}`} />
+                          <span className={`text-sm font-medium ${isLogout ? 'text-red-600' : 'text-foreground'}`}>
+                            {item.label}
+                          </span>
+                        </button>
+                      </div>
                     );
                   })}
                 </div>

@@ -34,7 +34,7 @@ export function AdminLogin({ onNavigate, onLoginSuccess }: AdminLoginProps) {
       // 2. Verificar se o usuário tem role de admin
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('is_admin, role')
+        .select('role, status')
         .eq('id', signInResult.user.id)
         .single();
 
@@ -44,8 +44,13 @@ export function AdminLogin({ onNavigate, onLoginSuccess }: AdminLoginProps) {
         return;
       }
 
-      // 3. Verificar se é admin (is_admin = true OU role = 'admin')
-      const isAdmin = profile.is_admin === true || profile.role === 'admin';
+      // 3. Verificar se é admin (qualquer admin_* ou admin_geral) e se está ativo
+      const isActive = (profile.status ?? 'active') === 'active';
+      const isAdmin =
+        isActive &&
+        ['admin_geral', 'admin_locais', 'admin_eventos', 'admin_servicos'].includes(
+          String(profile.role)
+        );
 
       if (!isAdmin) {
         setError('Acesso negado. Você não possui permissões de administrador.');

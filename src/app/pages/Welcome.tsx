@@ -1,3 +1,4 @@
+import React from 'react';
 import logoHome from "../../assets/logo-home.png";
 
 interface WelcomeProps {
@@ -5,6 +6,27 @@ interface WelcomeProps {
 }
 
 export function Welcome({ onNavigate }: WelcomeProps) {
+  const handleLoginClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🔵 Botão Entrar clicado');
+    try {
+      onNavigate('login');
+    } catch (error) {
+      console.error('❌ Erro ao navegar para login:', error);
+    }
+  };
+
+  const handleCadastroClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('🟢 Botão Criar conta clicado');
+    try {
+      onNavigate('cadastro');
+    } catch (error) {
+      console.error('❌ Erro ao navegar para cadastro:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-muted">
@@ -19,15 +41,23 @@ export function Welcome({ onNavigate }: WelcomeProps) {
             />
           </div>
 
-                 {/* Buttons */}
-                 <div className="space-y-4 flex justify-center">
-                   <button
-                     onClick={() => onNavigate('home')}
-                     className="w-[55%] bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg"
-                   >
-                     Entrar
-                   </button>
-                 </div>
+          {/* Buttons */}
+          <div className="space-y-4">
+            <button
+              onClick={handleLoginClick}
+              type="button"
+              className="w-full bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg cursor-pointer"
+            >
+              Entrar
+            </button>
+            <button
+              onClick={handleCadastroClick}
+              type="button"
+              className="w-full bg-white border-2 border-primary text-primary py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/5 transition-colors cursor-pointer"
+            >
+              Criar conta
+            </button>
+          </div>
 
           {/* Tagline */}
           <p className="text-center text-muted-foreground text-sm mt-8">

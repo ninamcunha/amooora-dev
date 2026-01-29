@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { supabase } from './infra/supabase';
 import { Welcome } from './pages/Welcome';
 import { Home } from './pages/Home';
 import { Locais, PlaceDetails, AdminCadastrarLocal, AdminEditarLocal } from './features/places';
@@ -23,6 +24,12 @@ import { AdminCadastrarEvento } from './features/events';
 import { AdminEditarConteudos } from './pages/AdminEditarConteudos';
 import { AdminEditarEvento } from './features/events';
 import { AdminCadastrarComunidade, AdminEditarComunidade, CommunityDetails } from './features/communities';
+import { Login } from './pages/Login';
+import { Cadastro } from './pages/Cadastro';
+import { useAdmin } from './shared/hooks';
+import { AdminGerenciarUsuarios } from './pages/AdminGerenciarUsuarios';
+import { MinhasPublicacoes } from './pages/MinhasPublicacoes';
+import { AdminConteudosDesativados } from './pages/AdminConteudosDesativados';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('welcome');
@@ -34,6 +41,129 @@ export default function App() {
   const [selectedCommunityId, setSelectedCommunityId] = useState<string | undefined>(undefined);
 
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+
+  // Autenticação: site fechado (MVP)
+  // Verificar localStorage primeiro para evitar "piscar" na tela de login
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Verificação otimista: verificar se há sessão no localStorage do Supabase
+    // Isso evita o "piscar" enquanto a sessão está sendo carregada
+    try {
+      // O Supabase armazena a sessão em uma chave específica
+      // Verificar todas as chaves que começam com 'sb-' e contêm 'auth-token'
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('sb-') && key.includes('auth-token')) {
+          const tokenData = localStorage.getItem(key);
+          if (tokenData) {
+            try {
+              const parsed = JSON.parse(tokenData);
+              // Verificar se há access_token
+              if (parsed.access_token) {
+                // Verificar se o token não expirou (opcional, mas recomendado)
+                if (parsed.expires_at) {
+                  const expiresAt = parsed.expires_at * 1000; // Converter para milliseconds
+                  if (Date.now() < expiresAt) {
+                    return true;
+                  }
+                } else {
+                  // Se não tem expires_at, assumir válido
+                  return true;
+                }
+              }
+            } catch {
+              // Se não conseguir parsear, ainda pode ser válido (deixar Supabase validar)
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
+  const { isAdmin, isAdminGeral, status: accessStatus, loading: accessLoading } = useAdmin();
+
+  const publicPages = useMemo(
+    () =>
+      new Set([
+        'welcome',
+        'login',
+        'cadastro',
+        'splash',
+      ]),
+    []
+  );
+
+  useEffect(() => {
+    let isMounted = true;
+    let abortController: AbortController | null = null;
+
+    const loadSession = async () => {
+      // Cancelar requisição anterior se existir
+      if (abortController) {
+        abortController.abort();
+      }
+      
+      abortController = new AbortController();
+      
+      console.log('🔄 Carregando sessão...');
+      setAuthLoading(true);
+      
+      try {
+        // Usar getSession com timeout implícito do Supabase
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
+        if (error) {
+          console.log('⚠️ Erro ao carregar sessão (não crítico):', error);
+          // Não autenticado em caso de erro
+          setIsAuthenticated(false);
+        } else {
+          console.log('📋 Sessão carregada:', { hasSession: !!session });
+          setIsAuthenticated(!!session);
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        
+        // Ignorar AbortError (é esperado quando componente desmonta)
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.log('🔄 Requisição cancelada (componente desmontado)');
+          return;
+        }
+        
+        console.error('❌ Erro ao carregar sessão:', error);
+        setIsAuthenticated(false);
+      } finally {
+        if (isMounted) {
+          setAuthLoading(false);
+          console.log('✅ Auth loading finalizado');
+        }
+      }
+    };
+
+    loadSession();
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (isMounted) {
+        console.log('🔄 Auth state mudou:', event, { hasSession: !!session });
+        // Só recarregar se realmente houver mudança significativa
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+          loadSession();
+        }
+      }
+    });
+    
+    return () => {
+      isMounted = false;
+      if (abortController) {
+        abortController.abort();
+      }
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Detectar URL ao carregar a página e navegar para a página correta
   useEffect(() => {
@@ -131,6 +261,17 @@ export default function App() {
   }, []);
 
   const handleNavigate = (page: string) => {
+    console.log('🧭 handleNavigate chamado:', { page, authLoading, isAuthenticated, isPublic: publicPages.has(page) });
+    
+    // Gate de acesso: site fechado
+    if (!authLoading && !isAuthenticated && !publicPages.has(page)) {
+      console.log('🚫 Acesso negado - redirecionando para welcome');
+      setPreviousPage(currentPage);
+      setCurrentPage('welcome');
+      return;
+    }
+
+    console.log('✅ Navegação permitida para:', page);
     setPreviousPage(currentPage);
     
     // Verificar se a página contém um ID (formato: 'place-details:id', 'event-details:id' ou 'service-details:id')
@@ -196,9 +337,71 @@ export default function App() {
   };
 
   const renderPage = () => {
+    console.log('🎨 renderPage chamado:', { currentPage, authLoading, accessLoading, isAuthenticated });
+    
+    // Permitir páginas públicas mesmo durante loading (para login/cadastro funcionarem)
+    const isPublicPage = publicPages.has(currentPage);
+    
+    // Se está em uma página pública, renderizar normalmente mesmo durante loading
+    if (isPublicPage) {
+      console.log('✅ Página pública, renderizando normalmente');
+      // Mas ainda verificar se usuário autenticado não deve estar em páginas públicas
+      if (!authLoading && !accessLoading && isAuthenticated && publicPages.has(currentPage)) {
+        return <Home onNavigate={handleNavigate} />;
+      }
+      // Renderizar a página pública normalmente
+    } else {
+      // Para páginas privadas: se temos indicação otimista de autenticação,
+      // manter a página atual durante o loading para evitar "piscar"
+      if (authLoading || accessLoading) {
+        // Se temos indicação otimista de autenticação, não redirecionar
+        // A página será renderizada normalmente abaixo
+        if (!isAuthenticated) {
+          console.log('⏳ Ainda carregando auth, mostrando Welcome');
+          return <Welcome onNavigate={handleNavigate} />;
+        } else {
+          console.log('⏳ Carregando sessão, mas mantendo página atual (otimista)');
+          // Continuar para renderizar a página normalmente
+        }
+      }
+
+      // Se não autenticada e tentando acessar página privada, volta para welcome
+      // Mas só depois que o loading terminou
+      if (!authLoading && !accessLoading && !isAuthenticated) {
+        return <Welcome onNavigate={handleNavigate} />;
+      }
+    }
+
+    // Usuária bloqueada/inativa: impedir uso do app
+    if (isAuthenticated && accessStatus && accessStatus !== 'active') {
+      return (
+        <div className="min-h-screen bg-muted">
+          <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col items-center justify-center px-6 text-center">
+            <h1 className="text-xl font-semibold text-primary mb-2">Acesso indisponível</h1>
+            <p className="text-sm text-muted-foreground mb-6">
+              Sua conta está {accessStatus === 'blocked' ? 'bloqueada' : 'inativa'}. Entre em contato com o suporte.
+            </p>
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setCurrentPage('welcome');
+              }}
+              className="w-full bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors shadow-lg"
+            >
+              Sair
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     switch (currentPage) {
       case 'welcome':
         return <Welcome onNavigate={handleNavigate} />;
+      case 'login':
+        return <Login onNavigate={handleNavigate} />;
+      case 'cadastro':
+        return <Cadastro onNavigate={handleNavigate} />;
       case 'home':
         return <Home onNavigate={handleNavigate} />;
       case 'places':
@@ -316,10 +519,14 @@ export default function App() {
         return <Notificacoes onNavigate={handleNavigate} />;
       case 'favoritos':
         return <MeusFavoritos onNavigate={handleNavigate} />;
+      case 'minhas-publicacoes':
+        return <MinhasPublicacoes onNavigate={handleNavigate} />;
       case 'admin':
-        return <Admin onNavigate={handleNavigate} />;
+        return isAdmin ? <Admin onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
       case 'admin-cadastrar-usuario':
-        return <AdminCadastro onNavigate={handleNavigate} />;
+        return isAdminGeral ? <AdminCadastro onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
+      case 'admin-gerenciar-usuarios':
+        return isAdminGeral ? <AdminGerenciarUsuarios onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
       case 'admin-cadastrar-local':
         return <AdminCadastrarLocal onNavigate={handleNavigate} />;
       case 'admin-cadastrar-servico':
@@ -329,15 +536,17 @@ export default function App() {
       case 'admin-cadastrar-comunidade':
         return <AdminCadastrarComunidade onNavigate={handleNavigate} />;
       case 'admin-editar-conteudos':
-        return <AdminEditarConteudos onNavigate={handleNavigate} />;
+        return isAdmin ? <AdminEditarConteudos onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
       case 'admin-editar-local':
-        return <AdminEditarLocal placeId={selectedPlaceId} onNavigate={handleNavigate} />;
+        return isAdmin ? <AdminEditarLocal placeId={selectedPlaceId} onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
       case 'admin-editar-evento':
-        return <AdminEditarEvento eventId={selectedEventId} onNavigate={handleNavigate} />;
+        return isAdmin ? <AdminEditarEvento eventId={selectedEventId} onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
       case 'admin-editar-servico':
-        return <AdminEditarServico serviceId={selectedServiceId} onNavigate={handleNavigate} />;
+        return isAdmin ? <AdminEditarServico serviceId={selectedServiceId} onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
       case 'admin-editar-comunidade':
-        return <AdminEditarComunidade communityId={selectedServiceId} onNavigate={handleNavigate} />;
+        return isAdmin ? <AdminEditarComunidade communityId={selectedServiceId} onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
+      case 'admin-conteudos-desativados':
+        return isAdmin ? <AdminConteudosDesativados onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
       case 'sobre-amooora':
         return (
           <SobreAmooora 

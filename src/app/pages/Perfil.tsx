@@ -5,15 +5,18 @@ import { BottomNav } from '../shared/components';
 import { Header } from '../shared/components';
 import { useProfile } from '../hooks/useProfile';
 import { useAdmin } from '../shared/hooks';
-import { useAttendedEvents, useEvents } from '../features/events';
+import { supabase } from '../infra/supabase';
 import { 
   getProfileStats, 
   getSavedPlaces, 
-  getUpcomingEvents, 
+  getUpcomingEvents,
+  getInterestedEvents,
+  getAttendedEvents,
   getUserReviews,
   getFollowedCommunities,
   type SavedPlace,
   type UpcomingEvent,
+  type AttendedEvent,
   type UserReview,
   type FollowedCommunity,
 } from '../services/profile';
@@ -25,11 +28,10 @@ interface PerfilProps {
 export function Perfil({ onNavigate }: PerfilProps) {
   const { profile, loading: profileLoading } = useProfile();
   const { isAdmin } = useAdmin();
-  const { getAttendedEvents: getAttendedEventIds } = useAttendedEvents();
-  const { events: allEvents } = useEvents();
   const [stats, setStats] = useState({ eventsCount: 0, placesCount: 0, friendsCount: 0 });
   const [favoritePlaces, setFavoritePlaces] = useState<SavedPlace[]>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
+  const [interestedEvents, setInterestedEvents] = useState<UpcomingEvent[]>([]);
   const [attendedEvents, setAttendedEvents] = useState<AttendedEvent[]>([]);
   const [myReviews, setMyReviews] = useState<UserReview[]>([]);
   const [followedCommunities, setFollowedCommunities] = useState<FollowedCommunity[]>([]);
@@ -37,32 +39,72 @@ export function Perfil({ onNavigate }: PerfilProps) {
 
   useEffect(() => {
     const loadProfileData = async () => {
+      console.log('🔍 [Perfil] loadProfileData chamado, profile:', profile);
+      
       if (!profile?.id) {
+        console.log('⚠️ [Perfil] Profile.id não disponível, aguardando...');
         setLoading(false);
         return;
       }
 
+      console.log('✅ [Perfil] Profile.id disponível:', profile.id);
+
       try {
         setLoading(true);
         
+        // Verificar sessão antes de buscar dados
+        const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+        console.log('🔍 [Perfil] Verificação de sessão:', {
+          authUser: authUser?.id,
+          profileId: profile.id,
+          match: authUser?.id === profile.id,
+          authError: authError?.message,
+        });
+        
+        if (authError || !authUser) {
+          console.error('❌ [Perfil] Erro de autenticação:', authError);
+          setLoading(false);
+          return;
+        }
+        
         // Carregar todos os dados do perfil em paralelo
-        const [statsData, placesData, upcomingData, attendedData, reviewsData, communitiesData] = await Promise.all([
+        console.log('🔄 [Perfil] Iniciando busca de dados para userId:', profile.id);
+        const [statsData, placesData, upcomingData, interestedData, attendedData, reviewsData, communitiesData] = await Promise.all([
           getProfileStats(profile.id),
           getSavedPlaces(profile.id),
           getUpcomingEvents(profile.id),
+          getInterestedEvents(profile.id),
           getAttendedEvents(profile.id),
           getUserReviews(profile.id),
           getFollowedCommunities(profile.id),
         ]);
 
+        console.log('📊 [Perfil] Dados recebidos:', {
+          stats: statsData,
+          places: placesData.length,
+          upcomingEvents: upcomingData.length,
+          interestedEvents: interestedData.length,
+          attendedEvents: attendedData.length,
+          reviews: reviewsData.length,
+          communities: communitiesData.length,
+        });
+
         setStats(statsData);
         setFavoritePlaces(placesData);
         setUpcomingEvents(upcomingData);
+        setInterestedEvents(interestedData);
         setAttendedEvents(attendedData);
         setMyReviews(reviewsData);
         setFollowedCommunities(communitiesData);
+        
+        // Debug logs
+        console.log('✅ [Perfil] Dados do perfil carregados e salvos no estado:', {
+          interestedEvents: interestedData.length,
+          attendedEvents: attendedData.length,
+          upcomingEvents: upcomingData.length,
+        });
       } catch (error) {
-        console.error('Erro ao carregar dados do perfil:', error);
+        console.error('❌ [Perfil] Erro ao carregar dados do perfil:', error);
       } finally {
         setLoading(false);
       }
@@ -165,35 +207,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
   // Usar dados reais ou mock
   const displayFavoritePlaces = favoritePlaces.length > 0 ? favoritePlaces : mockFavoritePlaces;
   const displayUpcomingEvents = upcomingEvents.length > 0 ? upcomingEvents : mockUpcomingEvents;
-  // Buscar eventos participados do localStorage e mapear para eventos completos
-  const attendedEventIds = getAttendedEventIds();
-  const displayAttendedEventsFromStorage = useMemo(() => {
-    if (!allEvents || allEvents.length === 0) return [];
-    
-    return attendedEventIds
-      .map(eventId => {
-        const event = allEvents.find(e => e.id === eventId);
-        if (!event) return null;
-        
-        const eventDate = new Date(event.date);
-        const day = eventDate.getDate().toString().padStart(2, '0');
-        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-        const month = months[eventDate.getMonth()];
-        
-        return {
-          id: event.id,
-          event_id: event.id,
-          name: event.name,
-          date: `${day} ${month}`,
-          location: event.location || 'Local não informado',
-        };
-      })
-      .filter((event): event is AttendedEvent => event !== null);
-  }, [attendedEventIds, allEvents]);
-
-  const displayAttendedEvents = displayAttendedEventsFromStorage.length > 0 
-    ? displayAttendedEventsFromStorage 
-    : (attendedEvents.length > 0 ? attendedEvents : mockAttendedEvents);
+  const displayInterestedEvents = interestedEvents.length > 0 ? interestedEvents : [];
+  const displayAttendedEvents = attendedEvents.length > 0 ? attendedEvents : mockAttendedEvents;
   
   // Separar reviews por tipo
   const placeReviews = myReviews.filter(review => review.place_id);
@@ -399,6 +414,36 @@ export function Perfil({ onNavigate }: PerfilProps) {
               ) : (
                 <div className="col-span-2 text-center py-8 text-sm text-muted-foreground">
                   Você ainda não segue nenhuma comunidade
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Eventos que Tenho Interesse */}
+          <div className="px-5 mb-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Eventos que Tenho Interesse</h2>
+            <div className="space-y-3">
+              {displayInterestedEvents.length > 0 ? (
+                displayInterestedEvents.map((event) => (
+                  <div key={event.id} className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 bg-[#932d6f] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0">
+                        <span className="text-xs font-medium">{event.date.split(' ')[1]}</span>
+                        <span className="text-lg font-bold">{event.date.split(' ')[0]}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1">{event.name}</h3>
+                        <p className="text-sm text-gray-600 mb-1">{event.time} • {event.location}</p>
+                        <span className="inline-block px-2 py-0.5 bg-[#F5EBFF] text-primary text-xs font-medium rounded-full">
+                          Tenho Interesse
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-sm text-muted-foreground">
+                  Nenhum evento de interesse ainda
                 </div>
               )}
             </div>

@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ArrowLeft, Calendar, Image, FileText, Tag, DollarSign, MapPin, Clock, AlertCircle, CheckCircle, Upload, X } from 'lucide-react';
 import { createEvent } from '../services/events';
 import { uploadImage } from '../../../infra/storage';
@@ -29,6 +29,51 @@ export function AdminCadastrarEvento({ onNavigate }: AdminCadastrarEventoProps) 
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const STORAGE_KEY = 'admin-cadastrar-evento-draft';
+
+  // Limpar rascunho após envio bem-sucedido
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Erro ao limpar rascunho:', error);
+    }
+  };
+
+  // Carregar rascunho do localStorage ao montar (apenas uma vez)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.formData) {
+          setFormData(parsed.formData);
+        }
+        if (parsed.imagePreview) {
+          setImagePreview(parsed.imagePreview);
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar rascunho:', error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Salvar rascunho no localStorage sempre que o formulário mudar
+  useEffect(() => {
+    const hasData = Object.values(formData).some(value => value !== '') || imagePreview;
+    if (hasData) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          formData,
+          imagePreview,
+        }));
+      } catch (error) {
+        console.error('Erro ao salvar rascunho:', error);
+      }
+    }
+  }, [formData, imagePreview]);
 
   const categories = [
     'Cultura',
@@ -167,6 +212,23 @@ export function AdminCadastrarEvento({ onNavigate }: AdminCadastrarEventoProps) 
       });
 
       setSuccessMessage('Evento cadastrado com sucesso no Supabase!');
+      // Limpar rascunho após envio bem-sucedido
+      clearDraft();
+      // Limpar formulário
+      setFormData({
+        name: '',
+        description: '',
+        image: '',
+        date: '',
+        time: '',
+        endTime: '',
+        location: '',
+        address: '',
+        category: '',
+        price: '',
+      });
+      setSelectedFile(null);
+      setImagePreview(null);
       
       // Limpa o formulário após 2 segundos
       setTimeout(() => {

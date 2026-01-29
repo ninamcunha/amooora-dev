@@ -1,11 +1,14 @@
-import { ArrowLeft, UserPlus, MapPin, Calendar, Scissors, LogOut, Edit, Users } from 'lucide-react';
+import { ArrowLeft, UserPlus, MapPin, Calendar, Scissors, LogOut, Edit, Users, Shield, Eye } from 'lucide-react';
 import { signOut } from '../../lib/auth';
+import { useAdmin } from '../shared/hooks';
 
 interface AdminProps {
   onNavigate: (page: string) => void;
 }
 
 export function Admin({ onNavigate }: AdminProps) {
+  const { isAdminGeral, canManagePlaces, canManageEvents, canManageServices, loading } = useAdmin();
+
   const handleLogout = async () => {
     await signOut();
     // Navegar para welcome e recarregar para limpar o estado
@@ -16,41 +19,71 @@ export function Admin({ onNavigate }: AdminProps) {
     }, 100);
   };
   const adminMenuItems = [
-    {
-      id: 'admin-cadastrar-usuario',
-      title: 'Cadastrar Usuário',
-      description: 'Criar novo usuário no sistema',
-      icon: UserPlus,
-      color: 'bg-[#932d6f]',
-    },
+    ...(isAdminGeral
+      ? [
+          {
+            id: 'admin-gerenciar-usuarios',
+            title: 'Gerenciar Usuárias',
+            description: 'Alterar perfis de acesso (role) e status',
+            icon: Shield,
+            color: 'bg-[#932d6f]',
+          },
+          {
+            id: 'admin-cadastrar-usuario',
+            title: 'Cadastrar Usuário',
+            description: 'Criar novo usuário no sistema (MVP)',
+            icon: UserPlus,
+            color: 'bg-[#932d6f]',
+          },
+        ]
+      : []),
     {
       id: 'admin-editar-conteudos',
       title: 'Editar Conteúdos',
-      description: 'Editar locais, eventos e serviços cadastrados',
+      description: 'Editar locais, eventos, serviços e comunidades cadastrados',
       icon: Edit,
       color: 'bg-accent',
     },
     {
-      id: 'admin-cadastrar-local',
-      title: 'Cadastrar Local',
-      description: 'Adicionar novo local seguro ao sistema',
-      icon: MapPin,
-      color: 'bg-blue-500',
+      id: 'admin-conteudos-desativados',
+      title: 'Conteúdos Desativados',
+      description: 'Visualizar e reativar conteúdos desativados por categoria',
+      icon: Eye,
+      color: 'bg-gray-500',
     },
-    {
-      id: 'admin-cadastrar-servico',
-      title: 'Cadastrar Serviço',
-      description: 'Adicionar novo serviço ao catálogo',
-      icon: Scissors,
-      color: 'bg-green-500',
-    },
-    {
-      id: 'admin-cadastrar-evento',
-      title: 'Cadastrar Evento',
-      description: 'Criar novo evento na plataforma',
-      icon: Calendar,
-      color: 'bg-orange-500',
-    },
+    ...(canManagePlaces
+      ? [
+          {
+            id: 'admin-cadastrar-local',
+            title: 'Cadastrar Local',
+            description: 'Adicionar novo local seguro ao sistema',
+            icon: MapPin,
+            color: 'bg-blue-500',
+          },
+        ]
+      : []),
+    ...(canManageServices
+      ? [
+          {
+            id: 'admin-cadastrar-servico',
+            title: 'Cadastrar Serviço',
+            description: 'Adicionar novo serviço ao catálogo',
+            icon: Scissors,
+            color: 'bg-green-500',
+          },
+        ]
+      : []),
+    ...(canManageEvents
+      ? [
+          {
+            id: 'admin-cadastrar-evento',
+            title: 'Cadastrar Evento',
+            description: 'Criar novo evento na plataforma',
+            icon: Calendar,
+            color: 'bg-orange-500',
+          },
+        ]
+      : []),
     {
       id: 'admin-cadastrar-comunidade',
       title: 'Cadastrar Comunidade',
@@ -85,14 +118,17 @@ export function Admin({ onNavigate }: AdminProps) {
 
         {/* Content */}
         <div className="px-5 py-6 space-y-4">
-          <div className="mb-6">
-            <p className="text-sm text-muted-foreground">
-              Área temporária de administração
-            </p>
-          </div>
-
-          {/* Menu Items */}
-          <div className="space-y-3">
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-sm text-muted-foreground">Carregando...</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Menu Items */}
+              <div className="space-y-3">
             {adminMenuItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -117,12 +153,14 @@ export function Admin({ onNavigate }: AdminProps) {
             })}
           </div>
 
-          {/* Warning */}
-          <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-            <p className="text-sm text-yellow-800">
-              ⚠️ Esta é uma área temporária de administração. A autenticação e permissões serão implementadas em breve.
-            </p>
-          </div>
+              {/* Warning */}
+              <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                <p className="text-sm text-yellow-800">
+                  ⚠️ Acesso controlado por perfil (role) e status via Supabase (RLS).
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
