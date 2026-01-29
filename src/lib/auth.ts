@@ -5,7 +5,6 @@ export interface SignUpData {
   password: string;
   name: string;
   pronouns?: string;
-  avatar?: string;
 }
 
 export interface SignInData {
@@ -40,6 +39,7 @@ export async function signUp(data: SignUpData) {
 
     // 2. O perfil é criado automaticamente pelo trigger handle_new_user()
     // Mas garantimos que ele exista com os dados corretos usando UPSERT
+    // A foto será adicionada depois do upload (feito após autenticação)
     const { error: profileError } = await supabase
       .from('profiles')
       .upsert({
@@ -47,7 +47,6 @@ export async function signUp(data: SignUpData) {
         email: data.email,
         name: data.name,
         pronouns: data.pronouns || null,
-        avatar: data.avatar || null,
       }, {
         onConflict: 'id'
       });

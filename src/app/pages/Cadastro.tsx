@@ -141,26 +141,12 @@ export function Cadastro({ onNavigate }: CadastroProps) {
     setSubmitError(null);
 
     try {
-      let avatarUrl: string | undefined = undefined;
-
-      // Upload da foto de perfil se houver
-      if (avatarFile) {
-        const uploadResult = await uploadImage(avatarFile, 'avatars');
-        if (uploadResult.error) {
-          setSubmitError(`Erro ao fazer upload da foto: ${uploadResult.error}`);
-          setIsLoading(false);
-          return;
-        }
-        avatarUrl = uploadResult.url;
-      }
-
-      // Chama a função de signUp do Supabase
+      // PRIMEIRO: Criar o usuário no Supabase Auth (sem foto ainda)
       const result = await signUp({
         email: formData.email,
         password: formData.senha,
         name: formData.nome,
         pronouns: formData.pronomes || undefined,
-        avatar: avatarUrl,
       });
 
       if (result.error) {
@@ -169,12 +155,38 @@ export function Cadastro({ onNavigate }: CadastroProps) {
         return;
       }
 
-      if (result.user) {
-        // Cadastro realizado com sucesso!
-        console.log('Usuário criado com sucesso:', result.user);
-        // Navega para a página inicial
-        onNavigate('home');
+      if (!result.user) {
+        setSubmitError('Erro ao criar usuário. Tente novamente.');
+        setIsLoading(false);
+        return;
       }
+
+      // SEGUNDO: Se houver foto, fazer upload AGORA (usuário já está autenticado)
+      if (avatarFile) {
+        try {
+          const uploadResult = await uploadImage(avatarFile, 'avatars');
+          if (uploadResult.error) {
+            console.error('Erro ao fazer upload da foto:', uploadResult.error);
+            // Não bloquear o cadastro se o upload falhar, apenas logar o erro
+            // O usuário pode adicionar a foto depois na edição de perfil
+          } else {
+            // Atualizar o perfil com a URL da foto
+            const { supabase } = await import('../infra/supabase');
+            await supabase
+              .from('profiles')
+              .update({ avatar: uploadResult.url })
+              .eq('id', result.user.id);
+          }
+        } catch (uploadError) {
+          console.error('Erro ao fazer upload da foto:', uploadError);
+          // Não bloquear o cadastro se o upload falhar
+        }
+      }
+
+      // Cadastro realizado com sucesso!
+      console.log('Usuário criado com sucesso:', result.user);
+      // Navega para a página inicial
+      onNavigate('home');
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
       setSubmitError('Erro ao criar conta. Tente novamente.');
