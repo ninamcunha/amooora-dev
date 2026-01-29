@@ -8,7 +8,15 @@ import {
   hasEventAttendance,
 } from '../services/eventInteractions';
 
-export function useEventInteractions(eventId: string | undefined) {
+interface UseEventInteractionsOptions {
+  onInterestChange?: () => void;
+  onAttendanceChange?: () => void;
+}
+
+export function useEventInteractions(
+  eventId: string | undefined,
+  options?: UseEventInteractionsOptions
+) {
   const [isInterested, setIsInterested] = useState(false);
   const [isAttended, setIsAttended] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -55,6 +63,10 @@ export function useEventInteractions(eventId: string | undefined) {
           setIsAttended(false);
         }
       }
+      // Chamar callback para atualizar lista de participantes
+      if (options?.onInterestChange) {
+        options.onInterestChange();
+      }
     } catch (error) {
       console.error('Erro ao alternar interesse:', error);
       alert('Erro ao atualizar interesse. Tente novamente.');
@@ -76,6 +88,10 @@ export function useEventInteractions(eventId: string | undefined) {
           await removeEventInterest(eventId);
           setIsInterested(false);
         }
+      }
+      // Chamar callback para atualizar lista de participantes
+      if (options?.onAttendanceChange) {
+        options.onAttendanceChange();
       }
     } catch (error) {
       console.error('Erro ao alternar participação:', error);

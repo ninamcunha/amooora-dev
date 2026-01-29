@@ -27,8 +27,21 @@ interface EventDetailsProps {
 export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps) {
   const { event, loading, error } = useEvent(eventId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useEventReviews(eventId);
-  const { isInterested, isAttended, toggleInterest, toggleAttendance } = useEventInteractions(eventId);
-  const { participants, count: participantsCount, loading: participantsLoading } = useEventParticipants(eventId);
+  const { participants, count: participantsCount, loading: participantsLoading, refetch: refetchParticipants } = useEventParticipants(eventId);
+  const { isInterested, isAttended, toggleInterest, toggleAttendance } = useEventInteractions(eventId, {
+    onInterestChange: () => {
+      // Recarregar lista de participantes após mudança de interesse
+      setTimeout(() => {
+        refetchParticipants();
+      }, 500);
+    },
+    onAttendanceChange: () => {
+      // Recarregar lista de participantes após mudança de participação
+      setTimeout(() => {
+        refetchParticipants();
+      }, 500);
+    },
+  });
   const [shareSuccess, setShareSuccess] = useState(false);
   const [eventCoordinates, setEventCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [geocodingLoading, setGeocodingLoading] = useState(false);
