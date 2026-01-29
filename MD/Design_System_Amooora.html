@@ -704,6 +704,107 @@
                     <code>&lt;input class="w-full px-4 py-2.5 bg-gray-50 rounded-xl border border-gray-100 focus:ring-2 focus:ring-primary/20"&gt;</code>
                 </div>
             </div>
+
+            <h3>Botões de Ação Rápida (V4.0.0)</h3>
+            <div class="component-showcase">
+                <div class="component-card">
+                    <h4>Botão com Ícone Plus</h4>
+                    <button class="button" style="background: #F5EBFF; color: var(--primary); border: 1px solid rgba(147, 45, 111, 0.1); display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1rem;">+</span>
+                        <span>Cadastrar evento</span>
+                    </button>
+                    <div class="code-block">
+                        <code>&lt;button class="flex items-center gap-2 px-3 py-2 bg-[#F5EBFF] rounded-full hover:bg-[#E5D5F0] border border-primary/10"&gt;</code><br>
+                        <code>&nbsp;&nbsp;&lt;Plus className="w-4 h-4 text-primary" /&gt;</code><br>
+                        <code>&nbsp;&nbsp;&lt;span class="text-xs font-medium text-primary"&gt;Cadastrar evento&lt;/span&gt;</code><br>
+                        <code>&lt;/button&gt;</code>
+                    </div>
+                </div>
+                <div class="component-card">
+                    <h4>Recomendar Local</h4>
+                    <button class="button" style="background: #F5EBFF; color: var(--primary); border: 1px solid rgba(147, 45, 111, 0.1); display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 1rem;">+</span>
+                        <span>Recomendar Local</span>
+                    </button>
+                    <div class="code-block">
+                        <code>Mesmo padrão do botão acima</code><br>
+                        <code>Texto: "Recomendar Local"</code>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Interações com Eventos (V4.0.0)</h3>
+            <div class="component-showcase">
+                <div class="component-card">
+                    <h4>Tenho Interesse (Inativo)</h4>
+                    <button class="button" style="background: #F5EBFF; color: var(--primary); border: 1px solid rgba(147, 45, 111, 0.1); display: flex; align-items: center; gap: 0.5rem;">
+                        <span>⭐</span>
+                        <span>Tenho interesse</span>
+                    </button>
+                    <div class="code-block">
+                        <code>&lt;button class="flex items-center gap-2 px-4 py-1.5 bg-[#F5EBFF] text-primary rounded-full border border-primary/10"&gt;</code><br>
+                        <code>&nbsp;&nbsp;&lt;Star className="w-4 h-4" /&gt;</code><br>
+                        <code>&nbsp;&nbsp;Tenho interesse</code><br>
+                        <code>&lt;/button&gt;</code>
+                    </div>
+                </div>
+                <div class="component-card">
+                    <h4>Tenho Interesse (Ativo - Confirmado)</h4>
+                    <button class="button" style="background: #E5D5F0; color: var(--primary); border: 1px solid rgba(147, 45, 111, 0.3); display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="color: var(--primary);">⭐</span>
+                        <span>Confirmado</span>
+                    </button>
+                    <div class="code-block">
+                        <code>&lt;button class="flex items-center gap-2 px-4 py-1.5 bg-[#E5D5F0] text-primary rounded-full border border-primary/30"&gt;</code><br>
+                        <code>&nbsp;&nbsp;&lt;Star className="w-4 h-4 fill-primary text-primary" /&gt;</code><br>
+                        <code>&nbsp;&nbsp;Confirmado</code><br>
+                        <code>&lt;/button&gt;</code>
+                    </div>
+                </div>
+                <div class="component-card">
+                    <h4>Fui!! (Inativo)</h4>
+                    <button class="button" style="background: #F5EBFF; color: var(--primary); border: 1px solid rgba(147, 45, 111, 0.1); display: flex; align-items: center; gap: 0.5rem;">
+                        <span>✓</span>
+                        <span>Fui!!</span>
+                    </button>
+                    <div class="code-block">
+                        <code>&lt;button class="flex items-center gap-2 px-4 py-1.5 bg-[#F5EBFF] text-primary rounded-full border border-primary/10"&gt;</code><br>
+                        <code>&nbsp;&nbsp;&lt;CheckCircle2 className="w-4 h-4" /&gt;</code><br>
+                        <code>&nbsp;&nbsp;Fui!!</code><br>
+                        <code>&lt;/button&gt;</code>
+                    </div>
+                </div>
+                <div class="component-card">
+                    <h4>Fui!! (Ativo - Fui!)</h4>
+                    <button class="button" style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="color: #15803d;">✓</span>
+                        <span>Fui!</span>
+                    </button>
+                    <div class="code-block">
+                        <code>&lt;button class="flex items-center gap-2 px-4 py-1.5 bg-green-100 text-green-700 rounded-full border border-green-300"&gt;</code><br>
+                        <code>&nbsp;&nbsp;&lt;CheckCircle2 className="w-4 h-4 text-green-700" /&gt;</code><br>
+                        <code>&nbsp;&nbsp;Fui!</code><br>
+                        <code>&lt;/button&gt;</code>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Botão Sair (Logout) (V4.0.0)</h3>
+            <div class="component-card">
+                <button class="button" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: none; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>🚪</span>
+                    <span>Sair</span>
+                </button>
+                <div class="code-block" style="margin-top: 1rem;">
+                    <code>&lt;button class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-red-500"&gt;</code><br>
+                    <code>&nbsp;&nbsp;&lt;LogOut className="w-5 h-5 text-red-500" /&gt;</code><br>
+                    <code>&nbsp;&nbsp;&lt;span class="text-sm font-medium text-red-500"&gt;Sair&lt;/span&gt;</code><br>
+                    <code>&lt;/button&gt;</code>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--muted-foreground); margin-top: 0.5rem;">
+                    Usado no menu hambúrguer para fazer logout completo do usuário.
+                </p>
+            </div>
         </section>
 
         <!-- Padrões de Layout -->
@@ -894,9 +995,91 @@
             </div>
         </section>
 
+        <!-- Novidades V4.0.0 -->
+        <section style="background: linear-gradient(135deg, rgba(147, 45, 111, 0.1) 0%, rgba(220, 160, 200, 0.1) 100%); border: 2px solid var(--primary);">
+            <h2>✨ Novidades V4.0.0 (login1.0)</h2>
+            
+            <h3>Novos Componentes e Funcionalidades</h3>
+            <div class="component-card" style="background: white;">
+                <h4 style="color: var(--primary); margin-bottom: 1rem;">🎯 Sistema de Autenticação</h4>
+                <ul style="list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem;">
+                    <li>Gate de autenticação (site fechado - MVP)</li>
+                    <li>Perfis de acesso (admin_geral, user_viewer, admin_locais, admin_eventos, admin_servicos)</li>
+                    <li>Persistência de sessão no localStorage</li>
+                    <li>Auto-refresh de tokens</li>
+                </ul>
+
+                <h4 style="color: var(--primary); margin: 1.5rem 0 1rem;">🎪 Interações com Eventos</h4>
+                <ul style="list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem;">
+                    <li>Botão "Tenho interesse" / "Confirmado"</li>
+                    <li>Botão "Fui!!" / "Fui!" (verde quando ativo)</li>
+                    <li>Exclusão mútua entre interesses e participações</li>
+                    <li>Exibição no perfil do usuário</li>
+                </ul>
+
+                <h4 style="color: var(--primary); margin: 1.5rem 0 1rem;">📝 Gerenciamento de Conteúdo</h4>
+                <ul style="list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem;">
+                    <li>Página "Minhas Publicações"</li>
+                    <li>Edição e desativação de próprias publicações</li>
+                    <li>Página "Conteúdos Desativados" para admins</li>
+                </ul>
+
+                <h4 style="color: var(--primary); margin: 1.5rem 0 1rem;">⚡ Botões de Ação Rápida</h4>
+                <ul style="list-style: disc; padding-left: 1.5rem;">
+                    <li>"+ Cadastrar evento" (página de eventos)</li>
+                    <li>"+ Recomendar Local" (página de locais)</li>
+                    <li>Padrão visual: bg-[#F5EBFF], ícone Plus, texto pequeno</li>
+                </ul>
+            </div>
+
+            <h3>Padrões de Cores para Estados</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Estado</th>
+                        <th>Background</th>
+                        <th>Texto</th>
+                        <th>Border</th>
+                        <th>Uso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Interesse Inativo</strong></td>
+                        <td><code>bg-[#F5EBFF]</code></td>
+                        <td><code>text-primary</code></td>
+                        <td><code>border-primary/10</code></td>
+                        <td>Botão "Tenho interesse" não marcado</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Interesse Ativo</strong></td>
+                        <td><code>bg-[#E5D5F0]</code></td>
+                        <td><code>text-primary</code></td>
+                        <td><code>border-primary/30</code></td>
+                        <td>Botão "Confirmado" (marcado)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Participação Inativa</strong></td>
+                        <td><code>bg-[#F5EBFF]</code></td>
+                        <td><code>text-primary</code></td>
+                        <td><code>border-primary/10</code></td>
+                        <td>Botão "Fui!!" não marcado</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Participação Ativa</strong></td>
+                        <td><code>bg-green-100</code></td>
+                        <td><code>text-green-700</code></td>
+                        <td><code>border-green-300</code></td>
+                        <td>Botão "Fui!" (marcado - verde)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
         <!-- Footer -->
         <footer style="text-align: center; padding: 2rem; color: var(--muted-foreground);">
-            <p>Design System Amooora - Última atualização: 2024</p>
+            <p>Design System Amooora - Versão V4.0.0 (login1.0)</p>
+            <p style="font-size: 0.875rem; margin-top: 0.5rem;">Última atualização: Dezembro 2024</p>
             <p style="font-size: 0.875rem; margin-top: 0.5rem;">Arquivo de tema: <code>src/styles/theme.css</code></p>
         </footer>
     </div>
