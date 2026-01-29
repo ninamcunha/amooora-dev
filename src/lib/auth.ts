@@ -5,6 +5,7 @@ export interface SignUpData {
   password: string;
   name: string;
   pronouns?: string;
+  avatar?: string;
 }
 
 export interface SignInData {
@@ -46,6 +47,7 @@ export async function signUp(data: SignUpData) {
         email: data.email,
         name: data.name,
         pronouns: data.pronouns || null,
+        avatar: data.avatar || null,
       }, {
         onConflict: 'id'
       });

@@ -1,7 +1,9 @@
-import { useState } from 'react';
-import { ArrowLeft, Mail, Lock, User, Heart, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { ArrowLeft, Mail, Lock, User, Heart, Eye, EyeOff, CheckCircle, AlertCircle, Camera, X } from 'lucide-react';
 import logoAmooora from "../../assets/5a07ef013ecd4a0869fe2fae41fafe9f484c2b89.png";
 import { signUp } from '../../lib/auth';
+import { uploadImage } from '../services/storage';
+import { ImageWithFallback } from '../shared/components';
 
 interface CadastroProps {
   onNavigate: (page: string) => void;
@@ -24,6 +26,10 @@ export function Cadastro({ onNavigate }: CadastroProps) {
     maiorIdade: false,
   });
 
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (field: string, value: string | boolean) => {
@@ -31,6 +37,44 @@ export function Cadastro({ onNavigate }: CadastroProps) {
     // Limpa erro do campo ao digitar
     if (errors[field]) {
       setErrors({ ...errors, [field]: '' });
+    }
+  };
+
+  const handleAvatarSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setAvatarError('Formato não suportado. Use JPG, PNG ou WEBP.');
+      return;
+    }
+
+    // Validar tamanho (5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setAvatarError('Imagem muito grande. Tamanho máximo: 5MB.');
+      return;
+    }
+
+    setAvatarError(null);
+    setAvatarFile(file);
+
+    // Criar preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    setAvatarError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -97,12 +141,26 @@ export function Cadastro({ onNavigate }: CadastroProps) {
     setSubmitError(null);
 
     try {
+      let avatarUrl: string | undefined = undefined;
+
+      // Upload da foto de perfil se houver
+      if (avatarFile) {
+        const uploadResult = await uploadImage(avatarFile, 'avatars');
+        if (uploadResult.error) {
+          setSubmitError(`Erro ao fazer upload da foto: ${uploadResult.error}`);
+          setIsLoading(false);
+          return;
+        }
+        avatarUrl = uploadResult.url;
+      }
+
       // Chama a função de signUp do Supabase
       const result = await signUp({
         email: formData.email,
         password: formData.senha,
         name: formData.nome,
         pronouns: formData.pronomes || undefined,
+        avatar: avatarUrl,
       });
 
       if (result.error) {
@@ -304,6 +362,60 @@ export function Cadastro({ onNavigate }: CadastroProps) {
               <p className="text-sm text-muted-foreground">
                 Queremos te conhecer melhor
               </p>
+            </div>
+
+            {/* Foto de Perfil */}
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-foreground mb-2">
+                <Camera className="w-4 h-4 text-primary" />
+                Foto de Perfil (opcional)
+              </label>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full overflow-hidden bg-muted border-2 border-gray-200 flex items-center justify-center">
+                    {avatarPreview ? (
+                      <img
+                        src={avatarPreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-8 h-8 text-gray-400" />
+                    )}
+                  </div>
+                  {avatarPreview && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleAvatarSelect}
+                    className="hidden"
+                    id="avatar-upload"
+                  />
+                  <label
+                    htmlFor="avatar-upload"
+                    className="block px-4 py-2 bg-muted rounded-xl border border-transparent hover:border-secondary cursor-pointer transition-colors text-center text-sm font-medium"
+                  >
+                    {avatarPreview ? 'Alterar foto' : 'Escolher foto'}
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-1 text-center">
+                    JPG, PNG ou WEBP • Máx. 5MB
+                  </p>
+                </div>
+              </div>
+              {avatarError && (
+                <p className="text-xs text-red-500 mt-1">{avatarError}</p>
+              )}
             </div>
 
             {/* Pronomes */}
