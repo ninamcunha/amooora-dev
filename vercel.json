@@ -6,6 +6,10 @@
   "framework": "vite",
   "rewrites": [
     {
+      "source": "/design-system",
+      "destination": "/design-system.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
