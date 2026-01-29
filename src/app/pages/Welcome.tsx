@@ -1,5 +1,5 @@
 import React from 'react';
-import logoHome from "../../assets/logo-home.png";
+import logoHome from "@/assets/logo-home.png";
 
 interface WelcomeProps {
   onNavigate: (page: string) => void;
