@@ -26,7 +26,7 @@ interface PerfilProps {
 }
 
 export function Perfil({ onNavigate }: PerfilProps) {
-  const { profile, loading: profileLoading } = useProfile();
+  const { profile, loading: profileLoading, refetch: refetchProfile } = useProfile();
   const { isAdmin } = useAdmin();
   const [stats, setStats] = useState({ eventsCount: 0, placesCount: 0, friendsCount: 0 });
   const [favoritePlaces, setFavoritePlaces] = useState<SavedPlace[]>([]);
@@ -48,6 +48,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
       }
 
       console.log('✅ [Perfil] Profile.id disponível:', profile.id);
+      console.log('📸 [Perfil] Avatar do perfil:', profile.avatar);
 
       try {
         setLoading(true);

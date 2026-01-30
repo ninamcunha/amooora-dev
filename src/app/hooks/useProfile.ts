@@ -63,6 +63,13 @@ export const useProfile = () => {
       // Gerar username a partir do email se não existir
       const username = data.email?.split('@')[0] || undefined;
 
+      console.log('📋 [useProfile] Perfil carregado:', {
+        id: data.id,
+        name: data.name,
+        avatar: data.avatar,
+        hasAvatar: !!data.avatar,
+      });
+
       setProfile({
         id: data.id,
         name: data.name,
@@ -85,8 +92,14 @@ export const useProfile = () => {
     loadProfile();
 
     // Listener para mudanças na sessão
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      loadProfile();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔄 [useProfile] Auth state mudou:', event);
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        // Aguardar um pouco antes de recarregar para garantir que o banco processou
+        setTimeout(() => {
+          loadProfile();
+        }, 1000);
+      }
     });
 
     return () => {

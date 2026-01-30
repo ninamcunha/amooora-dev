@@ -164,27 +164,46 @@ export function Cadastro({ onNavigate }: CadastroProps) {
       // SEGUNDO: Se houver foto, fazer upload AGORA (usuário já está autenticado)
       if (avatarFile) {
         try {
+          console.log('📸 Iniciando upload da foto de perfil...');
           const uploadResult = await uploadImage(avatarFile, 'avatars');
+          
           if (uploadResult.error) {
-            console.error('Erro ao fazer upload da foto:', uploadResult.error);
+            console.error('❌ Erro ao fazer upload da foto:', uploadResult.error);
             // Não bloquear o cadastro se o upload falhar, apenas logar o erro
             // O usuário pode adicionar a foto depois na edição de perfil
           } else {
+            console.log('✅ Upload da foto concluído, URL:', uploadResult.url);
+            
             // Atualizar o perfil com a URL da foto
             const { supabase } = await import('../infra/supabase');
-            await supabase
+            const { data: updateData, error: updateError } = await supabase
               .from('profiles')
               .update({ avatar: uploadResult.url })
-              .eq('id', result.user.id);
+              .eq('id', result.user.id)
+              .select()
+              .single();
+            
+            if (updateError) {
+              console.error('❌ Erro ao atualizar perfil com avatar:', updateError);
+            } else {
+              console.log('✅ Perfil atualizado com avatar:', updateData);
+              
+              // Aguardar um pouco para garantir que o banco processou
+              await new Promise(resolve => setTimeout(resolve, 500));
+            }
           }
         } catch (uploadError) {
-          console.error('Erro ao fazer upload da foto:', uploadError);
+          console.error('❌ Erro ao fazer upload da foto:', uploadError);
           // Não bloquear o cadastro se o upload falhar
         }
       }
 
       // Cadastro realizado com sucesso!
-      console.log('Usuário criado com sucesso:', result.user);
+      console.log('✅ Usuário criado com sucesso:', result.user);
+      
+      // Aguardar um pouco para garantir que tudo foi processado
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Navega para a página inicial
       onNavigate('home');
     } catch (error) {
