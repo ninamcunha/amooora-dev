@@ -120,116 +120,10 @@ export function Perfil({ onNavigate }: PerfilProps) {
     loadProfileData();
   }, [profile?.id]);
 
-  // Mock data para quando não houver dados reais
-  const mockFavoritePlaces: SavedPlace[] = [
-    {
-      id: 'mock-1',
-      place_id: 'mock-1',
-      name: 'Café da Vila',
-      category: 'Café',
-      rating: 4.8,
-      imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYWZlJTIwaW50ZXJpb3J8ZW58MXx8fHwxNzY3ODM0MzUxfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    {
-      id: 'mock-2',
-      place_id: 'mock-2',
-      name: 'Bar da Lua',
-      category: 'Bar',
-      rating: 4.6,
-      imageUrl: 'https://images.unsplash.com/photo-1572116469696-31de0f17cc34?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiYXIlMjBpbnRlcmlvcnxlbnwxfHx8fDE3Njc4MzQzNTF8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-    {
-      id: 'mock-3',
-      place_id: 'mock-3',
-      name: 'Restaurante Arco-Íris',
-      category: 'Restaurante',
-      rating: 4.9,
-      imageUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyZXN0YXVyYW50JTIwaW50ZXJpb3J8ZW58MXx8fHwxNzY3ODM0MzUxfDA&ixlib=rb-4.1.0&q=80&w=1080',
-    },
-  ];
-
-  const mockUpcomingEvents: UpcomingEvent[] = [
-    {
-      id: 'mock-1',
-      event_id: 'mock-1',
-      name: 'Sarau Sáfico',
-      date: '15 Fev',
-      time: '19:00',
-      location: 'Centro Cultural',
-    },
-    {
-      id: 'mock-2',
-      event_id: 'mock-2',
-      name: 'Roda de Conversa',
-      date: '22 Fev',
-      time: '18:30',
-      location: 'Casa Amooora',
-    },
-  ];
-
-  const mockAttendedEvents: AttendedEvent[] = [
-    {
-      id: 'mock-1',
-      event_id: 'mock-1',
-      name: 'Pride Fest 2025',
-      date: '10 Jan',
-      location: 'Parque Ibirapuera',
-    },
-    {
-      id: 'mock-2',
-      event_id: 'mock-2',
-      name: 'Encontro de Mulheres',
-      date: '05 Dez',
-      location: 'Centro Cultural',
-    },
-  ];
-
-  const mockReviews: UserReview[] = [
-    {
-      id: 'mock-1',
-      place_id: 'mock-1',
-      placeName: 'Café da Vila',
-      rating: 5,
-      comment: 'Adorei o ambiente! Super acolhedor e com opções veganas deliciosas. O atendimento foi impecável, me senti muito à vontade. Com certeza voltarei!',
-      date: '2 dias atrás',
-    },
-    {
-      id: 'mock-2',
-      service_id: 'mock-1',
-      serviceName: 'Terapia LGBTQIA+',
-      rating: 5,
-      comment: 'Profissional incrível! Me sinto muito acolhida e segura durante as sessões. Recomendo demais!',
-      date: '1 semana atrás',
-    },
-    {
-      id: 'mock-3',
-      event_id: 'mock-1',
-      eventName: 'Sarau Sáfico',
-      rating: 4,
-      comment: 'Evento incrível! A atmosfera era acolhedora e as performances foram emocionantes. Já estou ansiosa para o próximo!',
-      date: '2 semanas atrás',
-    },
-  ];
-
-  // Usar dados reais ou mock
-  const displayFavoritePlaces = favoritePlaces.length > 0 ? favoritePlaces : mockFavoritePlaces;
-  const displayUpcomingEvents = upcomingEvents.length > 0 ? upcomingEvents : mockUpcomingEvents;
-  const displayInterestedEvents = interestedEvents.length > 0 ? interestedEvents : [];
-  const displayAttendedEvents = attendedEvents.length > 0 ? attendedEvents : mockAttendedEvents;
-  
   // Separar reviews por tipo
   const placeReviews = myReviews.filter(review => review.place_id);
   const serviceReviews = myReviews.filter(review => review.service_id);
   const eventReviews = myReviews.filter(review => review.event_id);
-  
-  // Stats mockados se não houver dados
-  const displayStats = stats.eventsCount > 0 || stats.placesCount > 0 || stats.friendsCount > 0
-    ? stats
-    : {
-        eventsCount: 4,
-        placesCount: 3,
-        friendsCount: 12,
-      };
 
   // Se não houver perfil, mostrar mensagem ou redirecionar
   if (profileLoading || loading) {
@@ -245,17 +139,22 @@ export function Perfil({ onNavigate }: PerfilProps) {
     );
   }
 
-  // Se não houver perfil, usar perfil mockado para demonstração
-  const displayProfile = profile || {
-    id: 'mock',
-    name: 'Usuário Amooora',
-    email: 'usuario@amooora.com',
-    username: 'usuario',
-    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080',
-  };
+  // Se não houver perfil, mostrar mensagem
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-muted">
+        <div className="max-w-md mx-auto bg-white min-h-screen shadow-xl flex flex-col">
+          <Header onNavigate={onNavigate} isAdmin={isAdmin} />
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-muted-foreground">Perfil não encontrado</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Gerar username a partir do email se não existir
-  const username = displayProfile.username || displayProfile.email?.split('@')[0] || 'usuario';
+  const username = profile.username || profile.email?.split('@')[0] || 'usuario';
   const renderStars = (rating: number) => {
     return (
       <div className="flex gap-0.5">
@@ -285,8 +184,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
             <div className="flex justify-center mb-4">
               <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200">
                 <ImageWithFallback
-                  src={displayProfile.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2NzgzNDM1MHww&ixlib=rb-4.1.0&q=80&w=1080'}
-                  alt={displayProfile.name}
+                  src={profile.avatar}
+                  alt={profile.name}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -294,29 +193,33 @@ export function Perfil({ onNavigate }: PerfilProps) {
 
             {/* Nome */}
             <h1 className="text-2xl font-bold text-foreground text-center mb-2">
-              {displayProfile.name}
+              {profile.name}
             </h1>
 
             {/* Bio */}
-            <p className="text-sm text-muted-foreground text-center mb-6 max-w-xs mx-auto">
-              {displayProfile.bio || 'Apaixonada por café, cultura e boas conversas. Ativista pelos direitos LGBTQIA+. 🌈'}
-            </p>
+            {profile.bio && (
+              <p className="text-sm text-muted-foreground text-center mb-6 max-w-xs mx-auto">
+                {profile.bio}
+              </p>
+            )}
 
-            {/* Stats - 3 colunas */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground mb-1">{displayStats.eventsCount}</div>
-                <div className="text-xs text-muted-foreground">Eventos</div>
+            {/* Stats - 3 colunas - apenas se houver dados */}
+            {(stats.eventsCount > 0 || stats.placesCount > 0 || stats.friendsCount > 0) && (
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground mb-1">{stats.eventsCount}</div>
+                  <div className="text-xs text-muted-foreground">Eventos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground mb-1">{stats.placesCount}</div>
+                  <div className="text-xs text-muted-foreground">Lugares</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-foreground mb-1">{stats.friendsCount}</div>
+                  <div className="text-xs text-muted-foreground">Amigos</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground mb-1">{displayStats.placesCount}</div>
-                <div className="text-xs text-muted-foreground">Lugares</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-foreground mb-1">{displayStats.friendsCount}</div>
-                <div className="text-xs text-muted-foreground">Amigos</div>
-              </div>
-            </div>
+            )}
 
             {/* Botões de Ação - Meus Favoritos e Editar Perfil */}
             <div className="grid grid-cols-2 gap-3 mb-6">
@@ -338,21 +241,21 @@ export function Perfil({ onNavigate }: PerfilProps) {
             </div>
           </div>
 
-          {/* Locais Favoritos */}
-          <div className="px-5 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Locais Favoritos</h2>
-              <button 
-                onClick={() => onNavigate('favoritos')}
-                className="text-sm text-[#932d6f] font-medium flex items-center gap-1"
-              >
-                Ver todos
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {displayFavoritePlaces.length > 0 ? (
-                displayFavoritePlaces.slice(0, 5).map((place) => (
+          {/* Locais Favoritos - apenas se houver dados */}
+          {favoritePlaces.length > 0 && (
+            <div className="px-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Locais Favoritos</h2>
+                <button 
+                  onClick={() => onNavigate('favoritos')}
+                  className="text-sm text-[#932d6f] font-medium flex items-center gap-1"
+                >
+                  Ver todos
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {favoritePlaces.slice(0, 5).map((place) => (
                   <div key={place.id} className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
                     <div className="relative h-24">
                       <ImageWithFallback
@@ -370,30 +273,26 @@ export function Perfil({ onNavigate }: PerfilProps) {
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="col-span-2 text-center py-8 text-sm text-muted-foreground">
-                  Nenhum local favorito ainda
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Comunidades que Sigo */}
-          <div className="px-5 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Comunidades que Sigo</h2>
-              <button 
-                onClick={() => onNavigate('minhas-comunidades')}
-                className="text-sm text-[#932d6f] font-medium flex items-center gap-1"
-              >
-                Ver todas
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {followedCommunities.length > 0 ? (
-                followedCommunities.slice(0, 4).map((community) => (
+          {/* Comunidades que Sigo - apenas se houver dados */}
+          {followedCommunities.length > 0 && (
+            <div className="px-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Comunidades que Sigo</h2>
+                <button 
+                  onClick={() => onNavigate('minhas-comunidades')}
+                  className="text-sm text-[#932d6f] font-medium flex items-center gap-1"
+                >
+                  Ver todas
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {followedCommunities.slice(0, 4).map((community) => (
                   <div 
                     key={community.id} 
                     className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
@@ -417,21 +316,17 @@ export function Perfil({ onNavigate }: PerfilProps) {
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="col-span-2 text-center py-8 text-sm text-muted-foreground">
-                  Você ainda não segue nenhuma comunidade
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Eventos que Tenho Interesse */}
-          <div className="px-5 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Eventos que Tenho Interesse</h2>
-            <div className="space-y-3">
-              {displayInterestedEvents.length > 0 ? (
-                displayInterestedEvents.map((event) => (
+          {/* Eventos que Tenho Interesse - apenas se houver dados */}
+          {interestedEvents.length > 0 && (
+            <div className="px-5 mb-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Eventos que Tenho Interesse</h2>
+              <div className="space-y-3">
+                {interestedEvents.map((event) => (
                   <div 
                     key={event.id} 
                     onClick={() => onNavigate(`event-details:${event.event_id}`)}
@@ -451,21 +346,17 @@ export function Perfil({ onNavigate }: PerfilProps) {
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-sm text-muted-foreground">
-                  Nenhum evento de interesse ainda
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Próximos Eventos */}
-          <div className="px-5 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Próximos Eventos</h2>
-            <div className="space-y-3">
-              {displayUpcomingEvents.length > 0 ? (
-                displayUpcomingEvents.map((event) => (
+          {/* Próximos Eventos - apenas se houver dados */}
+          {upcomingEvents.length > 0 && (
+            <div className="px-5 mb-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Próximos Eventos</h2>
+              <div className="space-y-3">
+                {upcomingEvents.map((event) => (
                   <div 
                     key={event.id} 
                     onClick={() => onNavigate(`event-details:${event.event_id}`)}
@@ -485,21 +376,17 @@ export function Perfil({ onNavigate }: PerfilProps) {
                       </div>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-sm text-muted-foreground">
-                  Nenhum evento próximo
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Eventos que Participei */}
-          <div className="px-5 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Eventos que Participei</h2>
-            <div className="space-y-2">
-              {displayAttendedEvents.length > 0 ? (
-                displayAttendedEvents.map((event) => (
+          {/* Eventos que Participei - apenas se houver dados */}
+          {attendedEvents.length > 0 && (
+            <div className="px-5 mb-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Eventos que Participei</h2>
+              <div className="space-y-2">
+                {attendedEvents.map((event) => (
                   <div 
                     key={event.id} 
                     onClick={() => onNavigate(`event-details:${event.event_id}`)}
@@ -511,69 +398,67 @@ export function Perfil({ onNavigate }: PerfilProps) {
                       <p className="text-xs text-gray-500">{event.date} • {event.location}</p>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-sm text-muted-foreground">
-                  Nenhum evento participado ainda
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Calendário Simples */}
-          <div className="px-5 mb-6">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Meu Calendário</h2>
-            <div className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10">
-              {/* Mini calendário visual */}
-              <div className="grid grid-cols-7 gap-2 mb-3">
-                {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
-                  <div key={day} className="text-center text-xs font-medium text-gray-500">
-                    {day}
-                  </div>
                 ))}
               </div>
-              <div className="grid grid-cols-7 gap-2">
-                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
-                  // Verificar se há evento futuro neste dia
-                  const hasUpcomingEvent = displayUpcomingEvents.some(event => {
-                    const eventDay = parseInt(event.date.split(' ')[0]);
-                    return eventDay === day;
-                  });
-                  
-                  // Verificar se há evento passado neste dia
-                  const hasAttendedEvent = displayAttendedEvents.some(event => {
-                    const eventDay = parseInt(event.date.split(' ')[0]);
-                    return eventDay === day;
-                  });
-                  
-                  return (
-                    <div
-                      key={day}
-                      className={`aspect-square flex items-center justify-center text-sm rounded-lg ${
-                        hasUpcomingEvent
-                          ? 'bg-[#932d6f] text-white font-bold'
-                          : hasAttendedEvent
-                          ? 'bg-green-100 text-green-700 font-medium'
-                          : 'text-gray-700'
-                      }`}
-                    >
+            </div>
+          )}
+
+          {/* Calendário Simples - apenas se houver eventos */}
+          {(upcomingEvents.length > 0 || attendedEvents.length > 0) && (
+            <div className="px-5 mb-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Meu Calendário</h2>
+              <div className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10">
+                {/* Mini calendário visual */}
+                <div className="grid grid-cols-7 gap-2 mb-3">
+                  {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
+                    <div key={day} className="text-center text-xs font-medium text-gray-500">
                       {day}
                     </div>
-                  );
-                })}
-              </div>
-              <div className="flex items-center gap-4 mt-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-[#932d6f] rounded"></div>
-                  <span className="text-gray-600">Próximos eventos</span>
+                  ))}
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-green-100 rounded"></div>
-                  <span className="text-gray-600">Participei</span>
+                <div className="grid grid-cols-7 gap-2">
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
+                    // Verificar se há evento futuro neste dia
+                    const hasUpcomingEvent = upcomingEvents.some(event => {
+                      const eventDay = parseInt(event.date.split(' ')[0]);
+                      return eventDay === day;
+                    });
+                    
+                    // Verificar se há evento passado neste dia
+                    const hasAttendedEvent = attendedEvents.some(event => {
+                      const eventDay = parseInt(event.date.split(' ')[0]);
+                      return eventDay === day;
+                    });
+                    
+                    return (
+                      <div
+                        key={day}
+                        className={`aspect-square flex items-center justify-center text-sm rounded-lg ${
+                          hasUpcomingEvent
+                            ? 'bg-[#932d6f] text-white font-bold'
+                            : hasAttendedEvent
+                            ? 'bg-green-100 text-green-700 font-medium'
+                            : 'text-gray-700'
+                        }`}
+                      >
+                        {day}
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center gap-4 mt-4 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-[#932d6f] rounded"></div>
+                    <span className="text-gray-600">Próximos eventos</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-100 rounded"></div>
+                    <span className="text-gray-600">Participei</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Amigos da Comunidade - Será implementado depois */}
           <div className="px-5 mb-6">
