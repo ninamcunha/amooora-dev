@@ -39,7 +39,12 @@ export function Perfil({ onNavigate }: PerfilProps) {
 
   useEffect(() => {
     const loadProfileData = async () => {
-      console.log('🔍 [Perfil] loadProfileData chamado, profile:', profile);
+      console.log('🔍 [Perfil] loadProfileData chamado, profile:', {
+        id: profile?.id,
+        name: profile?.name,
+        avatar: profile?.avatar,
+        hasAvatar: !!profile?.avatar,
+      });
       
       if (!profile?.id) {
         console.log('⚠️ [Perfil] Profile.id não disponível, aguardando...');
@@ -48,6 +53,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
       }
 
       console.log('✅ [Perfil] Profile.id disponível:', profile.id);
+      console.log('📸 [Perfil] Avatar do perfil:', profile.avatar);
       console.log('📸 [Perfil] Avatar do perfil:', profile.avatar);
 
       try {
