@@ -173,6 +173,33 @@ export default function App() {
   useEffect(() => {
     const hash = window.location.hash;
     const pathname = window.location.pathname;
+    const searchParams = new URLSearchParams(window.location.search);
+    
+    // Verificar se é callback de verificação de email do Supabase
+    // O Supabase adiciona tokens na URL quando o usuário clica no link de verificação
+    const accessToken = searchParams.get('access_token');
+    const type = searchParams.get('type');
+    const verified = searchParams.get('verified');
+    
+    if (accessToken || type === 'recovery' || verified === 'true') {
+      // Limpar a URL dos parâmetros de verificação
+      const cleanUrl = window.location.origin + window.location.pathname + (hash || '');
+      window.history.replaceState({}, '', cleanUrl);
+      
+      // Se houver token, o Supabase já processou a sessão automaticamente
+      // Verificar a sessão novamente
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          setIsAuthenticated(true);
+        }
+      });
+      
+      // Se foi verificação de email, navegar para login com mensagem
+      if (verified === 'true' || type === 'signup') {
+        setCurrentPage('login');
+        return;
+      }
+    }
     
     // Verificar se há hash na URL (formato: #/event-details/id)
     if (hash) {

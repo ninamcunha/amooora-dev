@@ -7,6 +7,33 @@ export interface SignUpData {
   pronouns?: string;
 }
 
+/**
+ * Obtém a URL base do site (produção ou desenvolvimento)
+ */
+function getSiteUrl(): string {
+  // Se estiver em produção (Vercel), usar a URL do Vercel
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    
+    // Verificar se está em produção (Vercel)
+    if (hostname.includes('vercel.app') || hostname.includes('amooora')) {
+      return `${window.location.protocol}//${window.location.host}`;
+    }
+    
+    // Se houver variável de ambiente para URL do site, usar ela
+    const siteUrl = import.meta.env.VITE_SITE_URL;
+    if (siteUrl) {
+      return siteUrl;
+    }
+    
+    // Fallback: usar a URL atual
+    return `${window.location.protocol}//${window.location.host}`;
+  }
+  
+  // Fallback para SSR ou ambiente sem window
+  return import.meta.env.VITE_SITE_URL || 'https://amooora-dev.vercel.app';
+}
+
 export interface SignInData {
   email: string;
   password: string;
@@ -17,11 +44,18 @@ export interface SignInData {
  */
 export async function signUp(data: SignUpData) {
   try {
+    // Obter URL base do site para redirecionamento após verificação de email
+    const siteUrl = getSiteUrl();
+    const redirectTo = `${siteUrl}/#/login?verified=true`;
+    
+    console.log('🔗 URL de redirecionamento configurada:', redirectTo);
+    
     // 1. Cria o usuário no Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
+        emailRedirectTo: redirectTo,
         data: {
           name: data.name,
           pronouns: data.pronouns || null,
