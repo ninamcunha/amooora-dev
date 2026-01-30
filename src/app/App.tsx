@@ -34,7 +34,8 @@ import { AdminConteudosDesativados } from './pages/AdminConteudosDesativados';
 import { ViewProfile } from './pages/ViewProfile';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('welcome');
+  // TEMPORARIAMENTE: começar na home ao invés de welcome
+  const [currentPage, setCurrentPage] = useState('home'); // Era 'welcome'
   const [previousPage, setPreviousPage] = useState('home');
   const [selectedPlaceId, setSelectedPlaceId] = useState<string | undefined>(undefined);
   const [selectedEventId, setSelectedEventId] = useState<string | undefined>(undefined);
@@ -46,10 +47,13 @@ export default function App() {
 
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
 
-  // Autenticação: site fechado (MVP)
-  // Verificar localStorage primeiro para evitar "piscar" na tela de login
-  const [authLoading, setAuthLoading] = useState(true);
+  // Autenticação: TEMPORARIAMENTE DESABILITADA - permitir navegação sem login
+  // TODO: Reativar autenticação quando necessário
+  const [authLoading, setAuthLoading] = useState(false); // Não carregar mais
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // TEMPORARIAMENTE: sempre retornar false para permitir navegação sem login
+    return false;
+    /* CÓDIGO ORIGINAL COMENTADO - REATIVAR QUANDO NECESSÁRIO
     // Verificação otimista: verificar se há sessão no localStorage do Supabase
     // Isso evita o "piscar" enquanto a sessão está sendo carregada
     try {
@@ -86,9 +90,11 @@ export default function App() {
     } catch {
       return false;
     }
+    */
   });
   const { isAdmin, isAdminGeral, status: accessStatus, loading: accessLoading } = useAdmin();
 
+  // TEMPORARIAMENTE: tornar todas as páginas públicas
   const publicPages = useMemo(
     () =>
       new Set([
@@ -96,11 +102,41 @@ export default function App() {
         'login',
         'cadastro',
         'splash',
+        'home',
+        'places',
+        'services',
+        'events',
+        'community',
+        'mapa',
+        'perfil',
+        'edit-profile',
+        'favoritos',
+        'configuracoes',
+        'notificacoes',
+        'sobre-amooora',
+        'place-details',
+        'event-details',
+        'service-details',
+        'post-details',
+        'community-details',
+        'event-participants',
+        'view-profile',
+        'create-review',
+        'minhas-comunidades',
+        'minhas-publicacoes',
+        // Adicionar todas as outras páginas aqui se necessário
       ]),
     []
   );
 
+  // TEMPORARIAMENTE: desabilitar carregamento de sessão
+  // TODO: Reativar quando necessário
   useEffect(() => {
+    // Não carregar sessão - permitir navegação livre
+    setAuthLoading(false);
+    return;
+    
+    /* CÓDIGO ORIGINAL COMENTADO - REATIVAR QUANDO NECESSÁRIO
     let isMounted = true;
     let abortController: AbortController | null = null;
 
@@ -167,6 +203,7 @@ export default function App() {
       }
       subscription.unsubscribe();
     };
+    */
   }, []);
 
   // Detectar URL ao carregar a página e navegar para a página correta
@@ -294,6 +331,9 @@ export default function App() {
   const handleNavigate = (page: string) => {
     console.log('🧭 handleNavigate chamado:', { page, authLoading, isAuthenticated, isPublic: publicPages.has(page) });
     
+    // TEMPORARIAMENTE: remover gate de acesso - permitir navegação livre
+    // TODO: Reativar quando necessário
+    /* CÓDIGO ORIGINAL COMENTADO - REATIVAR QUANDO NECESSÁRIO
     // Gate de acesso: site fechado
     if (!authLoading && !isAuthenticated && !publicPages.has(page)) {
       console.log('🚫 Acesso negado - redirecionando para welcome');
@@ -301,6 +341,7 @@ export default function App() {
       setCurrentPage('welcome');
       return;
     }
+    */
 
     console.log('✅ Navegação permitida para:', page);
     setPreviousPage(currentPage);
@@ -390,6 +431,9 @@ export default function App() {
       }
       // Renderizar a página pública normalmente
     } else {
+      // TEMPORARIAMENTE: permitir acesso a todas as páginas sem autenticação
+      // TODO: Reativar verificação quando necessário
+      /* CÓDIGO ORIGINAL COMENTADO - REATIVAR QUANDO NECESSÁRIO
       // Para páginas privadas: se temos indicação otimista de autenticação,
       // manter a página atual durante o loading para evitar "piscar"
       if (authLoading || accessLoading) {
@@ -409,6 +453,7 @@ export default function App() {
       if (!authLoading && !accessLoading && !isAuthenticated) {
         return <Welcome onNavigate={handleNavigate} />;
       }
+      */
     }
 
     // Usuária bloqueada/inativa: impedir uso do app
