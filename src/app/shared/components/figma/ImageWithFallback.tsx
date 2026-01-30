@@ -7,10 +7,27 @@ export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElemen
   const [didError, setDidError] = useState(false)
 
   const handleError = () => {
+    console.error('❌ [ImageWithFallback] Erro ao carregar imagem:', props.src);
     setDidError(true)
   }
 
   const { src, alt, style, className, ...rest } = props
+
+  // Se não houver src, mostrar placeholder
+  if (!src) {
+    return (
+      <div
+        className={`inline-block bg-gray-100 text-center align-middle ${className ?? ''}`}
+        style={style}
+      >
+        <div className="flex items-center justify-center w-full h-full">
+          <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center text-gray-600 text-xs">
+            Sem foto
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return didError ? (
     <div
