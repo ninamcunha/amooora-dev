@@ -182,12 +182,18 @@ export function Perfil({ onNavigate }: PerfilProps) {
           <div className="px-5 pt-6 pb-4">
             {/* Avatar centralizado */}
             <div className="flex justify-center mb-4">
-              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200">
-                <ImageWithFallback
-                  src={profile.avatar}
-                  alt={profile.name}
-                  className="w-full h-full object-cover"
-                />
+              <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-200 bg-gray-100">
+                {profile.avatar ? (
+                  <ImageWithFallback
+                    src={profile.avatar}
+                    alt={profile.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#932d6f] to-[#dca0c8] text-white text-2xl font-bold">
+                    {profile.name?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                )}
               </div>
             </div>
 
