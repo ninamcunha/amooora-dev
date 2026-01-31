@@ -98,12 +98,23 @@ export const useProfile = () => {
         // Aguardar um pouco antes de recarregar para garantir que o banco processou
         setTimeout(() => {
           loadProfile();
-        }, 1000);
+        }, 1500);
       }
     });
 
+    // Listener para evento customizado de atualização de perfil
+    const handleProfileUpdate = () => {
+      console.log('🔄 [useProfile] Evento profile-updated recebido, recarregando perfil...');
+      setTimeout(() => {
+        loadProfile();
+      }, 500);
+    };
+
+    window.addEventListener('profile-updated', handleProfileUpdate);
+
     return () => {
       subscription.unsubscribe();
+      window.removeEventListener('profile-updated', handleProfileUpdate);
     };
   }, []);
 

@@ -176,20 +176,48 @@ export function Cadastro({ onNavigate }: CadastroProps) {
             
             // Atualizar o perfil com a URL da foto
             const { supabase } = await import('../infra/supabase');
-            const { data: updateData, error: updateError } = await supabase
-              .from('profiles')
-              .update({ avatar: uploadResult.url })
-              .eq('id', result.user.id)
-              .select()
-              .single();
             
-            if (updateError) {
-              console.error('❌ Erro ao atualizar perfil com avatar:', updateError);
-            } else {
-              console.log('✅ Perfil atualizado com avatar:', updateData);
+            // Tentar atualizar algumas vezes para garantir que foi salvo
+            let updateSuccess = false;
+            let attempts = 0;
+            const maxAttempts = 3;
+            
+            while (!updateSuccess && attempts < maxAttempts) {
+              attempts++;
+              const { data: updateData, error: updateError } = await supabase
+                .from('profiles')
+                .update({ avatar: uploadResult.url })
+                .eq('id', result.user.id)
+                .select()
+                .single();
               
-              // Aguardar um pouco para garantir que o banco processou
-              await new Promise(resolve => setTimeout(resolve, 500));
+              if (updateError) {
+                console.error(`❌ Erro ao atualizar perfil com avatar (tentativa ${attempts}/${maxAttempts}):`, updateError);
+                if (attempts < maxAttempts) {
+                  // Aguardar antes de tentar novamente
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                }
+              } else {
+                console.log('✅ Perfil atualizado com avatar:', updateData);
+                updateSuccess = true;
+                
+                // Verificar se a atualização foi realmente salva
+                const { data: verifyData } = await supabase
+                  .from('profiles')
+                  .select('avatar')
+                  .eq('id', result.user.id)
+                  .single();
+                
+                console.log('🔍 Verificação do avatar salvo:', verifyData?.avatar);
+                
+                // Aguardar mais tempo para garantir que o banco processou e o cache foi atualizado
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Disparar evento customizado para forçar reload do perfil
+                window.dispatchEvent(new CustomEvent('profile-updated', { 
+                  detail: { userId: result.user.id } 
+                }));
+              }
             }
           }
         } catch (uploadError) {
@@ -201,8 +229,14 @@ export function Cadastro({ onNavigate }: CadastroProps) {
       // Cadastro realizado com sucesso!
       console.log('✅ Usuário criado com sucesso:', result.user);
       
-      // Aguardar um pouco para garantir que tudo foi processado
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Se houve upload de foto, aguardar mais tempo para garantir que tudo foi processado
+      const waitTime = avatarFile ? 2000 : 1000;
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      // Disparar evento SIGNED_IN manualmente para garantir que o hook detecte
+      window.dispatchEvent(new CustomEvent('auth-state-change', { 
+        detail: { event: 'SIGNED_IN' } 
+      }));
       
       // Navega para a página inicial
       onNavigate('home');
