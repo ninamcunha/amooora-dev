@@ -37,6 +37,20 @@ export function Perfil({ onNavigate }: PerfilProps) {
   const [followedCommunities, setFollowedCommunities] = useState<FollowedCommunity[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Recarregar perfil quando receber evento de atualização
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      console.log('🔄 [Perfil] Evento profile-updated recebido, recarregando perfil...');
+      refetchProfile();
+    };
+    
+    window.addEventListener('profile-updated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profile-updated', handleProfileUpdate);
+    };
+  }, [refetchProfile]);
+
   useEffect(() => {
     const loadProfileData = async () => {
       console.log('🔍 [Perfil] loadProfileData chamado, profile:', {
@@ -44,6 +58,9 @@ export function Perfil({ onNavigate }: PerfilProps) {
         name: profile?.name,
         avatar: profile?.avatar,
         hasAvatar: !!profile?.avatar,
+        avatarType: typeof profile?.avatar,
+        avatarLength: profile?.avatar?.length,
+        isUrl: profile?.avatar?.startsWith('http'),
       });
       
       if (!profile?.id) {
@@ -53,7 +70,12 @@ export function Perfil({ onNavigate }: PerfilProps) {
       }
 
       console.log('✅ [Perfil] Profile.id disponível:', profile.id);
-      console.log('📸 [Perfil] Avatar do perfil:', profile.avatar);
+      console.log('📸 [Perfil] Avatar do perfil:', {
+        avatar: profile.avatar,
+        hasAvatar: !!profile.avatar,
+        isUrl: profile.avatar?.startsWith('http'),
+        avatarType: typeof profile.avatar,
+      });
       console.log('📸 [Perfil] Avatar do perfil:', profile.avatar);
 
       try {

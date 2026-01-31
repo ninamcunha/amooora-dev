@@ -177,13 +177,22 @@ export function Cadastro({ onNavigate }: CadastroProps) {
             // Atualizar o perfil com a URL da foto
             const { supabase } = await import('../infra/supabase');
             
+            console.log('📝 [Cadastro] Atualizando perfil com avatar URL:', {
+              userId: result.user.id,
+              avatarUrl: uploadResult.url,
+              urlLength: uploadResult.url.length,
+              isUrl: uploadResult.url.startsWith('http'),
+            });
+            
             // Tentar atualizar algumas vezes para garantir que foi salvo
             let updateSuccess = false;
             let attempts = 0;
-            const maxAttempts = 3;
+            const maxAttempts = 5;
             
             while (!updateSuccess && attempts < maxAttempts) {
               attempts++;
+              console.log(`🔄 [Cadastro] Tentativa ${attempts}/${maxAttempts} de atualizar avatar...`);
+              
               const { data: updateData, error: updateError } = await supabase
                 .from('profiles')
                 .update({ avatar: uploadResult.url })
@@ -192,32 +201,70 @@ export function Cadastro({ onNavigate }: CadastroProps) {
                 .single();
               
               if (updateError) {
-                console.error(`❌ Erro ao atualizar perfil com avatar (tentativa ${attempts}/${maxAttempts}):`, updateError);
+                console.error(`❌ Erro ao atualizar perfil com avatar (tentativa ${attempts}/${maxAttempts}):`, {
+                  error: updateError,
+                  code: updateError.code,
+                  message: updateError.message,
+                  details: updateError.details,
+                });
                 if (attempts < maxAttempts) {
                   // Aguardar antes de tentar novamente
-                  await new Promise(resolve => setTimeout(resolve, 500));
+                  await new Promise(resolve => setTimeout(resolve, 1000));
                 }
               } else {
-                console.log('✅ Perfil atualizado com avatar:', updateData);
+                console.log('✅ [Cadastro] Perfil atualizado com avatar:', {
+                  id: updateData?.id,
+                  avatar: updateData?.avatar,
+                  avatarLength: updateData?.avatar?.length,
+                });
+                
+                // Verificar se a atualização foi realmente salva (múltiplas verificações)
+                let verified = false;
+                for (let verifyAttempt = 0; verifyAttempt < 3; verifyAttempt++) {
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  
+                  const { data: verifyData, error: verifyError } = await supabase
+                    .from('profiles')
+                    .select('avatar')
+                    .eq('id', result.user.id)
+                    .single();
+                  
+                  console.log(`🔍 [Cadastro] Verificação ${verifyAttempt + 1}/3 do avatar salvo:`, {
+                    avatar: verifyData?.avatar,
+                    matches: verifyData?.avatar === uploadResult.url,
+                    error: verifyError,
+                  });
+                  
+                  if (verifyData?.avatar === uploadResult.url) {
+                    verified = true;
+                    break;
+                  }
+                }
+                
+                if (!verified) {
+                  console.warn('⚠️ [Cadastro] Avatar não foi verificado corretamente após múltiplas tentativas');
+                }
+                
                 updateSuccess = true;
                 
-                // Verificar se a atualização foi realmente salva
-                const { data: verifyData } = await supabase
-                  .from('profiles')
-                  .select('avatar')
-                  .eq('id', result.user.id)
-                  .single();
-                
-                console.log('🔍 Verificação do avatar salvo:', verifyData?.avatar);
-                
                 // Aguardar mais tempo para garantir que o banco processou e o cache foi atualizado
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 2000));
                 
-                // Disparar evento customizado para forçar reload do perfil
-                window.dispatchEvent(new CustomEvent('profile-updated', { 
-                  detail: { userId: result.user.id } 
-                }));
+                // Disparar evento customizado para forçar reload do perfil (múltiplas vezes)
+                console.log('📢 [Cadastro] Disparando eventos profile-updated...');
+                for (let i = 0; i < 5; i++) {
+                  setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('profile-updated', { 
+                      detail: { userId: result.user.id, attempt: i + 1 } 
+                    }));
+                    console.log(`📢 [Cadastro] Evento profile-updated disparado (${i + 1}/5)`);
+                  }, i * 800);
+                }
               }
+            }
+            
+            if (!updateSuccess) {
+              console.error('❌ [Cadastro] Falha ao atualizar avatar após todas as tentativas');
             }
           }
         } catch (uploadError) {
@@ -230,7 +277,7 @@ export function Cadastro({ onNavigate }: CadastroProps) {
       console.log('✅ Usuário criado com sucesso:', result.user);
       
       // Se houve upload de foto, aguardar mais tempo para garantir que tudo foi processado
-      const waitTime = avatarFile ? 2000 : 1000;
+      const waitTime = avatarFile ? 3000 : 1000;
       await new Promise(resolve => setTimeout(resolve, waitTime));
       
       // Disparar evento SIGNED_IN manualmente para garantir que o hook detecte

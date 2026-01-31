@@ -68,14 +68,22 @@ export const useProfile = () => {
         name: data.name,
         avatar: data.avatar,
         hasAvatar: !!data.avatar,
+        avatarType: typeof data.avatar,
+        avatarLength: data.avatar?.length,
+        isUrl: data.avatar?.startsWith('http'),
       });
+
+      // Garantir que avatar seja uma string válida ou undefined
+      const avatarValue = data.avatar && typeof data.avatar === 'string' && data.avatar.trim() 
+        ? data.avatar.trim() 
+        : undefined;
 
       setProfile({
         id: data.id,
         name: data.name,
         email: data.email,
         username: username,
-        avatar: data.avatar || undefined,
+        avatar: avatarValue,
         phone: data.phone || undefined,
         bio: data.bio || undefined,
         pronouns: data.pronouns || undefined,

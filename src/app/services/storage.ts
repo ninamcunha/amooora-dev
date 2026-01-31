@@ -111,13 +111,28 @@ export async function uploadImage(
       .from(finalBucketName)
       .getPublicUrl(filePath);
 
+    console.log('🔗 [storage] URL pública gerada:', {
+      bucket: finalBucketName,
+      filePath,
+      publicUrl: urlData?.publicUrl,
+      hasPublicUrl: !!urlData?.publicUrl,
+      urlLength: urlData?.publicUrl?.length,
+    });
+
     if (!urlData?.publicUrl) {
+      console.error('❌ [storage] Erro: URL pública não foi gerada');
       return {
         url: '',
         path: filePath,
         error: 'Erro ao obter URL pública da imagem',
       };
     }
+
+    console.log('✅ [storage] Upload concluído com sucesso:', {
+      url: urlData.publicUrl,
+      path: filePath,
+      bucket: finalBucketName,
+    });
 
     return {
       url: urlData.publicUrl,

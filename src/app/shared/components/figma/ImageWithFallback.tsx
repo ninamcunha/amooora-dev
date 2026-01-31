@@ -6,15 +6,23 @@ const ERROR_IMG_SRC =
 export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElement>) {
   const [didError, setDidError] = useState(false)
 
-  const handleError = () => {
-    console.error('❌ [ImageWithFallback] Erro ao carregar imagem:', props.src);
-    setDidError(true)
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const img = e.currentTarget;
+    console.error('❌ [ImageWithFallback] Erro ao carregar imagem:', {
+      src: props.src,
+      attemptedSrc: img.src,
+      naturalWidth: img.naturalWidth,
+      naturalHeight: img.naturalHeight,
+      complete: img.complete,
+    });
+    setDidError(true);
   }
 
   const { src, alt, style, className, ...rest } = props
 
   // Se não houver src, mostrar placeholder
-  if (!src) {
+  if (!src || src === 'null' || src === 'undefined') {
+    console.log('⚠️ [ImageWithFallback] src inválido:', { src, type: typeof src });
     return (
       <div
         className={`inline-block bg-gray-100 text-center align-middle ${className ?? ''}`}
@@ -28,6 +36,13 @@ export function ImageWithFallback(props: React.ImgHTMLAttributes<HTMLImageElemen
       </div>
     )
   }
+  
+  // Log quando a imagem for renderizada
+  console.log('🖼️ [ImageWithFallback] Renderizando imagem:', {
+    src,
+    alt,
+    isUrl: src.startsWith('http'),
+  });
 
   return didError ? (
     <div
