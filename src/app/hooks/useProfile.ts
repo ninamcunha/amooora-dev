@@ -103,11 +103,18 @@ export const useProfile = () => {
     });
 
     // Listener para evento customizado de atualização de perfil
-    const handleProfileUpdate = () => {
-      console.log('🔄 [useProfile] Evento profile-updated recebido, recarregando perfil...');
+    const handleProfileUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      console.log('🔄 [useProfile] Evento profile-updated recebido, recarregando perfil...', {
+        userId: customEvent.detail?.userId,
+      });
+      
+      // Recarregar imediatamente e depois novamente após um delay para garantir
+      loadProfile();
       setTimeout(() => {
+        console.log('🔄 [useProfile] Segundo reload após evento...');
         loadProfile();
-      }, 500);
+      }, 1000);
     };
 
     window.addEventListener('profile-updated', handleProfileUpdate);
