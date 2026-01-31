@@ -150,7 +150,12 @@ export function Cadastro({ onNavigate }: CadastroProps) {
       });
 
       if (result.error) {
-        setSubmitError(result.error);
+        // Melhorar mensagem de erro para rate limit
+        let errorMessage = result.error;
+        if (result.error.includes('rate limit') || result.error.includes('Limite de envio')) {
+          errorMessage = 'Limite de envio de emails atingido. Por favor, aguarde alguns minutos antes de tentar novamente ou use um email diferente.';
+        }
+        setSubmitError(errorMessage);
         setIsLoading(false);
         return;
       }
@@ -289,7 +294,18 @@ export function Cadastro({ onNavigate }: CadastroProps) {
       onNavigate('home');
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
-      setSubmitError('Erro ao criar conta. Tente novamente.');
+      // Melhorar mensagem de erro
+      let errorMessage = 'Erro ao criar conta. Tente novamente.';
+      if (error instanceof Error) {
+        if (error.message.includes('rate limit') || error.message.includes('Limite de envio')) {
+          errorMessage = 'Limite de envio de emails atingido. Por favor, aguarde alguns minutos antes de tentar novamente ou use um email diferente.';
+        } else if (error.message.includes('User already registered')) {
+          errorMessage = 'Este email já está cadastrado. Tente fazer login ou use outro email.';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      setSubmitError(errorMessage);
     } finally {
       setIsLoading(false);
     }

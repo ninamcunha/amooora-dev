@@ -64,7 +64,20 @@ export async function signUp(data: SignUpData) {
     });
 
     if (authError) {
-      throw new Error(`Erro ao criar conta: ${authError.message}`);
+      // Mensagens de erro mais amigáveis
+      let errorMessage = authError.message;
+      
+      if (authError.message.includes('email rate limit exceeded') || authError.message.includes('rate limit')) {
+        errorMessage = 'Limite de envio de emails atingido. Por favor, aguarde alguns minutos antes de tentar novamente ou use um email diferente.';
+      } else if (authError.message.includes('User already registered')) {
+        errorMessage = 'Este email já está cadastrado. Tente fazer login ou use outro email.';
+      } else if (authError.message.includes('Password')) {
+        errorMessage = 'A senha não atende aos requisitos de segurança.';
+      } else if (authError.message.includes('Invalid email')) {
+        errorMessage = 'Email inválido. Verifique o formato do email.';
+      }
+      
+      throw new Error(`Erro ao criar conta: ${errorMessage}`);
     }
 
     if (!authData.user) {
