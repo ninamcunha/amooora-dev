@@ -61,7 +61,7 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
   const handleProfileClick = () => {
     if (isAuthenticated) {
       // Se autenticado, navegar para perfil
-      onNavigate?.('perfil');
+      onNavigate?.('profile');
     } else {
       // Se não autenticado, abrir modal
       setIsAuthModalOpen(true);
