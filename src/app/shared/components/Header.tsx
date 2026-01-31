@@ -91,13 +91,20 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin: isAdminPro
     if (page === 'logout') {
       // Fazer logout completo
       try {
+        console.log('🚪 Fazendo logout...');
         await supabase.auth.signOut();
-        // Navegar para welcome após logout
-        onNavigate?.('welcome');
+        console.log('✅ Logout realizado com sucesso');
+        
+        // Atualizar estado de autenticação
+        setIsAuthenticated(false);
+        
+        // Navegar para home após logout
+        onNavigate?.('home');
       } catch (error) {
-        console.error('Erro ao fazer logout:', error);
-        // Mesmo com erro, tentar navegar para welcome
-        onNavigate?.('welcome');
+        console.error('❌ Erro ao fazer logout:', error);
+        // Mesmo com erro, tentar navegar para home
+        setIsAuthenticated(false);
+        onNavigate?.('home');
       }
     } else {
       onNavigate?.(page);
