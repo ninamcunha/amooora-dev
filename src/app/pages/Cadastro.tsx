@@ -317,7 +317,7 @@ export function Cadastro({ onNavigate }: CadastroProps) {
         {/* Header */}
         <div className="px-5 py-4 flex items-center justify-between border-b border-border">
           <button
-            onClick={() => step === 1 ? onNavigate('welcome') : setStep(1)}
+            onClick={() => step === 1 ? onNavigate('home') : setStep(1)}
             className="w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
