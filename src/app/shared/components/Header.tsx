@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info, Map, LogOut, FileText } from 'lucide-react';
 import logoAmooora from "../../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 import { supabase } from '../../infra/supabase';
+import { AuthModal } from './AuthModal';
 
 interface HeaderProps {
   onNavigate?: (page: string) => void;
@@ -12,7 +13,33 @@ interface HeaderProps {
 
 export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Verificar se usuário está autenticado
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setIsAuthenticated(!!session);
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listener para mudanças na autenticação
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // Fechar menu ao clicar fora
   useEffect(() => {
@@ -30,6 +57,16 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMenuOpen]);
+
+  const handleProfileClick = () => {
+    if (isAuthenticated) {
+      // Se autenticado, navegar para perfil
+      onNavigate?.('perfil');
+    } else {
+      // Se não autenticado, abrir modal
+      setIsAuthModalOpen(true);
+    }
+  };
 
   const handleMenuClick = async (page: string) => {
     if (page === 'logout') {
@@ -100,7 +137,7 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
 
           {/* Botão de Perfil */}
           <button 
-            onClick={() => onNavigate?.('profile')}
+            onClick={handleProfileClick}
             className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/90 transition-colors"
           >
             <UserPen className="w-5 h-5 text-white" />
@@ -155,6 +192,14 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: 
           </div>
         </div>
       </div>
+
+      {/* Modal de Autenticação */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLogin={() => onNavigate?.('login')}
+        onSignUp={() => onNavigate?.('cadastro')}
+      />
     </header>
   );
 }
