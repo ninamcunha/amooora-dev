@@ -3,6 +3,7 @@ import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home
 import logoAmooora from "../../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 import { supabase } from '../../infra/supabase';
 import { AuthModal } from './AuthModal';
+import { useAdmin } from '../hooks/useAdmin';
 
 interface HeaderProps {
   onNavigate?: (page: string) => void;
@@ -11,11 +12,29 @@ interface HeaderProps {
   isAdmin?: boolean;
 }
 
-export function Header({ onNavigate, showBackButton, onBack, isAdmin = false }: HeaderProps) {
+export function Header({ onNavigate, showBackButton, onBack, isAdmin: isAdminProp = false }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  
+  // Verificar permissões de admin usando o hook
+  const { isAdmin: isAdminFromHook, loading: adminLoading } = useAdmin();
+  
+  // Usar o hook se disponível, senão usar a prop (para compatibilidade)
+  const isAdmin = isAdminFromHook || isAdminProp;
+  
+  // Debug: log para verificar se admin está sendo detectado
+  useEffect(() => {
+    if (!adminLoading) {
+      console.log('🔐 [Header] Status de admin:', {
+        isAdminFromHook,
+        isAdminProp,
+        isAdmin,
+        adminLoading,
+      });
+    }
+  }, [isAdminFromHook, isAdminProp, isAdmin, adminLoading]);
 
   // Verificar se usuário está autenticado
   useEffect(() => {
