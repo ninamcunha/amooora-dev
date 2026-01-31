@@ -1,7 +1,7 @@
 import { Heart, Star, Check, Share2, Flag, UserPlus, MapPin, MessageCircle, Send } from 'lucide-react';
-import { useFavorites, usePlaceReviews } from '../../../shared/hooks';
+import { useFavorites, usePlaceReviews, useAuth } from '../../../shared/hooks';
 import { useState, useEffect } from 'react';
-import { ImageWithFallback, Header, BottomNav } from '../../../shared/components';
+import { ImageWithFallback, Header, BottomNav, AuthTooltip } from '../../../shared/components';
 import { usePlace } from '../hooks/usePlaces';
 import { Review } from '../../../shared/types';
 import { calculateAverageRating } from '../../../shared/services';
@@ -22,11 +22,40 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
   const { place, loading, error } = usePlace(placeId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = usePlaceReviews(placeId);
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { isAuthenticated } = useAuth();
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [showAuthTooltip, setShowAuthTooltip] = useState(false);
   
   const favorite = placeId ? isFavorite('places', placeId) : false;
   const [shareSuccess, setShareSuccess] = useState(false);
+
+  const handleFavoriteClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+    if (placeId) {
+      toggleFavorite('places', placeId);
+    }
+  };
+
+  const handleReviewClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+    if (placeId) {
+      onNavigate?.(`create-review:place:${placeId}`);
+    }
+  };
+
+  const handleReplyClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+  };
 
   const handleShare = async () => {
     if (!place || !placeId) return;
@@ -200,7 +229,7 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
                 )}
               </div>
               <button 
-                onClick={() => placeId && toggleFavorite('places', placeId)}
+                onClick={handleFavoriteClick}
                 className="p-1"
               >
                 <Heart className={`w-6 h-6 transition-colors ${
@@ -240,7 +269,7 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
           <div className="bg-[#fffbfa] px-4 py-3">
             <div className="flex gap-2 overflow-x-auto">
               <button 
-                onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
+                onClick={handleReviewClick}
                 className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
               >
                 <Check className="w-4 h-4" />
@@ -280,11 +309,21 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
                 <ReviewItem 
                   key={review.id} 
                   review={review}
-                  onReply={(id) => setReplyingTo(replyingTo === id ? null : id)}
+                  onReply={(id) => {
+                    if (!isAuthenticated) {
+                      setShowAuthTooltip(true);
+                      return;
+                    }
+                    setReplyingTo(replyingTo === id ? null : id);
+                  }}
                   replyingTo={replyingTo}
                   replyText={replyText}
                   onReplyTextChange={setReplyText}
                   onSendReply={(id) => {
+                    if (!isAuthenticated) {
+                      setShowAuthTooltip(true);
+                      return;
+                    }
                     console.log('Resposta:', { reviewId: id, text: replyText });
                     setReplyText('');
                     setReplyingTo(null);
@@ -307,13 +346,13 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
             />
             <button
-              onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
+              onClick={handleReviewClick}
               className="flex-1 px-4 py-2 bg-muted rounded-full border-0 text-left text-sm text-muted-foreground hover:bg-muted/80 transition-colors cursor-pointer"
             >
               Escreva uma avaliação...
             </button>
             <button
-              onClick={() => placeId && onNavigate?.(`create-review:place:${placeId}`)}
+              onClick={handleReviewClick}
               className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
               title="Criar avaliação completa"
             >
@@ -324,6 +363,13 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
 
         <BottomNav activeItem="places" onItemClick={onNavigate} />
       </div>
+      
+      {showAuthTooltip && (
+        <AuthTooltip
+          onClose={() => setShowAuthTooltip(false)}
+          onNavigate={onNavigate}
+        />
+      )}
     </div>
   );
 }

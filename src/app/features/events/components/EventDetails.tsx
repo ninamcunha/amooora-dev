@@ -1,11 +1,11 @@
 import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, Star, User, MessageCircle, CheckCircle2, Send, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { ImageWithFallback } from '../../../shared/components';
+import { ImageWithFallback, AuthTooltip } from '../../../shared/components';
 import { Header } from '../../../shared/components';
 import { BottomNav } from '../../../shared/components';
 import { InteractiveMap } from '../../../components/InteractiveMap';
 import { useEvent } from '../hooks/useEvents';
-import { useEventReviews } from '../../../shared/hooks';
+import { useEventReviews, useAuth } from '../../../shared/hooks';
 import { useEventInteractions } from '../hooks/useEventInteractions';
 import { useEventParticipants } from '../hooks/useEventParticipants';
 import { Review } from '../../../shared/types';
@@ -28,6 +28,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   const { event, loading, error } = useEvent(eventId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useEventReviews(eventId);
   const { participants, count: participantsCount, loading: participantsLoading, refetch: refetchParticipants } = useEventParticipants(eventId);
+  const { isAuthenticated } = useAuth();
   const { isInterested, isAttended, toggleInterest, toggleAttendance } = useEventInteractions(eventId, {
     onInterestChange: () => {
       // Recarregar lista de participantes após mudança de interesse
@@ -47,6 +48,33 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   const [geocodingLoading, setGeocodingLoading] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [showAuthTooltip, setShowAuthTooltip] = useState(false);
+
+  const handleInterestClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+    toggleInterest();
+  };
+
+  const handleAttendanceClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+    toggleAttendance();
+  };
+
+  const handleReviewClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+    if (eventId) {
+      onNavigate?.(`create-review:event:${eventId}`);
+    }
+  };
 
   const handleShare = async () => {
     if (!event || !eventId) return;
@@ -495,7 +523,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                 Denunciar
               </button>
               <button 
-                onClick={toggleInterest}
+                onClick={handleInterestClick}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
                   isInterested
                     ? 'bg-[#E5D5F0] text-[#932d6f] border-[#932d6f]/30'
@@ -506,7 +534,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                 {isInterested ? 'Confirmado' : 'Tenho interesse'}
               </button>
               <button 
-                onClick={toggleAttendance}
+                onClick={handleAttendanceClick}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
                   isAttended
                     ? 'bg-green-100 text-green-700 border-green-300'
@@ -537,11 +565,21 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                 <ReviewItem 
                   key={review.id} 
                   review={review}
-                  onReply={(id) => setReplyingTo(replyingTo === id ? null : id)}
+                  onReply={(id) => {
+                    if (!isAuthenticated) {
+                      setShowAuthTooltip(true);
+                      return;
+                    }
+                    setReplyingTo(replyingTo === id ? null : id);
+                  }}
                   replyingTo={replyingTo}
                   replyText={replyText}
                   onReplyTextChange={setReplyText}
                   onSendReply={(id) => {
+                    if (!isAuthenticated) {
+                      setShowAuthTooltip(true);
+                      return;
+                    }
                     // Respostas serão implementadas depois quando tiver sistema de comentários completo
                     console.log('Resposta:', { reviewId: id, text: replyText });
                     setReplyText('');
@@ -566,13 +604,13 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
               className="w-10 h-10 rounded-full object-cover flex-shrink-0"
             />
             <button
-              onClick={() => eventId && onNavigate?.(`create-review:event:${eventId}`)}
+              onClick={handleReviewClick}
               className="flex-1 px-4 py-2 bg-muted rounded-full border-0 text-left text-sm text-muted-foreground hover:bg-muted/80 transition-colors cursor-pointer"
             >
               Escreva uma avaliação...
             </button>
             <button
-              onClick={() => eventId && onNavigate?.(`create-review:event:${eventId}`)}
+              onClick={handleReviewClick}
               className="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
               title="Criar avaliação completa"
             >
@@ -585,6 +623,13 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
         {/* Navegação inferior fixa */}
         <BottomNav activeItem="events" onItemClick={onNavigate!} />
       </div>
+      
+      {showAuthTooltip && (
+        <AuthTooltip
+          onClose={() => setShowAuthTooltip(false)}
+          onNavigate={onNavigate}
+        />
+      )}
     </div>
   );
 }
