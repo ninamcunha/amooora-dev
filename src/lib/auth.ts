@@ -51,11 +51,15 @@ export async function signUp(data: SignUpData) {
     console.log('🔗 URL de redirecionamento configurada:', redirectTo);
     
     // 1. Cria o usuário no Supabase Auth
+    // Nota: Se a verificação de email estiver desabilitada no Supabase Dashboard,
+    // o usuário será criado automaticamente sem precisar confirmar o email
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
         emailRedirectTo: redirectTo,
+        // Se a verificação de email estiver desabilitada, o usuário já fica autenticado
+        // Caso contrário, precisará confirmar o email primeiro
         data: {
           name: data.name,
           pronouns: data.pronouns || null,
