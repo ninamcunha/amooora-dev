@@ -291,10 +291,14 @@ export function AdminGerenciarUsuarios({ onNavigate }: AdminGerenciarUsuariosPro
                       </button>
 
                       <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 truncate">
+                        <button
+                          onClick={() => onNavigate(`view-profile:${u.id}`)}
+                          className="font-semibold text-gray-900 truncate text-left hover:text-primary transition-colors w-full"
+                          title="Ver perfil da usuária"
+                        >
                           {u.name || 'Sem nome'}
                           {disabledSelf ? ' (você)' : ''}
-                        </p>
+                        </button>
                         <p className="text-xs text-gray-600 truncate">{u.email || 'Sem email'}</p>
                         <p className="text-[10px] text-gray-400 break-all mt-1">{u.id}</p>
                       </div>
