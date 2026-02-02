@@ -1,4 +1,4 @@
-import { Calendar, Clock, MapPin, Users, Heart, Share2, Flag, Star, User, MessageCircle, CheckCircle2, Send, ChevronRight } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Heart, Share2, Star, User, MessageCircle, CheckCircle2, Send, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { ImageWithFallback, AuthTooltip } from '../../../shared/components';
 import { Header } from '../../../shared/components';
@@ -517,10 +517,6 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
               >
                 <Share2 className="w-4 h-4" />
                 {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
-              </button>
-              <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors border border-[#932d6f]/10">
-                <Flag className="w-4 h-4" />
-                Denunciar
               </button>
               <button 
                 onClick={handleInterestClick}

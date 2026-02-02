@@ -32,6 +32,7 @@ import { AdminGerenciarUsuarios } from './pages/AdminGerenciarUsuarios';
 import { MinhasPublicacoes } from './pages/MinhasPublicacoes';
 import { AdminConteudosDesativados } from './pages/AdminConteudosDesativados';
 import { ViewProfile } from './pages/ViewProfile';
+import { FaleConosco } from './pages/FaleConosco';
 
 export default function App() {
   // TEMPORARIAMENTE: começar na home ao invés de welcome
@@ -653,6 +654,13 @@ export default function App() {
         return isAdmin ? <AdminEditarComunidade communityId={selectedServiceId} onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
       case 'admin-conteudos-desativados':
         return isAdmin ? <AdminConteudosDesativados onNavigate={handleNavigate} /> : <Home onNavigate={handleNavigate} />;
+      case 'fale-conosco':
+        return (
+          <FaleConosco 
+            onNavigate={handleNavigate}
+            onBack={() => setCurrentPage('home')}
+          />
+        );
       case 'sobre-amooora':
         return (
           <SobreAmooora 

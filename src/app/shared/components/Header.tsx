@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info, Map, LogOut, FileText } from 'lucide-react';
+import { Bell, UserPen, ArrowLeft, Users, Settings, Heart, Search, Menu, X, Home, MapPin, Calendar, Scissors, MessageSquare, Info, Map, LogOut, FileText, Mail } from 'lucide-react';
 import logoAmooora from "../../../assets/2bcf17d7cfb76a60c14cf40243974d7d28fb3842.png";
 import { supabase } from '../../infra/supabase';
 import { AuthModal } from './AuthModal';
@@ -122,6 +122,7 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin: isAdminPro
     { icon: Heart, label: 'Meus Favoritos', page: 'favoritos' },
     { icon: FileText, label: 'Minhas Publicações', page: 'minhas-publicacoes' },
     ...(isAdmin ? [{ icon: Settings, label: 'Admin', page: 'admin' }] : []),
+    { icon: Mail, label: 'Fale Conosco', page: 'fale-conosco' },
     { icon: Info, label: 'Sobre Amooora', page: 'sobre-amooora' },
     { icon: LogOut, label: 'Sair', page: 'logout' },
   ];
