@@ -117,7 +117,7 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin: isAdminPro
     { icon: MapPin, label: 'Locais', page: 'places' },
     { icon: Calendar, label: 'Eventos', page: 'events' },
     { icon: Scissors, label: 'Serviços', page: 'services' },
-    { icon: MessageSquare, label: 'Comunidade', page: 'community' },
+    { icon: MessageSquare, label: 'Comunidade', page: 'todas-comunidades' },
     { icon: Map, label: 'Mapa', page: 'mapa' },
     // Mostrar "Meus Favoritos" e "Minhas Publicações" apenas se estiver logado
     ...(isAuthenticated ? [

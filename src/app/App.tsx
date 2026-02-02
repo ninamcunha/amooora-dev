@@ -33,6 +33,7 @@ import { MinhasPublicacoes } from './pages/MinhasPublicacoes';
 import { AdminConteudosDesativados } from './pages/AdminConteudosDesativados';
 import { ViewProfile } from './pages/ViewProfile';
 import { FaleConosco } from './pages/FaleConosco';
+import { TodasComunidades } from './pages/TodasComunidades';
 
 export default function App() {
   // TEMPORARIAMENTE: começar na home ao invés de welcome
@@ -108,6 +109,7 @@ export default function App() {
         'services',
         'events',
         'community',
+        'todas-comunidades',
         'mapa',
         'perfil',
         'edit-profile',
@@ -587,6 +589,8 @@ export default function App() {
         );
       case 'community':
         return <Comunidade onNavigate={handleNavigate} />;
+      case 'todas-comunidades':
+        return <TodasComunidades onNavigate={handleNavigate} />;
       case 'community-details':
         return (
           <CommunityDetails
