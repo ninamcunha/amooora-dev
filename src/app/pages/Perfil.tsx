@@ -613,12 +613,14 @@ export function Perfil({ onNavigate }: PerfilProps) {
                     className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10 cursor-pointer hover:bg-[#fff5f0] transition-colors"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="w-12 h-12 bg-[#932d6f] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0">
-                        <span className="text-xs font-medium">{event.date.split(' ')[1]}</span>
-                        <span className="text-lg font-bold">{event.date.split(' ')[0]}</span>
+                      {/* Badge de data - estilo roxo/rosa */}
+                      <div className="flex-shrink-0">
+                        <span className="bg-[#E5D5F0] text-[#932d6f] px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap">
+                          {event.date}
+                        </span>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-1">{event.name}</h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">{event.name}</h3>
                         <p className="text-sm text-gray-600 mb-1">{event.time} • {event.location}</p>
                         <span className="inline-block px-2 py-0.5 bg-[#F5EBFF] text-primary text-xs font-medium rounded-full">
                           Tenho Interesse
