@@ -311,11 +311,11 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
                 onClick={handleVisitClick}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
                   isVisited
-                    ? 'bg-green-100 text-green-700 border-green-300'
+                    ? 'bg-[#E5D5F0] text-[#932d6f] border-[#932d6f]/30'
                     : 'bg-[rgba(147,45,111,0.1)] text-[#932d6f] border-[#932d6f]/10 hover:bg-[rgba(147,45,111,0.2)]'
                 }`}
               >
-                <CheckCircle2 className={`w-4 h-4 ${isVisited ? 'text-green-700' : ''}`} />
+                <CheckCircle2 className={`w-4 h-4 ${isVisited ? 'text-[#932d6f]' : ''}`} />
                 {isVisited ? 'Já fui!' : 'Já fui'}
               </button>
               <button 

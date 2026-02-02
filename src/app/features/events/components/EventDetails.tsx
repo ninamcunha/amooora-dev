@@ -577,11 +577,11 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                 onClick={handleAttendanceClick}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
                   isAttended
-                    ? 'bg-green-100 text-green-700 border-green-300'
-                    : 'bg-[#F5EBFF] text-primary border-primary/10 hover:bg-green-50'
+                    ? 'bg-[#E5D5F0] text-[#932d6f] border-[#932d6f]/30'
+                    : 'bg-[#F5EBFF] text-primary border-primary/10 hover:bg-[#E5D5F0]'
                 }`}
               >
-                <CheckCircle2 className={`w-4 h-4 ${isAttended ? 'text-green-700' : ''}`} />
+                <CheckCircle2 className={`w-4 h-4 ${isAttended ? 'text-[#932d6f]' : ''}`} />
                 {isAttended ? 'Fui!' : 'Fui!!'}
               </button>
             </div>

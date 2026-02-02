@@ -336,7 +336,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
                         alt={place.name}
                         className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1">
+                      <div className="absolute top-2 right-2 bg-[#932d6f] rounded-full p-1">
                         <CheckCircle2 className="w-3 h-3 text-white" />
                       </div>
                     </div>
@@ -565,7 +565,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
                     onClick={() => onNavigate(`event-details:${event.event_id}`)}
                     className="bg-white rounded-xl p-3 border border-gray-100 flex items-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
                   >
-                    <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-[#932d6f] flex-shrink-0" />
                     <div className="flex-1">
                       <h3 className="font-medium text-sm text-gray-900">{event.name}</h3>
                       <p className="text-xs text-gray-500">{event.date} • {event.location}</p>
