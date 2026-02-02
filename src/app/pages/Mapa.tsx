@@ -194,12 +194,13 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
         }
 
         // Determinar status do evento
+        // Prioridade: participado > próximo (para evitar conflito)
         let eventStatus: 'upcoming' | 'attended' | undefined;
         if (isAuthenticated) {
-          if (upcomingEventIds.has(event.id)) {
-            eventStatus = 'upcoming';
-          } else if (attendedEventIds.has(event.id)) {
+          if (attendedEventIds.has(event.id)) {
             eventStatus = 'attended';
+          } else if (upcomingEventIds.has(event.id)) {
+            eventStatus = 'upcoming';
           }
         }
 
