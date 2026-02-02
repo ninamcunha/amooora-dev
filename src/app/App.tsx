@@ -267,7 +267,7 @@ export default function App() {
         } else if (pageType === 'post-details' && id) {
           setSelectedPostId(id);
           setCurrentPage('post-details');
-          setPreviousPage('community');
+          setPreviousPage('todas-comunidades');
           return;
         }
       }
@@ -298,7 +298,7 @@ export default function App() {
         } else if (pageType === 'post-details' && id) {
           setSelectedPostId(id);
           setCurrentPage('post-details');
-          setPreviousPage('community');
+          setPreviousPage('todas-comunidades');
           return;
         }
       }
@@ -326,7 +326,7 @@ export default function App() {
       } else if (pageType === 'post-details') {
         setSelectedPostId(id);
         setCurrentPage('post-details');
-        setPreviousPage('community');
+        setPreviousPage('todas-comunidades');
       }
     }
   }, []);
@@ -602,7 +602,7 @@ export default function App() {
             communityId={selectedCommunityId || ''}
             onNavigate={handleNavigate}
             onBack={() => {
-              setCurrentPage('community');
+              setCurrentPage('todas-comunidades');
               setSelectedCommunityId(undefined);
             }}
           />
@@ -611,7 +611,7 @@ export default function App() {
         return (
           <MinhasComunidades 
             onNavigate={handleNavigate}
-            onBack={() => setCurrentPage('community')}
+            onBack={() => setCurrentPage('todas-comunidades')}
           />
         );
       case 'post-details':
@@ -620,7 +620,7 @@ export default function App() {
             postId={selectedPostId || ''}
             onNavigate={handleNavigate}
             onBack={() => {
-              setCurrentPage('community');
+              setCurrentPage('todas-comunidades');
               setSelectedPostId(undefined);
             }}
           />
