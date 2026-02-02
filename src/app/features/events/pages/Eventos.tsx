@@ -1,4 +1,4 @@
-import { Calendar, Plus } from 'lucide-react';
+import { Calendar, Plus, SlidersHorizontal } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { Header, AuthModal } from '../../../shared/components';
 import { SearchBar } from '../../../shared/components';
@@ -11,6 +11,8 @@ import { SkeletonListExpanded } from '../../../shared/components';
 import { useEvents } from '../hooks/useEvents';
 import { useAdmin, useAuth } from '../../../shared/hooks';
 import { geocodeAddress } from '../../../shared/services';
+import { FilterModal, FilterOptions } from '../../../components/FilterModal';
+import { useFilterPreferences } from '../../../hooks/useFilterPreferences';
 
 const categories = ['Todos', 'Hoje', 'Semana', 'Gratuitos'];
 
@@ -22,11 +24,13 @@ export function Eventos({ onNavigate }: EventosProps) {
   const { events, loading, error } = useEvents();
   const { isAdmin } = useAdmin();
   const { isAuthenticated } = useAuth();
+  const { filters, updateFilters, clearFilters } = useFilterPreferences();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [geocodingCache, setGeocodingCache] = useState<Record<string, { lat: number; lng: number }>>({});
   const geocodingProcessedRef = useRef<Set<string>>(new Set());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   // Formatar data para exibição
   const formatDate = (dateString: string) => {
@@ -41,6 +45,31 @@ export function Eventos({ onNavigate }: EventosProps) {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
   };
+
+  // Função para extrair tags de eventos baseado na descrição e categoria
+  const getEventTags = useMemo(() => {
+    return (event: typeof events[0]): string[] => {
+      if (!event) return [];
+      
+      const tags: string[] = [];
+      const desc = (event.description || '').toLowerCase();
+      const category = (event.category || '').toLowerCase();
+      
+      // Tags baseadas em características
+      if (!event.price || event.price === 0) tags.push('gratuito');
+      if (desc.includes('ao ar livre') || desc.includes('ar livre') || desc.includes('exterior')) tags.push('ar-livre');
+      if (desc.includes('música') || desc.includes('show') || desc.includes('concerto') || category.includes('música')) tags.push('musica');
+      if (desc.includes('workshop') || desc.includes('oficina') || desc.includes('palestra')) tags.push('workshop');
+      if (desc.includes('networking') || desc.includes('conexão')) tags.push('networking');
+      if (desc.includes('cultural') || category.includes('cultural')) tags.push('cultural');
+      if (desc.includes('esporte') || desc.includes('esportivo') || category.includes('esporte')) tags.push('esportivo');
+      if (desc.includes('festa') || desc.includes('festival') || desc.includes('comemoração')) tags.push('festa');
+      if (desc.includes('comida') || desc.includes('gastronomia') || desc.includes('culinária')) tags.push('gastronomia');
+      if (desc.includes('arte') || desc.includes('artístico') || category.includes('arte')) tags.push('arte');
+      
+      return tags;
+    };
+  }, [events]);
 
   // Filtrar eventos por categoria e busca
   const filteredEvents = useMemo(() => {
@@ -93,8 +122,16 @@ export function Eventos({ onNavigate }: EventosProps) {
       );
     }
 
+    // Filtro por tags
+    if (filters.tags && filters.tags.length > 0) {
+      filtered = filtered.filter((event) => {
+        const eventTags = getEventTags(event);
+        return filters.tags!.some(tag => eventTags.includes(tag));
+      });
+    }
+
     return filtered;
-  }, [events, activeCategory, searchQuery]);
+  }, [events, activeCategory, searchQuery, filters, getEventTags]);
 
   // Converter Event para formato do EventCardExpanded
   const eventsForCards = useMemo(() => {
@@ -230,6 +267,22 @@ export function Eventos({ onNavigate }: EventosProps) {
             />
           </div>
 
+          {/* Contador e Filtros */}
+          {!loading && !error && (
+            <div className="px-5 mb-4 flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {filteredEvents.length} {filteredEvents.length === 1 ? 'evento encontrado' : 'eventos encontrados'}
+              </p>
+              <button
+                className="flex items-center gap-2 text-primary font-medium text-sm hover:text-primary/80 transition-colors"
+                onClick={() => setIsFilterModalOpen(true)}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                Filtros
+              </button>
+            </div>
+          )}
+
           {/* Loading */}
           {loading && (
             <div className="px-5 space-y-4 pb-6">
@@ -294,6 +347,17 @@ export function Eventos({ onNavigate }: EventosProps) {
         onClose={() => setIsAuthModalOpen(false)}
         onLogin={() => onNavigate('login')}
         onSignUp={() => onNavigate('cadastro')}
+      />
+
+      {/* Modal de Filtros */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        filters={filters}
+        onFiltersChange={updateFilters}
+        onApply={() => setIsFilterModalOpen(false)}
+        onClear={clearFilters}
+        eventTags={true}
       />
     </div>
   );

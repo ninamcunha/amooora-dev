@@ -13,6 +13,7 @@ interface FilterModalProps {
   onFiltersChange: (filters: FilterOptions) => void;
   onApply: () => void;
   onClear: () => void;
+  eventTags?: boolean; // Se true, usa tags de eventos ao invés de tags de locais
 }
 
 const distanceOptions = [
@@ -41,6 +42,19 @@ const availableTags = [
   { label: 'Ar Livre', value: 'ar-livre', icon: '🌳' },
 ];
 
+const eventTags = [
+  { label: 'Gratuito', value: 'gratuito', icon: '🆓' },
+  { label: 'Ar Livre', value: 'ar-livre', icon: '🌳' },
+  { label: 'Música', value: 'musica', icon: '🎵' },
+  { label: 'Workshop', value: 'workshop', icon: '🎓' },
+  { label: 'Networking', value: 'networking', icon: '🤝' },
+  { label: 'Cultural', value: 'cultural', icon: '🎭' },
+  { label: 'Esportivo', value: 'esportivo', icon: '⚽' },
+  { label: 'Festa', value: 'festa', icon: '🎉' },
+  { label: 'Gastronomia', value: 'gastronomia', icon: '🍽️' },
+  { label: 'Arte', value: 'arte', icon: '🎨' },
+];
+
 export function FilterModal({
   isOpen,
   onClose,
@@ -48,8 +62,12 @@ export function FilterModal({
   onFiltersChange,
   onApply,
   onClear,
+  eventTags = false,
 }: FilterModalProps) {
   if (!isOpen) return null;
+
+  // Escolher tags baseado no tipo (eventos ou locais)
+  const tagsToUse = eventTags ? eventTags : availableTags;
 
   return (
     <>
@@ -128,7 +146,7 @@ export function FilterModal({
               Tags e Características
             </h3>
             <div className="flex flex-wrap gap-2">
-              {availableTags.map((tag) => {
+              {tagsToUse.map((tag) => {
                 const isSelected = filters.tags?.includes(tag.value) || false;
                 return (
                   <button
