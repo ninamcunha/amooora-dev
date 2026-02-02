@@ -24,6 +24,7 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = usePlaceReviews(placeId);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isAuthenticated } = useAuth();
+  const { isVisited, toggleVisit } = usePlaceInteractions(placeId);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [showAuthTooltip, setShowAuthTooltip] = useState(false);
@@ -39,6 +40,14 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
     if (placeId) {
       toggleFavorite('places', placeId);
     }
+  };
+
+  const handleVisitClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+    toggleVisit();
   };
 
   const handleReviewClick = () => {
