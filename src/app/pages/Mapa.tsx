@@ -1,9 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { ArrowLeft, MapPin, Calendar, Filter } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { InteractiveMap } from '../components/InteractiveMap';
 import { usePlaces } from '../features/places';
 import { useEvents } from '../features/events';
 import { geocodeAddress } from '../shared/services';
+import { useAuth } from '../shared/hooks';
+import { getUpcomingEvents, getAttendedEvents } from '../services/profile';
+import { supabase } from '../infra/supabase';
 import type { Place, Event } from '../types';
 
 interface MapaProps {
@@ -15,12 +18,44 @@ type MapFilter = 'all' | 'places' | 'events';
 
 export function Mapa({ onNavigate, onBack }: MapaProps) {
   const [activeFilter, setActiveFilter] = useState<MapFilter>('all');
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date()); // Mês selecionado
   const [geocodingCache, setGeocodingCache] = useState<Record<string, { lat: number; lng: number }>>({});
   const [geocodingInProgress, setGeocodingInProgress] = useState(false);
   const geocodingProcessedRef = useRef<Set<string>>(new Set());
+  const [upcomingEventIds, setUpcomingEventIds] = useState<Set<string>>(new Set());
+  const [attendedEventIds, setAttendedEventIds] = useState<Set<string>>(new Set());
 
   const { places, loading: loadingPlaces, error: errorPlaces } = usePlaces();
   const { events, loading: loadingEvents, error: errorEvents } = useEvents();
+  const { isAuthenticated } = useAuth();
+
+  // Buscar eventos participados e próximos do usuário
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setUpcomingEventIds(new Set());
+      setAttendedEventIds(new Set());
+      return;
+    }
+
+    const loadUserEvents = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const [upcoming, attended] = await Promise.all([
+          getUpcomingEvents(user.id),
+          getAttendedEvents(user.id),
+        ]);
+
+        setUpcomingEventIds(new Set(upcoming.map(e => e.event_id)));
+        setAttendedEventIds(new Set(attended.map(e => e.event_id)));
+      } catch (error) {
+        console.error('Erro ao carregar eventos do usuário:', error);
+      }
+    };
+
+    loadUserEvents();
+  }, [isAuthenticated]);
 
   // Carregar coordenadas para eventos que não têm latitude/longitude
   useEffect(() => {
@@ -117,6 +152,10 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
 
   // Preparar eventos para o mapa
   const mapEvents = useMemo(() => {
+    const now = new Date();
+    const selectedMonthStart = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
+    const selectedMonthEnd = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0, 23, 59, 59);
+
     return events
       .filter((event) => {
         // Filtrar por tipo se necessário
@@ -126,20 +165,30 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
       })
       .filter((event) => {
         // Apenas eventos com localização
-        return event.location && event.location.trim().length > 0;
+        if (!event.location || event.location.trim().length === 0) return false;
+        
+        // Filtrar por mês selecionado
+        if (event.date) {
+          const eventDate = new Date(event.date);
+          return eventDate >= selectedMonthStart && eventDate <= selectedMonthEnd;
+        }
+        return false;
       })
       .map((event) => {
         // Tentar obter coordenadas do cache de geocoding
         const cached = geocodingCache[event.location || ''];
         if (!cached) {
-          // Log para debug - eventos que ainda não foram geocodificados
-          console.log('📍 [Mapa] Evento aguardando geocoding:', {
-            id: event.id,
-            name: event.name,
-            location: event.location,
-            hasCache: !!geocodingCache[event.location || ''],
-          });
           return null; // Ainda não foi geocodificado
+        }
+
+        // Determinar status do evento
+        let eventStatus: 'upcoming' | 'attended' | undefined;
+        if (isAuthenticated) {
+          if (upcomingEventIds.has(event.id)) {
+            eventStatus = 'upcoming';
+          } else if (attendedEventIds.has(event.id)) {
+            eventStatus = 'attended';
+          }
         }
 
         return {
@@ -151,10 +200,11 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
           category: event.category,
           imageUrl: event.imageUrl,
           type: 'event' as const,
+          eventStatus,
         };
       })
       .filter((event): event is NonNullable<typeof event> => event !== null);
-  }, [events, activeFilter, geocodingCache]); // Usar events completo e geocodingCache completo
+  }, [events, activeFilter, geocodingCache, selectedMonth, isAuthenticated, upcomingEventIds, attendedEventIds]);
 
   // Combinar locais e eventos
   const allLocations = useMemo(() => {
@@ -189,7 +239,63 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
           </div>
         </div>
 
-        {/* Filtros */}
+        {/* Filtro de Mês - Acima do mapa */}
+        <div className="px-5 py-4 bg-white border-b border-gray-200">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">Mês:</span>
+              <span className="text-sm font-bold text-primary capitalize">
+                {selectedMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  const prevMonth = new Date(selectedMonth);
+                  prevMonth.setMonth(prevMonth.getMonth() - 1);
+                  setSelectedMonth(prevMonth);
+                }}
+                className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Mês anterior"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              <button
+                onClick={() => setSelectedMonth(new Date())}
+                className="px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-full transition-colors"
+              >
+                Hoje
+              </button>
+              <button
+                onClick={() => {
+                  const nextMonth = new Date(selectedMonth);
+                  nextMonth.setMonth(nextMonth.getMonth() + 1);
+                  setSelectedMonth(nextMonth);
+                }}
+                className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Próximo mês"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+          </div>
+          {/* Legenda de cores */}
+          {activeFilter === 'events' || activeFilter === 'all' ? (
+            <div className="flex items-center gap-4 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#932d6f]"></div>
+                <span className="text-gray-600">Próximos eventos</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-pink-500"></div>
+                <span className="text-gray-600">Eventos participados</span>
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {/* Filtros de Tipo */}
         <div className="px-5 py-3 bg-gray-50 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <Filter className="w-4 h-4 text-gray-500" />

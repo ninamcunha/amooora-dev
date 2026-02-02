@@ -12,6 +12,7 @@ interface Location {
   category?: string;
   imageUrl?: string;
   type?: 'place' | 'event';
+  eventStatus?: 'upcoming' | 'attended'; // Status do evento: próximo ou participado
 }
 
 interface InteractiveMapProps {
@@ -134,17 +135,38 @@ export function InteractiveMap({
     );
   }
 
-  // Configurar ícone customizado do pin
-  // Criar o ícone apenas quando o Google Maps estiver disponível
-  const getCustomIcon = () => {
+  // Configurar ícone customizado do pin com cores diferentes por tipo
+  const getCustomIcon = (location: Location) => {
     if (typeof google === 'undefined' || !google.maps) {
       return undefined;
     }
     
+    // Se for evento, usar cor diferente baseado no status
+    if (location.type === 'event' && location.eventStatus) {
+      // Criar um ícone SVG com cor baseado no status
+      const color = location.eventStatus === 'upcoming' ? '#932d6f' : '#ec4899'; // Roxo para próximos, rosa para participados
+      const svgIcon = `
+        <svg width="32" height="40" viewBox="0 0 32 40" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 11.045 16 24 16 24s16-12.955 16-24C32 7.163 24.837 0 16 0z" fill="${color}"/>
+          <circle cx="16" cy="16" r="8" fill="white"/>
+        </svg>
+      `;
+      
+      const svgBlob = new Blob([svgIcon], { type: 'image/svg+xml' });
+      const svgUrl = URL.createObjectURL(svgBlob);
+      
+      return {
+        url: svgUrl,
+        scaledSize: new google.maps.Size(32, 40),
+        anchor: new google.maps.Point(16, 40),
+      };
+    }
+    
+    // Para locais ou eventos sem status, usar o ícone padrão
     return {
       url: customPinIcon,
-      scaledSize: new google.maps.Size(32, 32), // Tamanho similar ao pin padrão (32x32px)
-      anchor: new google.maps.Point(16, 32), // Ponto de ancoragem na base do pin (centro horizontal, base vertical)
+      scaledSize: new google.maps.Size(32, 32),
+      anchor: new google.maps.Point(16, 32),
     };
   };
 
@@ -212,7 +234,7 @@ export function InteractiveMap({
               onMarkerClick?.(location);
             }}
             title={location.name}
-            icon={getCustomIcon()}
+            icon={getCustomIcon(location)}
           />
         ))}
 
