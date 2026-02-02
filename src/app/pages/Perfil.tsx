@@ -198,6 +198,31 @@ export function Perfil({ onNavigate }: PerfilProps) {
   const serviceReviews = myReviews.filter(review => review.service_id);
   const eventReviews = myReviews.filter(review => review.event_id);
 
+  // Calcular dias do mês selecionado para o calendário
+  const calendarDays = useMemo(() => {
+    const year = selectedMonth.getFullYear();
+    const month = selectedMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDayOfWeek = firstDay.getDay(); // 0 = Domingo, 6 = Sábado
+    
+    // Criar array com dias do mês
+    const days: (number | null)[] = [];
+    
+    // Adicionar células vazias para os dias antes do primeiro dia do mês
+    for (let i = 0; i < startDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    // Adicionar os dias do mês
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(day);
+    }
+    
+    return days;
+  }, [selectedMonth]);
+
   // Se não houver perfil, mostrar mensagem ou redirecionar
   if (profileLoading || loading) {
     return (
@@ -634,30 +659,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
                   ))}
                 </div>
                 <div className="grid grid-cols-7 gap-2">
-                  {useMemo(() => {
-                    // Calcular dias do mês selecionado
-                    const year = selectedMonth.getFullYear();
-                    const month = selectedMonth.getMonth();
-                    const firstDay = new Date(year, month, 1);
-                    const lastDay = new Date(year, month + 1, 0);
-                    const daysInMonth = lastDay.getDate();
-                    const startDayOfWeek = firstDay.getDay(); // 0 = Domingo, 6 = Sábado
-                    
-                    // Criar array com dias do mês
-                    const days: (number | null)[] = [];
-                    
-                    // Adicionar células vazias para os dias antes do primeiro dia do mês
-                    for (let i = 0; i < startDayOfWeek; i++) {
-                      days.push(null);
-                    }
-                    
-                    // Adicionar os dias do mês
-                    for (let day = 1; day <= daysInMonth; day++) {
-                      days.push(day);
-                    }
-                    
-                    return days;
-                  }, [selectedMonth]).map((day, index) => {
+                  {calendarDays.map((day, index) => {
                     if (day === null) {
                       return <div key={`empty-${index}`} className="aspect-square"></div>;
                     }
