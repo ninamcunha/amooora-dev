@@ -9,4 +9,5 @@ export { Rating } from './Rating';
 export { Tag } from './Tag';
 export { Badge } from './Badge';
 export { ImageWithFallback } from './figma/ImageWithFallback';
-export { AuthTooltip } from "./AuthTooltip";
+export { AuthModal } from './AuthModal';
+export { AuthTooltip } from './AuthTooltip';
