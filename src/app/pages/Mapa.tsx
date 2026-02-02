@@ -160,7 +160,7 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
   const allLocations = useMemo(() => {
     const combined = [...mapPlaces, ...mapEvents];
     return combined;
-  }, [mapPlaces.length, mapEvents.length]);
+  }, [mapPlaces, mapEvents]);
 
   const loading = loadingPlaces || loadingEvents || geocodingInProgress;
 
@@ -179,7 +179,12 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
           <div className="flex-1">
             <h1 className="text-xl font-bold text-gray-900">Mapa</h1>
             <p className="text-xs text-gray-500">
-              {allLocations.length} {allLocations.length === 1 ? 'local encontrado' : 'locais encontrados'}
+              {activeFilter === 'all'
+                ? `${allLocations.length} ${allLocations.length === 1 ? 'local encontrado' : 'locais encontrados'}`
+                : activeFilter === 'places'
+                ? `${mapPlaces.length} ${mapPlaces.length === 1 ? 'local encontrado' : 'locais encontrados'}`
+                : `${mapEvents.length} ${mapEvents.length === 1 ? 'evento encontrado' : 'eventos encontrados'}`}
+              {geocodingInProgress && ' • Carregando...'}
             </p>
           </div>
         </div>
