@@ -112,10 +112,10 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
 
         {/* Tabs */}
         <div className="px-5 py-3 border-b border-border bg-gray-50">
-          <div className="flex gap-2">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5">
             <button
               onClick={() => setActiveTab('all')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'all'
                   ? 'bg-primary text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -125,7 +125,7 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
             </button>
             <button
               onClick={() => setActiveTab('places')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'places'
                   ? 'bg-primary text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -136,7 +136,7 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
             </button>
             <button
               onClick={() => setActiveTab('events')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'events'
                   ? 'bg-primary text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -147,7 +147,7 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
             </button>
             <button
               onClick={() => setActiveTab('services')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'services'
                   ? 'bg-primary text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -158,7 +158,7 @@ export function AdminEditarConteudos({ onNavigate }: AdminEditarConteudosProps) 
             </button>
             <button
               onClick={() => setActiveTab('communities')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
                 activeTab === 'communities'
                   ? 'bg-primary text-white'
                   : 'bg-white text-gray-700 hover:bg-gray-100'
