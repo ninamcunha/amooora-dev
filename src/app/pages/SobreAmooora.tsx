@@ -4,6 +4,24 @@ import { BottomNav } from '../shared/components';
 import { useAdmin } from '../shared/hooks';
 import { ImageWithFallback } from '../shared/components';
 
+// INSTRUÇÕES: Para usar as imagens locais:
+// 1. Adicione os 3 arquivos na pasta src/assets:
+//    - sobre-amooora-1.png (seção "Por nós e para nós")
+//    - sobre-amooora-2.png (seção "Mi brejo, su brejo")
+//    - sobre-amooora-3.png (seção "Um mundo inteiro")
+// 2. Descomente as 3 linhas de import abaixo
+// 3. Remova ou comente as 3 linhas de const com URLs temporárias
+
+// Imports das imagens locais (descomente após adicionar os arquivos):
+// import sobreAmooora1 from '@/assets/sobre-amooora-1.png';
+// import sobreAmooora2 from '@/assets/sobre-amooora-2.png';
+// import sobreAmooora3 from '@/assets/sobre-amooora-3.png';
+
+// URLs temporárias - REMOVER após adicionar as imagens e descomentar os imports acima
+const sobreAmooora1 = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800';
+const sobreAmooora2 = 'https://images.unsplash.com/photo-1517841905240-472988babdf9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800';
+const sobreAmooora3 = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800';
+
 interface SobreAmoooraProps {
   onNavigate: (page: string) => void;
   onBack?: () => void;
@@ -56,10 +74,10 @@ export function SobreAmooora({ onNavigate, onBack }: SobreAmoooraProps) {
               </p>
             </div>
 
-            {/* Imagem decorativa - usando placeholder que pode ser substituído */}
+            {/* Imagem decorativa */}
             <div className="relative h-64 rounded-2xl overflow-hidden mb-6">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
+                src={sobreAmooora1}
                 alt="Comunidade sáfica"
                 className="w-full h-full object-cover"
               />
@@ -92,7 +110,7 @@ export function SobreAmooora({ onNavigate, onBack }: SobreAmoooraProps) {
             {/* Imagem decorativa */}
             <div className="relative h-64 rounded-2xl overflow-hidden mt-6">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1517841905240-472988babdf9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
+                src={sobreAmooora2}
                 alt="Conexões reais"
                 className="w-full h-full object-cover"
               />
@@ -116,7 +134,7 @@ export function SobreAmooora({ onNavigate, onBack }: SobreAmoooraProps) {
             {/* Imagem decorativa */}
             <div className="relative h-64 rounded-2xl overflow-hidden mt-6">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800"
+                src={sobreAmooora3}
                 alt="Comunidade Amooora"
                 className="w-full h-full object-cover"
               />
