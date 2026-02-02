@@ -1,8 +1,9 @@
-import { Heart, Star, Check, Share2, Flag, UserPlus, MapPin, MessageCircle, Send } from 'lucide-react';
+import { Heart, Star, Check, Share2, UserPlus, MapPin, MessageCircle, Send, CheckCircle2 } from 'lucide-react';
 import { useFavorites, usePlaceReviews, useAuth } from '../../../shared/hooks';
 import { useState, useEffect } from 'react';
 import { ImageWithFallback, Header, BottomNav, AuthTooltip } from '../../../shared/components';
 import { usePlace } from '../hooks/usePlaces';
+import { usePlaceInteractions } from '../hooks/usePlaceInteractions';
 import { Review } from '../../../shared/types';
 import { calculateAverageRating } from '../../../shared/services';
 import { shareContent, getShareUrl, getShareText } from '../../../shared/utils';
@@ -269,11 +270,15 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
           <div className="bg-[#fffbfa] px-4 py-3">
             <div className="flex gap-2 overflow-x-auto">
               <button 
-                onClick={handleReviewClick}
-                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+                onClick={handleVisitClick}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
+                  isVisited
+                    ? 'bg-green-100 text-green-700 border-green-300'
+                    : 'bg-[rgba(147,45,111,0.1)] text-[#932d6f] border-[#932d6f]/10 hover:bg-[rgba(147,45,111,0.2)]'
+                }`}
               >
-                <Check className="w-4 h-4" />
-                Já fui
+                <CheckCircle2 className={`w-4 h-4 ${isVisited ? 'text-green-700' : ''}`} />
+                {isVisited ? 'Já fui!' : 'Já fui'}
               </button>
               <button 
                 onClick={handleShare}
@@ -281,14 +286,6 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               >
                 <Share2 className="w-4 h-4" />
                 {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
-              </button>
-              <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap">
-                <Flag className="w-4 h-4" />
-                Denunciar
-              </button>
-              <button className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap">
-                <UserPlus className="w-4 h-4" />
-                Seguir
               </button>
             </div>
           </div>

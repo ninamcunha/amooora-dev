@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Settings, Edit, Calendar, MapPin, Heart, Star, Users, ChevronRight, CheckCircle2, MessageCircle, Briefcase } from 'lucide-react';
+import { Settings, Edit, Calendar, MapPin, Heart, Star, Users, ChevronRight, CheckCircle2, MessageCircle, Briefcase, Check } from 'lucide-react';
 import { ImageWithFallback } from '../shared/components';
 import { BottomNav } from '../shared/components';
 import { Header } from '../shared/components';
@@ -11,12 +11,14 @@ import {
   getSavedPlaces,
   getFavoriteEvents,
   getFavoriteServices,
+  getVisitedPlaces,
   getUpcomingEvents,
   getInterestedEvents,
   getAttendedEvents,
   getUserReviews,
   getFollowedCommunities,
   type SavedPlace,
+  type VisitedPlace,
   type UpcomingEvent,
   type AttendedEvent,
   type UserReview,
@@ -32,6 +34,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
   const { isAdmin } = useAdmin();
   const [stats, setStats] = useState({ eventsCount: 0, placesCount: 0, friendsCount: 0 });
   const [favoritePlaces, setFavoritePlaces] = useState<SavedPlace[]>([]);
+  const [visitedPlaces, setVisitedPlaces] = useState<VisitedPlace[]>([]);
   const [favoriteEvents, setFavoriteEvents] = useState<UpcomingEvent[]>([]);
   const [favoriteServices, setFavoriteServices] = useState<Array<{
     id: string;
@@ -112,6 +115,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
         const [
           statsData,
           placesData,
+          visitedPlacesData,
           eventsData,
           servicesData,
           upcomingData,
@@ -122,6 +126,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
         ] = await Promise.all([
           getProfileStats(profile.id),
           getSavedPlaces(profile.id),
+          getVisitedPlaces(profile.id),
           getFavoriteEvents(profile.id),
           getFavoriteServices(profile.id),
           getUpcomingEvents(profile.id),
@@ -295,6 +300,43 @@ export function Perfil({ onNavigate }: PerfilProps) {
               </button>
             </div>
           </div>
+
+          {/* Locais Frequentados - apenas se houver dados */}
+          {visitedPlaces.length > 0 && (
+            <div className="px-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Locais que Já Frequentei</h2>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {visitedPlaces.slice(0, 5).map((place) => (
+                  <div 
+                    key={place.id} 
+                    onClick={() => onNavigate(`place-details:${place.place_id}`)}
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <div className="relative h-24">
+                      <ImageWithFallback
+                        src={place.imageUrl}
+                        alt={place.name}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute top-2 right-2 bg-green-500 rounded-full p-1">
+                        <CheckCircle2 className="w-3 h-3 text-white" />
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-semibold text-sm text-gray-900 mb-1 truncate">{place.name}</h3>
+                      <p className="text-xs text-gray-500 mb-2">{place.category}</p>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-[#932d6f] text-[#932d6f]" />
+                        <span className="text-xs font-medium text-gray-700">{place.rating.toFixed(1)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Locais Favoritos - apenas se houver dados */}
           {favoritePlaces.length > 0 && (

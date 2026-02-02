@@ -15,6 +15,16 @@ export interface SavedPlace {
   imageUrl: string;
 }
 
+export interface VisitedPlace {
+  id: string;
+  place_id: string;
+  name: string;
+  category: string;
+  rating: number;
+  imageUrl: string;
+  visited_at: string;
+}
+
 export interface UpcomingEvent {
   id: string;
   event_id: string;
@@ -228,6 +238,48 @@ export const getFavoriteServices = async (userId: string): Promise<Array<{
     }));
   } catch (error) {
     console.error('Erro ao buscar serviços favoritos:', error);
+    return [];
+  }
+};
+
+/**
+ * Busca locais frequentados pelo usuário
+ */
+export const getVisitedPlaces = async (userId: string): Promise<VisitedPlace[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('visited_places')
+      .select(`
+        id,
+        place_id,
+        created_at,
+        places:place_id (
+          name,
+          category,
+          rating,
+          image
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (error) {
+      console.error('Erro ao buscar locais frequentados:', error);
+      return [];
+    }
+
+    return (data || []).map((item: any) => ({
+      id: item.id,
+      place_id: item.place_id,
+      name: item.places?.name || 'Local desconhecido',
+      category: item.places?.category || 'Outros',
+      rating: Number(item.places?.rating) || 0,
+      imageUrl: item.places?.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+      visited_at: item.created_at,
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar locais frequentados:', error);
     return [];
   }
 };
