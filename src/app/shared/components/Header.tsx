@@ -146,11 +146,16 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin: isAdminPro
 
         {/* Logo sempre visível no centro/esquerda */}
         <div className={`flex-shrink-0 ${showBackButton ? 'flex-1 flex justify-center' : ''}`}>
-          <img
-            src={logoAmooora}
-            alt="Amooora"
-            className="h-[70px]"
-          />
+          <button
+            onClick={() => onNavigate?.('home')}
+            className="cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <img
+              src={logoAmooora}
+              alt="Amooora"
+              className="h-[70px]"
+            />
+          </button>
         </div>
 
         {/* Botões à direita */}

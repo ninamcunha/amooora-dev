@@ -286,6 +286,7 @@ export function Home({ onNavigate }: HomeProps) {
                   return (
                     <EventCard 
                       key={event.id}
+                      id={event.id}
                       name={event.name}
                       date={`${day} ${month}`}
                       time={time || 'Horário não disponível'}

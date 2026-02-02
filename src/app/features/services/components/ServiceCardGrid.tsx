@@ -1,4 +1,6 @@
+import { Heart } from 'lucide-react';
 import { ImageWithFallback } from '../../../shared/components';
+import { useFavorites } from '../../../shared/hooks';
 
 interface ServiceCardGridProps {
   id: string;
@@ -17,6 +19,9 @@ export function ServiceCardGrid({
   imageUrl,
   onClick 
 }: ServiceCardGridProps) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite('services', id);
+
   // Gerar inicial do provedor ou categoria
   const getInitials = (text?: string) => {
     if (!text) return category.charAt(0).toUpperCase();
@@ -33,7 +38,7 @@ export function ServiceCardGrid({
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-2xl overflow-hidden border border-border/50 hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-white rounded-2xl overflow-hidden border border-border/50 hover:shadow-md transition-shadow cursor-pointer relative"
     >
       {/* Imagem do serviço */}
       <div className="relative w-full h-48 overflow-hidden">
@@ -42,6 +47,20 @@ export function ServiceCardGrid({
           alt={name}
           className="w-full h-full object-cover"
         />
+        {/* Botão de favoritos */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite('services', id);
+          }}
+          className="absolute top-2 right-2 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+        >
+          <Heart
+            className={`w-4 h-4 transition-colors ${
+              favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
+            }`}
+          />
+        </button>
       </div>
 
       {/* Informações do serviço */}

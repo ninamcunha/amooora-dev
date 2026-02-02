@@ -1,7 +1,9 @@
-import { Clock, MapPin, Users } from 'lucide-react';
+import { Clock, MapPin, Users, Heart } from 'lucide-react';
 import { ImageWithFallback } from '../../../shared/components';
+import { useFavorites } from '../../../shared/hooks';
 
 interface EventCardProps {
+  id: string;
   name: string;
   date: string;
   time: string;
@@ -11,12 +13,30 @@ interface EventCardProps {
   onClick?: () => void;
 }
 
-export function EventCard({ name, date, time, location, participants, imageUrl, onClick }: EventCardProps) {
+export function EventCard({ id, name, date, time, location, participants, imageUrl, onClick }: EventCardProps) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite('events', id);
+
   return (
     <div 
       onClick={onClick}
-      className="bg-white rounded-xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow mb-3 cursor-pointer"
+      className="bg-white rounded-xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow mb-3 cursor-pointer relative"
     >
+      {/* Botão de favoritos */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleFavorite('events', id);
+        }}
+        className="absolute top-2 right-2 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+      >
+        <Heart
+          className={`w-4 h-4 transition-colors ${
+            favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
+          }`}
+        />
+      </button>
+
       <div className="flex gap-3 p-3">
         <div className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden">
           <ImageWithFallback 
