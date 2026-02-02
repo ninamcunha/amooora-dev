@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Settings, Edit, Calendar, MapPin, Heart, Star, Users, ChevronRight, CheckCircle2, MessageCircle, Briefcase, Check } from 'lucide-react';
+import { Settings, Edit, Calendar, MapPin, Heart, Star, Users, ChevronRight, ChevronLeft, CheckCircle2, MessageCircle, Briefcase, Check } from 'lucide-react';
 import { ImageWithFallback } from '../shared/components';
 import { BottomNav } from '../shared/components';
 import { Header } from '../shared/components';
@@ -583,6 +583,47 @@ export function Perfil({ onNavigate }: PerfilProps) {
             <div className="px-5 mb-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Meu Calendário</h2>
               <div className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10">
+                {/* Controles de navegação do mês */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-700">Mês:</span>
+                    <span className="text-sm font-bold text-primary capitalize">
+                      {selectedMonth.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        const prevMonth = new Date(selectedMonth);
+                        prevMonth.setMonth(prevMonth.getMonth() - 1);
+                        setSelectedMonth(prevMonth);
+                      }}
+                      className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                      aria-label="Mês anterior"
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <button
+                      onClick={() => setSelectedMonth(new Date())}
+                      className="px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 rounded-full transition-colors"
+                    >
+                      Hoje
+                    </button>
+                    <button
+                      onClick={() => {
+                        const nextMonth = new Date(selectedMonth);
+                        nextMonth.setMonth(nextMonth.getMonth() + 1);
+                        setSelectedMonth(nextMonth);
+                      }}
+                      className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+                      aria-label="Próximo mês"
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+
                 {/* Mini calendário visual */}
                 <div className="grid grid-cols-7 gap-2 mb-3">
                   {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
@@ -592,21 +633,75 @@ export function Perfil({ onNavigate }: PerfilProps) {
                   ))}
                 </div>
                 <div className="grid grid-cols-7 gap-2">
-                  {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
+                  {useMemo(() => {
+                    // Calcular dias do mês selecionado
+                    const year = selectedMonth.getFullYear();
+                    const month = selectedMonth.getMonth();
+                    const firstDay = new Date(year, month, 1);
+                    const lastDay = new Date(year, month + 1, 0);
+                    const daysInMonth = lastDay.getDate();
+                    const startDayOfWeek = firstDay.getDay(); // 0 = Domingo, 6 = Sábado
+                    
+                    // Criar array com dias do mês
+                    const days: (number | null)[] = [];
+                    
+                    // Adicionar células vazias para os dias antes do primeiro dia do mês
+                    for (let i = 0; i < startDayOfWeek; i++) {
+                      days.push(null);
+                    }
+                    
+                    // Adicionar os dias do mês
+                    for (let day = 1; day <= daysInMonth; day++) {
+                      days.push(day);
+                    }
+                    
+                    return days;
+                  }, [selectedMonth]).map((day, index) => {
+                    if (day === null) {
+                      return <div key={`empty-${index}`} className="aspect-square"></div>;
+                    }
+
+                    // Filtrar eventos pelo mês selecionado
+                    const selectedYear = selectedMonth.getFullYear();
+                    const selectedMonthIndex = selectedMonth.getMonth();
+                    
                     // Combinar eventos confirmados e eventos de interesse como próximos eventos
-                    const allUpcomingEvents = [...upcomingEvents, ...interestedEvents];
-                    
-                    // Verificar se há evento futuro neste dia (confirmado ou interesse)
-                    const hasUpcomingEvent = allUpcomingEvents.some(event => {
-                      const eventDay = parseInt(event.date.split(' ')[0]);
+                    const allUpcomingEvents = [...upcomingEvents, ...interestedEvents].filter(event => {
+                      // Converter data do evento (formato: "DD MMM") para verificar mês e dia
+                      const eventDateStr = event.date;
+                      const [dayStr, monthStr] = eventDateStr.split(' ');
+                      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                      const eventMonthIndex = months.indexOf(monthStr);
+                      
+                      if (eventMonthIndex === -1) return false;
+                      
+                      // Verificar se o evento está no mês selecionado
+                      if (eventMonthIndex !== selectedMonthIndex) return false;
+                      
+                      // Verificar se o dia corresponde
+                      const eventDay = parseInt(dayStr);
                       return eventDay === day;
                     });
                     
-                    // Verificar se há evento passado neste dia
-                    const hasAttendedEvent = attendedEvents.some(event => {
-                      const eventDay = parseInt(event.date.split(' ')[0]);
+                    // Filtrar eventos participados pelo mês selecionado
+                    const monthAttendedEvents = attendedEvents.filter(event => {
+                      const eventDateStr = event.date;
+                      const [dayStr, monthStr] = eventDateStr.split(' ');
+                      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                      const eventMonthIndex = months.indexOf(monthStr);
+                      
+                      if (eventMonthIndex === -1) return false;
+                      
+                      // Verificar se o evento está no mês selecionado
+                      if (eventMonthIndex !== selectedMonthIndex) return false;
+                      
+                      // Verificar se o dia corresponde
+                      const eventDay = parseInt(dayStr);
                       return eventDay === day;
                     });
+                    
+                    const hasUpcomingEvent = allUpcomingEvents.length > 0;
+                    const hasAttendedEvent = monthAttendedEvents.length > 0;
                     
                     return (
                       <div
