@@ -236,7 +236,7 @@ export function Login({ onNavigate }: LoginProps) {
           <button
             onClick={handleLogin}
             disabled={isLoading}
-            className="w-full bg-secondary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-secondary/90 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-primary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-primary/90 transition-colors mt-6 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Entrando...' : 'Entrar'}
           </button>
