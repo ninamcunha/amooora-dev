@@ -577,7 +577,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
           )}
 
           {/* Calendário Simples - apenas se houver eventos */}
-          {(upcomingEvents.length > 0 || attendedEvents.length > 0) && (
+          {(upcomingEvents.length > 0 || interestedEvents.length > 0 || attendedEvents.length > 0) && (
             <div className="px-5 mb-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Meu Calendário</h2>
               <div className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10">
@@ -591,8 +591,11 @@ export function Perfil({ onNavigate }: PerfilProps) {
                 </div>
                 <div className="grid grid-cols-7 gap-2">
                   {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
-                    // Verificar se há evento futuro neste dia
-                    const hasUpcomingEvent = upcomingEvents.some(event => {
+                    // Combinar eventos confirmados e eventos de interesse como próximos eventos
+                    const allUpcomingEvents = [...upcomingEvents, ...interestedEvents];
+                    
+                    // Verificar se há evento futuro neste dia (confirmado ou interesse)
+                    const hasUpcomingEvent = allUpcomingEvents.some(event => {
                       const eventDay = parseInt(event.date.split(' ')[0]);
                       return eventDay === day;
                     });
