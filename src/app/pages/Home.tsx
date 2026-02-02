@@ -251,6 +251,7 @@ export function Home({ onNavigate }: HomeProps) {
                     imageUrl={place.imageUrl || place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}
                     isSafe={place.isSafe}
                     onClick={() => onNavigate(`place-details:${place.id}`)}
+                    showFavorite={false}
                   />
                 ))
               ) : (

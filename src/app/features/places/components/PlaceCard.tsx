@@ -12,6 +12,7 @@ interface PlaceCardProps {
   imageUrl: string;
   isSafe?: boolean;
   onClick?: () => void;
+  showFavorite?: boolean; // Controla se o botão de favorito deve ser exibido
 }
 
 export function PlaceCard({ 
@@ -23,7 +24,8 @@ export function PlaceCard({
   distance, 
   imageUrl, 
   isSafe = true,
-  onClick
+  onClick,
+  showFavorite = true // Por padrão, mostra o botão de favorito
 }: PlaceCardProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const favorite = isFavorite('places', id);
@@ -40,17 +42,19 @@ export function PlaceCard({
             alt={name}
             className="w-full h-full object-cover"
           />
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleFavorite('places', id);
-            }}
-            className="absolute top-1 right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-          >
-            <Heart className={`w-4 h-4 transition-colors ${
-              favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
-            }`} />
-          </button>
+          {showFavorite && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFavorite('places', id);
+              }}
+              className="absolute top-1 right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+            >
+              <Heart className={`w-4 h-4 transition-colors ${
+                favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
+              }`} />
+            </button>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">
