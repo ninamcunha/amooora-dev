@@ -223,6 +223,83 @@ export function Perfil({ onNavigate }: PerfilProps) {
     return days;
   }, [selectedMonth]);
 
+  // Criar mapa de eventos por dia para o mês selecionado
+  const eventsByDay = useMemo(() => {
+    const selectedMonthIndex = selectedMonth.getMonth();
+    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    
+    // Combinar todos os eventos próximos (confirmados + interesse)
+    const allUpcomingEvents = [...upcomingEvents, ...interestedEvents];
+    
+    // Criar mapas de eventos por dia
+    const upcomingByDay: { [day: number]: boolean } = {};
+    const attendedByDay: { [day: number]: boolean } = {};
+    
+    // Processar eventos próximos
+    allUpcomingEvents.forEach(event => {
+      try {
+        const eventDateStr = event.date;
+        if (!eventDateStr) return;
+        
+        const parts = eventDateStr.split(' ');
+        if (parts.length < 2) return;
+        
+        const dayStr = parts[0];
+        const monthStr = parts[1];
+        const eventMonthIndex = months.indexOf(monthStr);
+        
+        if (eventMonthIndex === -1) return;
+        
+        // Verificar se o evento está no mês selecionado
+        if (eventMonthIndex === selectedMonthIndex) {
+          const eventDay = parseInt(dayStr);
+          if (!isNaN(eventDay) && eventDay >= 1 && eventDay <= 31) {
+            upcomingByDay[eventDay] = true;
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao processar evento próximo:', error, event);
+      }
+    });
+    
+    // Processar eventos participados
+    attendedEvents.forEach(event => {
+      try {
+        const eventDateStr = event.date;
+        if (!eventDateStr) return;
+        
+        const parts = eventDateStr.split(' ');
+        if (parts.length < 2) return;
+        
+        const dayStr = parts[0];
+        const monthStr = parts[1];
+        const eventMonthIndex = months.indexOf(monthStr);
+        
+        if (eventMonthIndex === -1) return;
+        
+        // Verificar se o evento está no mês selecionado
+        if (eventMonthIndex === selectedMonthIndex) {
+          const eventDay = parseInt(dayStr);
+          if (!isNaN(eventDay) && eventDay >= 1 && eventDay <= 31) {
+            attendedByDay[eventDay] = true;
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao processar evento participado:', error, event);
+      }
+    });
+    
+    console.log('📅 [Calendário] Eventos por dia:', {
+      mês: months[selectedMonthIndex],
+      próximos: Object.keys(upcomingByDay).length,
+      participados: Object.keys(attendedByDay).length,
+      diasComPróximos: Object.keys(upcomingByDay),
+      diasComParticipados: Object.keys(attendedByDay),
+    });
+    
+    return { upcomingByDay, attendedByDay };
+  }, [selectedMonth, upcomingEvents, interestedEvents, attendedEvents]);
+
   // Se não houver perfil, mostrar mensagem ou redirecionar
   if (profileLoading || loading) {
     return (
@@ -664,47 +741,9 @@ export function Perfil({ onNavigate }: PerfilProps) {
                       return <div key={`empty-${index}`} className="aspect-square"></div>;
                     }
 
-                    // Filtrar eventos pelo mês selecionado
-                    const selectedYear = selectedMonth.getFullYear();
-                    const selectedMonthIndex = selectedMonth.getMonth();
-                    
-                    // Combinar eventos confirmados e eventos de interesse como próximos eventos
-                    const allUpcomingEvents = [...upcomingEvents, ...interestedEvents].filter(event => {
-                      // Converter data do evento (formato: "DD MMM") para verificar mês e dia
-                      const eventDateStr = event.date;
-                      const [dayStr, monthStr] = eventDateStr.split(' ');
-                      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                      const eventMonthIndex = months.indexOf(monthStr);
-                      
-                      if (eventMonthIndex === -1) return false;
-                      
-                      // Verificar se o evento está no mês selecionado
-                      if (eventMonthIndex !== selectedMonthIndex) return false;
-                      
-                      // Verificar se o dia corresponde
-                      const eventDay = parseInt(dayStr);
-                      return eventDay === day;
-                    });
-                    
-                    // Filtrar eventos participados pelo mês selecionado
-                    const monthAttendedEvents = attendedEvents.filter(event => {
-                      const eventDateStr = event.date;
-                      const [dayStr, monthStr] = eventDateStr.split(' ');
-                      const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-                      const eventMonthIndex = months.indexOf(monthStr);
-                      
-                      if (eventMonthIndex === -1) return false;
-                      
-                      // Verificar se o evento está no mês selecionado
-                      if (eventMonthIndex !== selectedMonthIndex) return false;
-                      
-                      // Verificar se o dia corresponde
-                      const eventDay = parseInt(dayStr);
-                      return eventDay === day;
-                    });
-                    
-                    const hasUpcomingEvent = allUpcomingEvents.length > 0;
-                    const hasAttendedEvent = monthAttendedEvents.length > 0;
+                    // Verificar se há eventos neste dia usando o mapa pré-calculado
+                    const hasUpcomingEvent = eventsByDay.upcomingByDay[day] || false;
+                    const hasAttendedEvent = eventsByDay.attendedByDay[day] || false;
                     
                     return (
                       <div
