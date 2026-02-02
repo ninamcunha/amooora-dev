@@ -165,6 +165,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
           interestedEvents: interestedData.length,
           attendedEvents: attendedData.length,
           upcomingEvents: upcomingData.length,
+          upcomingEventsData: upcomingData,
+          interestedEventsData: interestedData,
         });
       } catch (error) {
         console.error('❌ [Perfil] Erro ao carregar dados do perfil:', error);
