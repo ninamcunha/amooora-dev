@@ -5,7 +5,7 @@ import { usePlaces } from '../features/places';
 import { useEvents } from '../features/events';
 import { geocodeAddress } from '../shared/services';
 import { useAuth } from '../shared/hooks';
-import { getUpcomingEvents, getAttendedEvents } from '../services/profile';
+import { getUpcomingEvents, getAttendedEvents, getInterestedEvents } from '../services/profile';
 import { supabase } from '../infra/supabase';
 import type { Place, Event } from '../types';
 
@@ -42,13 +42,26 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const [upcoming, attended] = await Promise.all([
+        const [upcoming, attended, interested] = await Promise.all([
           getUpcomingEvents(user.id),
           getAttendedEvents(user.id),
+          getInterestedEvents(user.id),
         ]);
 
-        setUpcomingEventIds(new Set(upcoming.map(e => e.event_id)));
+        // Combinar eventos confirmados e eventos de interesse como "próximos"
+        const allUpcomingIds = new Set([
+          ...upcoming.map(e => e.event_id),
+          ...interested.map(e => e.event_id),
+        ]);
+
+        setUpcomingEventIds(allUpcomingIds);
         setAttendedEventIds(new Set(attended.map(e => e.event_id)));
+        
+        console.log('📊 [Mapa] Eventos carregados:', {
+          próximos: allUpcomingIds.size,
+          participados: attended.length,
+          interesses: interested.length,
+        });
       } catch (error) {
         console.error('Erro ao carregar eventos do usuário:', error);
       }
