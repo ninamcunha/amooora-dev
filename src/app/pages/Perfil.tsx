@@ -50,6 +50,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
   const [myReviews, setMyReviews] = useState<UserReview[]>([]);
   const [followedCommunities, setFollowedCommunities] = useState<FollowedCommunity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date()); // Mês selecionado no calendário
 
   // Recarregar perfil quando receber evento de atualização
   useEffect(() => {
