@@ -334,6 +334,11 @@ export default function App() {
   const handleNavigate = (page: string) => {
     console.log('🧭 handleNavigate chamado:', { page, authLoading, isAuthenticated, isPublic: publicPages.has(page) });
     
+    // Redirecionar 'community' para 'todas-comunidades' quando vindo do BottomNav
+    if (page === 'community') {
+      page = 'todas-comunidades';
+    }
+    
     // TEMPORARIAMENTE: remover gate de acesso - permitir navegação livre
     // TODO: Reativar quando necessário
     /* CÓDIGO ORIGINAL COMENTADO - REATIVAR QUANDO NECESSÁRIO
