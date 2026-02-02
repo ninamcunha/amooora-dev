@@ -47,7 +47,7 @@ export function AuthModal({ isOpen, onClose, onLogin, onSignUp }: AuthModalProps
               onSignUp();
               onClose();
             }}
-            className="w-full bg-secondary text-white py-4 px-6 rounded-full font-semibold text-base hover:bg-secondary/90 transition-colors shadow-md"
+            className="w-full bg-white border-2 border-[#932d6f] text-[#932d6f] py-4 px-6 rounded-full font-semibold text-base hover:bg-[#932d6f]/5 transition-colors"
           >
             Cadastrar
           </button>

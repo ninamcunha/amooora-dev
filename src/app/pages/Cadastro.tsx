@@ -473,7 +473,7 @@ export function Cadastro({ onNavigate }: CadastroProps) {
             {/* Botão Continuar */}
             <button
               onClick={handleContinuar}
-              className="w-full bg-secondary text-white py-4 px-6 rounded-full font-semibold text-lg hover:bg-secondary/90 transition-colors mt-6"
+              className="w-full bg-white border-2 border-[#932d6f] text-[#932d6f] py-4 px-6 rounded-full font-semibold text-lg hover:bg-[#932d6f]/5 transition-colors mt-6"
             >
               Continuar
             </button>
@@ -666,7 +666,7 @@ export function Cadastro({ onNavigate }: CadastroProps) {
               <button
                 onClick={handleCadastrar}
                 disabled={isLoading}
-                className="flex-1 bg-secondary text-white py-4 px-6 rounded-full font-semibold hover:bg-secondary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-white border-2 border-[#932d6f] text-[#932d6f] py-4 px-6 rounded-full font-semibold hover:bg-[#932d6f]/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? 'Criando conta...' : 'Criar Conta'}
               </button>
