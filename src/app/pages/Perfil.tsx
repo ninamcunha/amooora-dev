@@ -139,6 +139,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
         console.log('📊 [Perfil] Dados recebidos:', {
           stats: statsData,
           places: placesData.length,
+          visitedPlaces: visitedPlacesData.length,
           favoriteEvents: eventsData.length,
           favoriteServices: servicesData.length,
           upcomingEvents: upcomingData.length,
@@ -150,6 +151,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
 
         setStats(statsData);
         setFavoritePlaces(placesData);
+        setVisitedPlaces(visitedPlacesData);
         setFavoriteEvents(eventsData);
         setFavoriteServices(servicesData);
         setUpcomingEvents(upcomingData);
@@ -172,6 +174,20 @@ export function Perfil({ onNavigate }: PerfilProps) {
     };
 
     loadProfileData();
+
+    // Listener para atualizar quando um local é marcado como visitado
+    const handlePlaceVisitChanged = () => {
+      console.log('🔄 [Perfil] Evento place-visit-changed recebido, recarregando locais visitados...');
+      setTimeout(() => {
+        loadProfileData();
+      }, 500);
+    };
+
+    window.addEventListener('place-visit-changed', handlePlaceVisitChanged);
+
+    return () => {
+      window.removeEventListener('place-visit-changed', handlePlaceVisitChanged);
+    };
   }, [profile?.id]);
 
   // Separar reviews por tipo

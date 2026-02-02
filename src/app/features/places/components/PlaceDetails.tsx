@@ -24,7 +24,14 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = usePlaceReviews(placeId);
   const { isFavorite, toggleFavorite } = useFavorites();
   const { isAuthenticated } = useAuth();
-  const { isVisited, toggleVisit } = usePlaceInteractions(placeId);
+  const { isVisited, toggleVisit } = usePlaceInteractions(placeId, {
+    onVisitChange: () => {
+      // Disparar evento para atualizar perfil
+      window.dispatchEvent(new CustomEvent('place-visit-changed', {
+        detail: { placeId }
+      }));
+    }
+  });
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [showAuthTooltip, setShowAuthTooltip] = useState(false);
