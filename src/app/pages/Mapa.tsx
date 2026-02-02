@@ -152,7 +152,6 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
 
   // Preparar eventos para o mapa
   const mapEvents = useMemo(() => {
-    const now = new Date();
     const selectedMonthStart = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth(), 1);
     const selectedMonthEnd = new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1, 0, 23, 59, 59);
 
