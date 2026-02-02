@@ -8,7 +8,9 @@ import { useAdmin } from '../shared/hooks';
 import { supabase } from '../infra/supabase';
 import { 
   getProfileStats, 
-  getSavedPlaces, 
+  getSavedPlaces,
+  getFavoriteEvents,
+  getFavoriteServices,
   getUpcomingEvents,
   getInterestedEvents,
   getAttendedEvents,
@@ -30,6 +32,15 @@ export function Perfil({ onNavigate }: PerfilProps) {
   const { isAdmin } = useAdmin();
   const [stats, setStats] = useState({ eventsCount: 0, placesCount: 0, friendsCount: 0 });
   const [favoritePlaces, setFavoritePlaces] = useState<SavedPlace[]>([]);
+  const [favoriteEvents, setFavoriteEvents] = useState<UpcomingEvent[]>([]);
+  const [favoriteServices, setFavoriteServices] = useState<Array<{
+    id: string;
+    service_id: string;
+    name: string;
+    category: string;
+    provider: string;
+    imageUrl: string;
+  }>>([]);
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
   const [interestedEvents, setInterestedEvents] = useState<UpcomingEvent[]>([]);
   const [attendedEvents, setAttendedEvents] = useState<AttendedEvent[]>([]);
@@ -98,9 +109,21 @@ export function Perfil({ onNavigate }: PerfilProps) {
         
         // Carregar todos os dados do perfil em paralelo
         console.log('🔄 [Perfil] Iniciando busca de dados para userId:', profile.id);
-        const [statsData, placesData, upcomingData, interestedData, attendedData, reviewsData, communitiesData] = await Promise.all([
+        const [
+          statsData,
+          placesData,
+          eventsData,
+          servicesData,
+          upcomingData,
+          interestedData,
+          attendedData,
+          reviewsData,
+          communitiesData,
+        ] = await Promise.all([
           getProfileStats(profile.id),
           getSavedPlaces(profile.id),
+          getFavoriteEvents(profile.id),
+          getFavoriteServices(profile.id),
           getUpcomingEvents(profile.id),
           getInterestedEvents(profile.id),
           getAttendedEvents(profile.id),
@@ -111,6 +134,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
         console.log('📊 [Perfil] Dados recebidos:', {
           stats: statsData,
           places: placesData.length,
+          favoriteEvents: eventsData.length,
+          favoriteServices: servicesData.length,
           upcomingEvents: upcomingData.length,
           interestedEvents: interestedData.length,
           attendedEvents: attendedData.length,
@@ -120,6 +145,8 @@ export function Perfil({ onNavigate }: PerfilProps) {
 
         setStats(statsData);
         setFavoritePlaces(placesData);
+        setFavoriteEvents(eventsData);
+        setFavoriteServices(servicesData);
         setUpcomingEvents(upcomingData);
         setInterestedEvents(interestedData);
         setAttendedEvents(attendedData);
@@ -299,6 +326,66 @@ export function Perfil({ onNavigate }: PerfilProps) {
                         <Star className="w-3 h-3 fill-[#932d6f] text-[#932d6f]" />
                         <span className="text-xs font-medium text-gray-700">{place.rating.toFixed(1)}</span>
                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Eventos Favoritos - apenas se houver dados */}
+          {favoriteEvents.length > 0 && (
+            <div className="px-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Eventos Favoritos</h2>
+              </div>
+              <div className="space-y-3">
+                {favoriteEvents.slice(0, 5).map((event) => (
+                  <div 
+                    key={event.id} 
+                    onClick={() => onNavigate(`event-details:${event.event_id}`)}
+                    className="bg-[#fffbfa] rounded-2xl p-4 border border-[#932d6f]/10 cursor-pointer hover:bg-[#fff5f0] transition-colors"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 bg-[#932d6f] rounded-xl flex flex-col items-center justify-center text-white flex-shrink-0">
+                        <span className="text-xs font-medium">{event.date.split(' ')[1] || ''}</span>
+                        <span className="text-lg font-bold">{event.date.split(' ')[0] || ''}</span>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900 mb-1">{event.name}</h3>
+                        <p className="text-sm text-gray-600">{event.time} • {event.location}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Serviços Favoritos - apenas se houver dados */}
+          {favoriteServices.length > 0 && (
+            <div className="px-5 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-900">Serviços Favoritos</h2>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {favoriteServices.slice(0, 4).map((service) => (
+                  <div 
+                    key={service.id} 
+                    onClick={() => onNavigate(`service-details:${service.service_id}`)}
+                    className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow"
+                  >
+                    <div className="relative h-24">
+                      <ImageWithFallback
+                        src={service.imageUrl}
+                        alt={service.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-semibold text-sm text-gray-900 mb-1 truncate">{service.name}</h3>
+                      <p className="text-xs text-gray-500 mb-1">{service.category}</p>
+                      <p className="text-xs text-gray-400 truncate">{service.provider}</p>
                     </div>
                   </div>
                 ))}

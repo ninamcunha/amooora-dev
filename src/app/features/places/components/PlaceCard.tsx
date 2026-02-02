@@ -1,7 +1,9 @@
-import { Star } from 'lucide-react';
+import { Star, Heart } from 'lucide-react';
 import { ImageWithFallback, Badge } from '../../../shared/components';
+import { useFavorites } from '../../../shared/hooks';
 
 interface PlaceCardProps {
+  id: string;
   name: string;
   category: string;
   rating: number;
@@ -13,6 +15,7 @@ interface PlaceCardProps {
 }
 
 export function PlaceCard({ 
+  id,
   name, 
   category, 
   rating, 
@@ -22,6 +25,9 @@ export function PlaceCard({
   isSafe = true,
   onClick
 }: PlaceCardProps) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite('places', id);
+
   return (
     <div 
       onClick={onClick}
@@ -34,6 +40,17 @@ export function PlaceCard({
             alt={name}
             className="w-full h-full object-cover"
           />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFavorite('places', id);
+            }}
+            className="absolute top-1 right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+          >
+            <Heart className={`w-4 h-4 transition-colors ${
+              favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
+            }`} />
+          </button>
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-2">

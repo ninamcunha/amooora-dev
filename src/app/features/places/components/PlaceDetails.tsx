@@ -230,10 +230,10 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               </div>
               <button 
                 onClick={handleFavoriteClick}
-                className="p-1"
+                className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
               >
-                <Heart className={`w-6 h-6 transition-colors ${
-                  favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-300 hover:fill-[#932d6f] hover:text-[#932d6f]'
+                <Heart className={`w-5 h-5 transition-colors ${
+                  favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
                 }`} />
               </button>
             </div>

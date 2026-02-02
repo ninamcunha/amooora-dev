@@ -4,7 +4,7 @@ import { ImageWithFallback } from '../../../shared/components';
 import { Header } from '../../../shared/components';
 import { BottomNav } from '../../../shared/components';
 import { useService } from '../hooks/useServices';
-import { useServiceReviews } from '../../../shared/hooks';
+import { useServiceReviews, useFavorites } from '../../../shared/hooks';
 import { calculateAverageRating } from '../../../shared/services';
 import { Review } from '../../../shared/types';
 import { shareContent, getShareUrl, getShareText } from '../../../shared/utils';
@@ -19,7 +19,10 @@ interface ServiceDetailsProps {
 export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetailsProps) {
   const { service, loading, error } = useService(serviceId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useServiceReviews(serviceId);
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [shareSuccess, setShareSuccess] = useState(false);
+  
+  const favorite = serviceId ? isFavorite('services', serviceId) : false;
 
   const handleShare = async () => {
     if (!service || !serviceId) return;
@@ -180,8 +183,18 @@ export function ServiceDetails({ serviceId, onNavigate, onBack }: ServiceDetails
               ))}
             </div>
             {/* Botão Favoritar */}
-            <button className="absolute top-3 right-3 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors">
-              <Heart className="w-5 h-5 text-[#932d6f]" />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (serviceId) {
+                  toggleFavorite('services', serviceId);
+                }
+              }}
+              className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+            >
+              <Heart className={`w-5 h-5 transition-colors ${
+                favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
+              }`} />
             </button>
           </div>
 

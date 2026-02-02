@@ -223,7 +223,8 @@ export function Locais({ onNavigate }: LocaisProps) {
             <div className="px-5 space-y-4 pb-6">
               {placesForCards.length > 0 ? (
                 placesForCards.map((place) => (
-                  <PlaceCardExpanded 
+                  <PlaceCardExpanded
+                    id={place.id} 
                     key={place.id} 
                     {...place} 
                     onClick={() => onNavigate(`place-details:${place.id}`)}

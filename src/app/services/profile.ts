@@ -100,41 +100,134 @@ export const getProfileStats = async (userId: string): Promise<ProfileStats> => 
 };
 
 /**
- * Busca locais favoritos do usuário
+ * Busca locais favoritos do usuário (do localStorage)
  */
 export const getSavedPlaces = async (userId: string): Promise<SavedPlace[]> => {
   try {
+    // Buscar favoritos do localStorage
+    const favoritesKey = 'amooora_favorites';
+    const stored = localStorage.getItem(favoritesKey);
+    if (!stored) return [];
+
+    const favorites = JSON.parse(stored);
+    const placeIds = favorites.places || [];
+
+    if (placeIds.length === 0) return [];
+
+    // Buscar dados dos lugares favoritos
     const { data, error } = await supabase
-      .from('saved_places')
-      .select(`
-        id,
-        place_id,
-        places:place_id (
-          name,
-          category,
-          rating,
-          image
-        )
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(5);
+      .from('places')
+      .select('id, name, category, rating, image')
+      .in('id', placeIds)
+      .eq('is_active', true)
+      .limit(10);
 
     if (error) {
       console.error('Erro ao buscar locais favoritos:', error);
       return [];
     }
 
-    return (data || []).map((item: any) => ({
-      id: item.id,
-      place_id: item.place_id,
-      name: item.places?.name || 'Local desconhecido',
-      category: item.places?.category || 'Outros',
-      rating: Number(item.places?.rating) || 0,
-      imageUrl: item.places?.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+    return (data || []).map((place: any) => ({
+      id: place.id,
+      place_id: place.id,
+      name: place.name || 'Local desconhecido',
+      category: place.category || 'Outros',
+      rating: Number(place.rating) || 0,
+      imageUrl: place.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
     }));
   } catch (error) {
     console.error('Erro ao buscar locais favoritos:', error);
+    return [];
+  }
+};
+
+/**
+ * Busca eventos favoritos do usuário (do localStorage)
+ */
+export const getFavoriteEvents = async (userId: string): Promise<UpcomingEvent[]> => {
+  try {
+    // Buscar favoritos do localStorage
+    const favoritesKey = 'amooora_favorites';
+    const stored = localStorage.getItem(favoritesKey);
+    if (!stored) return [];
+
+    const favorites = JSON.parse(stored);
+    const eventIds = favorites.events || [];
+
+    if (eventIds.length === 0) return [];
+
+    // Buscar dados dos eventos favoritos
+    const { data, error } = await supabase
+      .from('events')
+      .select('id, name, date, location')
+      .in('id', eventIds)
+      .eq('is_active', true)
+      .limit(10);
+
+    if (error) {
+      console.error('Erro ao buscar eventos favoritos:', error);
+      return [];
+    }
+
+    return (data || []).map((event: any) => ({
+      id: event.id,
+      event_id: event.id,
+      name: event.name || 'Evento desconhecido',
+      date: event.date ? new Date(event.date).toLocaleDateString('pt-BR') : 'Data não informada',
+      time: event.date ? new Date(event.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+      location: event.location || 'Local não informado',
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar eventos favoritos:', error);
+    return [];
+  }
+};
+
+/**
+ * Busca serviços favoritos do usuário (do localStorage)
+ */
+export const getFavoriteServices = async (userId: string): Promise<Array<{
+  id: string;
+  service_id: string;
+  name: string;
+  category: string;
+  provider: string;
+  imageUrl: string;
+}>> => {
+  try {
+    // Buscar favoritos do localStorage
+    const favoritesKey = 'amooora_favorites';
+    const stored = localStorage.getItem(favoritesKey);
+    if (!stored) return [];
+
+    const favorites = JSON.parse(stored);
+    const serviceIds = favorites.services || [];
+
+    if (serviceIds.length === 0) return [];
+
+    // Buscar dados dos serviços favoritos
+    const { data, error } = await supabase
+      .from('services')
+      .select('id, name, category, provider, image')
+      .in('id', serviceIds)
+      .eq('is_active', true)
+      .limit(10);
+
+    if (error) {
+      console.error('Erro ao buscar serviços favoritos:', error);
+      return [];
+    }
+
+    return (data || []).map((service: any) => ({
+      id: service.id,
+      service_id: service.id,
+      name: service.name || 'Serviço desconhecido',
+      category: service.category || 'Outros',
+      provider: service.provider || 'Fornecedor não informado',
+      imageUrl: service.image || 'https://via.placeholder.com/400x300?text=Sem+Imagem',
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar serviços favoritos:', error);
     return [];
   }
 };

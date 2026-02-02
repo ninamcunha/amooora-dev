@@ -56,8 +56,8 @@ export function ServiceCardExpanded({
           className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
         >
           <Heart
-            className={`w-5 h-5 ${
-              favorite ? 'fill-accent text-accent' : 'text-muted-foreground'
+            className={`w-5 h-5 transition-colors ${
+              favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
             }`}
           />
         </button>

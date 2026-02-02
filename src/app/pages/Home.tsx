@@ -242,6 +242,7 @@ export function Home({ onNavigate }: HomeProps) {
                 limitedPlaces.map((place) => (
                   <PlaceCard 
                     key={place.id}
+                    id={place.id}
                     name={place.name}
                     category={place.category}
                     rating={place.rating}

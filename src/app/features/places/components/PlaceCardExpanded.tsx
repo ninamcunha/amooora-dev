@@ -1,7 +1,9 @@
-import { Star, MapPin, ArrowRight } from 'lucide-react';
+import { Star, MapPin, ArrowRight, Heart } from 'lucide-react';
 import { ImageWithFallback, Badge, Tag } from '../../../shared/components';
+import { useFavorites } from '../../../shared/hooks';
 
 interface PlaceCardExpandedProps {
+  id: string;
   name: string;
   description: string;
   rating: number;
@@ -15,6 +17,7 @@ interface PlaceCardExpandedProps {
 }
 
 export function PlaceCardExpanded({
+  id,
   name,
   description,
   rating,
@@ -26,6 +29,9 @@ export function PlaceCardExpanded({
   isSafe = true,
   onClick,
 }: PlaceCardExpandedProps) {
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite('places', id);
+
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow">
       {/* Imagem */}
@@ -36,10 +42,21 @@ export function PlaceCardExpanded({
           className="w-full h-full object-cover"
         />
         {isSafe && (
-          <div className="absolute top-3 right-3">
+          <div className="absolute top-3 left-3">
             <Badge variant="primary">Seguro</Badge>
           </div>
         )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleFavorite('places', id);
+          }}
+          className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+        >
+          <Heart className={`w-5 h-5 transition-colors ${
+            favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
+          }`} />
+        </button>
       </div>
 
       {/* Conteúdo */}
