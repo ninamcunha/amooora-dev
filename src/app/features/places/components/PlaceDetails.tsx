@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ImageWithFallback, Header, BottomNav, AuthTooltip } from '../../../shared/components';
 import { usePlace } from '../hooks/usePlaces';
 import { usePlaceInteractions } from '../hooks/usePlaceInteractions';
+import { usePlaceFollow } from '../hooks/usePlaceFollow';
 import { Review } from '../../../shared/types';
 import { calculateAverageRating } from '../../../shared/services';
 import { shareContent, getShareUrl, getShareText } from '../../../shared/utils';
@@ -32,6 +33,7 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
       }));
     }
   });
+  const { isFollowing, followersCount, toggleFollow, refreshCount } = usePlaceFollow(placeId);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [showAuthTooltip, setShowAuthTooltip] = useState(false);
@@ -55,6 +57,18 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
       return;
     }
     toggleVisit();
+  };
+
+  const handleFollowClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+    toggleFollow();
+    // Atualizar contador após mudança
+    setTimeout(() => {
+      refreshCount();
+    }, 500);
   };
 
   const handleReviewClick = () => {
@@ -275,11 +289,19 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               </a>
             )}
 
-            <div className="flex items-center gap-2 pt-2">
-              <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
-              <span className="font-bold text-black text-lg">
-                {averageRating.toFixed(1)} ({reviewCount})
-              </span>
+            <div className="flex items-center gap-4 pt-2">
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4 fill-[#932d6f] text-[#932d6f]" />
+                <span className="font-bold text-black text-lg">
+                  {averageRating.toFixed(1)} ({reviewCount})
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-4 h-4 text-[#932d6f]" />
+                <span className="font-bold text-black text-lg">
+                  {followersCount} {followersCount === 1 ? 'seguidor' : 'seguidores'}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -302,6 +324,17 @@ export function PlaceDetails({ placeId, onNavigate, onBack }: PlaceDetailsProps)
               >
                 <Share2 className="w-4 h-4" />
                 {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
+              </button>
+              <button 
+                onClick={handleFollowClick}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
+                  isFollowing
+                    ? 'bg-[#E5D5F0] text-[#932d6f] border-[#932d6f]/30'
+                    : 'bg-[rgba(147,45,111,0.1)] text-[#932d6f] border-[#932d6f]/10 hover:bg-[rgba(147,45,111,0.2)]'
+                }`}
+              >
+                <UserPlus className={`w-4 h-4 ${isFollowing ? 'fill-[#932d6f] text-[#932d6f]' : ''}`} />
+                {isFollowing ? 'Seguindo' : 'Seguir'}
               </button>
             </div>
           </div>
