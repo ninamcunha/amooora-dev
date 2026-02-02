@@ -12,15 +12,10 @@ import { ImageWithFallback } from '../shared/components';
 // 2. Descomente as 3 linhas de import abaixo
 // 3. Remova ou comente as 3 linhas de const com URLs temporárias
 
-// Imports das imagens locais (descomente após adicionar os arquivos):
-// import sobreAmooora1 from '@/assets/sobre-amooora-1.png';
-// import sobreAmooora2 from '@/assets/sobre-amooora-2.png';
-// import sobreAmooora3 from '@/assets/sobre-amooora-3.png';
-
-// URLs temporárias - REMOVER após adicionar as imagens e descomentar os imports acima
-const sobreAmooora1 = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800';
-const sobreAmooora2 = 'https://images.unsplash.com/photo-1517841905240-472988babdf9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800';
-const sobreAmooora3 = 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800';
+// Imports das imagens locais
+import sobreAmooora1 from '@/assets/sobre-amooora-1.png';
+import sobreAmooora2 from '@/assets/sobre-amooora-2.png';
+import sobreAmooora3 from '@/assets/sobre-amooora-3.png';
 
 interface SobreAmoooraProps {
   onNavigate: (page: string) => void;
