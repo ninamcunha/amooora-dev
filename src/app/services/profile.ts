@@ -179,14 +179,28 @@ export const getFavoriteEvents = async (userId: string): Promise<UpcomingEvent[]
       return [];
     }
 
-    return (data || []).map((event: any) => ({
-      id: event.id,
-      event_id: event.id,
-      name: event.name || 'Evento desconhecido',
-      date: event.date ? new Date(event.date).toLocaleDateString('pt-BR') : 'Data não informada',
-      time: event.date ? new Date(event.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
-      location: event.location || 'Local não informado',
-    }));
+    return (data || []).map((event: any) => {
+      let formattedDate = 'Data não informada';
+      let time = '';
+      
+      if (event.date) {
+        const date = new Date(event.date);
+        const day = date.getDate();
+        const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        const month = months[date.getMonth()];
+        formattedDate = `${day.toString().padStart(2, '0')} ${month}`;
+        time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      }
+      
+      return {
+        id: event.id,
+        event_id: event.id,
+        name: event.name || 'Evento desconhecido',
+        date: formattedDate,
+        time,
+        location: event.location || 'Local não informado',
+      };
+    });
   } catch (error) {
     console.error('Erro ao buscar eventos favoritos:', error);
     return [];
