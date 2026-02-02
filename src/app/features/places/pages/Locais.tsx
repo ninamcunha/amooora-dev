@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { SlidersHorizontal, MapPin, Plus } from 'lucide-react';
-import { Header, SearchBar, CategoryFilter, BottomNav, EmptyState, SkeletonListExpanded } from '../../../shared/components';
+import { Header, SearchBar, CategoryFilter, BottomNav, EmptyState, SkeletonListExpanded, AuthModal } from '../../../shared/components';
 import { PlaceCardExpanded } from '../components/PlaceCardExpanded';
 import { FilterModal, FilterOptions } from '../../../components/FilterModal';
 import { usePlaces } from '../hooks/usePlaces';
 import { useFilterPreferences } from '../../../hooks/useFilterPreferences';
-import { useAdmin } from '../../../shared/hooks';
+import { useAdmin, useAuth } from '../../../shared/hooks';
 
 const categories = ['Todos', 'Cafés', 'Bares', 'Restaurantes', 'Cultura'];
 
@@ -16,10 +16,12 @@ interface LocaisProps {
 export function Locais({ onNavigate }: LocaisProps) {
   const { places, loading, error } = usePlaces();
   const { isAdmin } = useAdmin();
+  const { isAuthenticated } = useAuth();
   const { filters, updateFilters, clearFilters } = useFilterPreferences();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
   const [placeRatings, setPlaceRatings] = useState<Record<string, number>>({});
   
@@ -166,7 +168,13 @@ export function Locais({ onNavigate }: LocaisProps) {
             <div className="flex items-center justify-between gap-3 mb-4">
               <h1 className="text-2xl font-semibold text-primary flex-1">Locais Seguros</h1>
               <button
-                onClick={() => onNavigate('admin-cadastrar-local')}
+                onClick={() => {
+                  if (isAuthenticated) {
+                    onNavigate('admin-cadastrar-local');
+                  } else {
+                    setIsAuthModalOpen(true);
+                  }
+                }}
                 className="flex items-center gap-2 px-3 py-2 bg-[#F5EBFF] rounded-full hover:bg-[#E5D5F0] transition-colors border border-primary/10 flex-shrink-0"
               >
                 <Plus className="w-4 h-4 text-primary flex-shrink-0" strokeWidth={2.5} />
@@ -253,6 +261,14 @@ export function Locais({ onNavigate }: LocaisProps) {
         onFiltersChange={handleFiltersChange}
         onApply={handleApplyFilters}
         onClear={handleClearFilters}
+      />
+
+      {/* Modal de Autenticação */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLogin={() => onNavigate('login')}
+        onSignUp={() => onNavigate('cadastro')}
       />
     </div>
   );

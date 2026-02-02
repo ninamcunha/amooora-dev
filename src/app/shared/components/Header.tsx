@@ -119,12 +119,16 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin: isAdminPro
     { icon: Scissors, label: 'Serviços', page: 'services' },
     { icon: MessageSquare, label: 'Comunidade', page: 'community' },
     { icon: Map, label: 'Mapa', page: 'mapa' },
-    { icon: Heart, label: 'Meus Favoritos', page: 'favoritos' },
-    { icon: FileText, label: 'Minhas Publicações', page: 'minhas-publicacoes' },
+    // Mostrar "Meus Favoritos" e "Minhas Publicações" apenas se estiver logado
+    ...(isAuthenticated ? [
+      { icon: Heart, label: 'Meus Favoritos', page: 'favoritos' },
+      { icon: FileText, label: 'Minhas Publicações', page: 'minhas-publicacoes' },
+    ] : []),
     ...(isAdmin ? [{ icon: Settings, label: 'Admin', page: 'admin' }] : []),
     { icon: Mail, label: 'Fale Conosco', page: 'fale-conosco' },
     { icon: Info, label: 'Sobre Amooora', page: 'sobre-amooora' },
-    { icon: LogOut, label: 'Sair', page: 'logout' },
+    // Mostrar "Sair" apenas se estiver logado
+    ...(isAuthenticated ? [{ icon: LogOut, label: 'Sair', page: 'logout' }] : []),
   ];
 
   return (

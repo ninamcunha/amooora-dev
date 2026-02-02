@@ -1,6 +1,6 @@
 import { Calendar, Plus } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { Header } from '../../../shared/components';
+import { Header, AuthModal } from '../../../shared/components';
 import { SearchBar } from '../../../shared/components';
 import { CategoryFilter } from '../../../shared/components';
 import { EventCardExpanded } from '../components/EventCardExpanded';
@@ -9,7 +9,7 @@ import { BottomNav } from '../../../shared/components';
 import { EmptyState } from '../../../shared/components';
 import { SkeletonListExpanded } from '../../../shared/components';
 import { useEvents } from '../hooks/useEvents';
-import { useAdmin } from '../../../shared/hooks';
+import { useAdmin, useAuth } from '../../../shared/hooks';
 import { geocodeAddress } from '../../../shared/services';
 
 const categories = ['Todos', 'Hoje', 'Semana', 'Gratuitos'];
@@ -21,10 +21,12 @@ interface EventosProps {
 export function Eventos({ onNavigate }: EventosProps) {
   const { events, loading, error } = useEvents();
   const { isAdmin } = useAdmin();
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [geocodingCache, setGeocodingCache] = useState<Record<string, { lat: number; lng: number }>>({});
   const geocodingProcessedRef = useRef<Set<string>>(new Set());
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Formatar data para exibição
   const formatDate = (dateString: string) => {
@@ -197,7 +199,13 @@ export function Eventos({ onNavigate }: EventosProps) {
             <div className="flex items-center justify-between gap-3 mb-4">
               <h1 className="text-2xl font-semibold text-primary flex-1">Eventos</h1>
               <button
-                onClick={() => onNavigate('admin-cadastrar-evento')}
+                onClick={() => {
+                  if (isAuthenticated) {
+                    onNavigate('admin-cadastrar-evento');
+                  } else {
+                    setIsAuthModalOpen(true);
+                  }
+                }}
                 className="flex items-center gap-2 px-3 py-2 bg-[#F5EBFF] rounded-full hover:bg-[#E5D5F0] transition-colors border border-primary/10 flex-shrink-0"
               >
                 <Plus className="w-4 h-4 text-primary flex-shrink-0" strokeWidth={2.5} />
@@ -279,6 +287,14 @@ export function Eventos({ onNavigate }: EventosProps) {
         {/* Bottom Navigation fixo */}
         <BottomNav activeItem="events" onItemClick={onNavigate} />
       </div>
+
+      {/* Modal de Autenticação */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLogin={() => onNavigate('login')}
+        onSignUp={() => onNavigate('cadastro')}
+      />
     </div>
   );
 }
