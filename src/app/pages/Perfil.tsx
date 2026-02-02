@@ -610,7 +610,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
                           hasUpcomingEvent
                             ? 'bg-[#932d6f] text-white font-bold'
                             : hasAttendedEvent
-                            ? 'bg-[#932d6f]/10 text-[#932d6f] font-medium'
+                            ? 'bg-pink-100 text-pink-700 font-medium'
                             : 'text-gray-700'
                         }`}
                       >
@@ -625,7 +625,7 @@ export function Perfil({ onNavigate }: PerfilProps) {
                     <span className="text-gray-600">Próximos eventos</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-[#932d6f]/10 rounded"></div>
+                    <div className="w-3 h-3 bg-pink-100 rounded"></div>
                     <span className="text-gray-600">Participei</span>
                   </div>
                 </div>
