@@ -24,6 +24,46 @@ interface EventDetailsProps {
   onBack?: () => void;
 }
 
+// Componente wrapper para tratar erros do mapa
+function MapWrapper({ 
+  mapLocation, 
+  eventCoordinates, 
+  onError 
+}: { 
+  mapLocation: any; 
+  eventCoordinates: { lat: number; lng: number } | null;
+  onError: () => void;
+}) {
+  useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      console.error('Erro no mapa:', error);
+      onError();
+    };
+
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, [onError]);
+
+  try {
+    return (
+      <InteractiveMap
+        locations={[mapLocation]}
+        center={eventCoordinates || undefined}
+        height="256px"
+        zoom={15}
+      />
+    );
+  } catch (err) {
+    console.error('Erro ao renderizar mapa:', err);
+    onError();
+    return (
+      <div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center">
+        <p className="text-sm text-gray-500">Não foi possível carregar o mapa</p>
+      </div>
+    );
+  }
+}
+
 export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps) {
   const { event, loading, error } = useEvent(eventId);
   const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useEventReviews(eventId);
@@ -49,6 +89,7 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [showAuthTooltip, setShowAuthTooltip] = useState(false);
+  const [mapError, setMapError] = useState(false);
 
   const handleInterestClick = () => {
     if (!isAuthenticated) {
@@ -382,14 +423,17 @@ export function EventDetails({ eventId, onNavigate, onBack }: EventDetailsProps)
                   <div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
                     <p className="text-sm text-gray-500">Carregando mapa...</p>
                   </div>
-                ) : mapLocation ? (
+                ) : mapLocation && !mapError ? (
                   <div className="w-full h-64 rounded-xl overflow-hidden mb-3">
-                    <InteractiveMap
-                      locations={[mapLocation]}
-                      center={eventCoordinates || undefined}
-                      height="256px"
-                      zoom={15}
+                    <MapWrapper
+                      mapLocation={mapLocation}
+                      eventCoordinates={eventCoordinates}
+                      onError={() => setMapError(true)}
                     />
+                  </div>
+                ) : mapError ? (
+                  <div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
+                    <p className="text-sm text-gray-500">Não foi possível carregar o mapa</p>
                   </div>
                 ) : (
                   <div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center mb-3">
