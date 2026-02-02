@@ -548,7 +548,7 @@ export function AdminCadastrarEvento({ onNavigate }: AdminCadastrarEventoProps) 
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 bg-secondary text-white py-4 px-6 rounded-full font-semibold hover:bg-secondary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 bg-primary text-white py-4 px-6 rounded-full font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? 'Cadastrando...' : 'Cadastrar Evento'}
             </button>
