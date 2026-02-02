@@ -130,8 +130,17 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
       })
       .map((event) => {
         // Tentar obter coordenadas do cache de geocoding
-        const cached = geocodingCache[event.location];
-        if (!cached) return null; // Ainda não foi geocodificado
+        const cached = geocodingCache[event.location || ''];
+        if (!cached) {
+          // Log para debug - eventos que ainda não foram geocodificados
+          console.log('📍 [Mapa] Evento aguardando geocoding:', {
+            id: event.id,
+            name: event.name,
+            location: event.location,
+            hasCache: !!geocodingCache[event.location || ''],
+          });
+          return null; // Ainda não foi geocodificado
+        }
 
         return {
           id: event.id,
@@ -145,7 +154,7 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
         };
       })
       .filter((event): event is NonNullable<typeof event> => event !== null);
-  }, [events.length, activeFilter, Object.keys(geocodingCache).length]); // Usar apenas tamanhos
+  }, [events, activeFilter, geocodingCache]); // Usar events completo e geocodingCache completo
 
   // Combinar locais e eventos
   const allLocations = useMemo(() => {
@@ -265,7 +274,11 @@ export function Mapa({ onNavigate, onBack }: MapaProps) {
               {/* Lista de locais abaixo do mapa */}
               <div className="mt-6 space-y-3">
                 <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                  Locais no mapa ({allLocations.length})
+                  {activeFilter === 'all' 
+                    ? `Locais e eventos no mapa (${allLocations.length})`
+                    : activeFilter === 'places'
+                    ? `Locais no mapa (${mapPlaces.length})`
+                    : `Eventos no mapa (${mapEvents.length})`}
                 </h2>
                 {allLocations.map((location) => (
                   <button
