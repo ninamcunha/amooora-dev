@@ -33,7 +33,10 @@ export function PlaceCardExpanded({
   const favorite = isFavorite('places', id);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow">
+    <div 
+      onClick={onClick}
+      className="bg-white rounded-2xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow cursor-pointer relative"
+    >
       {/* Imagem */}
       <div className="relative h-52 overflow-hidden">
         <ImageWithFallback
@@ -46,12 +49,14 @@ export function PlaceCardExpanded({
             <Badge variant="primary">Seguro</Badge>
           </div>
         )}
+        {/* Botão de favoritos */}
         <button
           onClick={(e) => {
             e.stopPropagation();
             toggleFavorite('places', id);
           }}
-          className="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+          className="absolute top-3 right-3 z-10 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+          aria-label={favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
           <Heart className={`w-5 h-5 transition-colors ${
             favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
@@ -97,14 +102,11 @@ export function PlaceCardExpanded({
           </div>
         )}
 
-        {/* Botão Ver Local */}
-        <button
-          onClick={onClick}
-          className="w-full bg-white border border-[#932d6f] text-[#932d6f] font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-[#932d6f]/5 transition-colors"
-        >
+        {/* Botão Ver Local - mantido para indicar ação, mas card inteiro já é clicável */}
+        <div className="w-full bg-white border border-[#932d6f] text-[#932d6f] font-medium py-3 px-4 rounded-xl flex items-center justify-center gap-2 pointer-events-none">
           Ver Local
           <ArrowRight className="w-4 h-4" />
-        </button>
+        </div>
       </div>
     </div>
   );
