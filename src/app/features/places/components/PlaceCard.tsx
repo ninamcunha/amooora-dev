@@ -34,8 +34,16 @@ export function PlaceCard({
     <div 
       onClick={onClick}
       className="bg-white rounded-xl shadow-sm overflow-hidden border border-border/50 hover:shadow-md transition-shadow mb-3 cursor-pointer relative"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
     >
-      {/* Botão de favoritos - posicionado no card inteiro */}
+      {/* Botão de favoritos */}
       {showFavorite && (
         <button
           onClick={(e) => {
@@ -43,6 +51,7 @@ export function PlaceCard({
             toggleFavorite('places', id);
           }}
           className="absolute top-2 right-2 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+          aria-label={favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
           <Heart className={`w-4 h-4 transition-colors ${
             favorite ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-400'
