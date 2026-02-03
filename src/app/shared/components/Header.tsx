@@ -174,7 +174,7 @@ export function Header({ onNavigate, showBackButton, onBack, isAdmin: isAdminPro
           {/* Botão de Perfil */}
           <button 
             onClick={handleProfileClick}
-            className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/90 transition-colors"
+            className="w-10 h-10 rounded-full bg-[#c4532f] flex items-center justify-center hover:bg-[#c4532f]/90 transition-colors"
           >
             <UserPen className="w-5 h-5 text-white" />
           </button>
