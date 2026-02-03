@@ -430,6 +430,16 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
         {/* Navegação inferior fixa */}
         <BottomNav activeItem="community" onItemClick={onNavigate} />
       </div>
+
+      {/* Auth Tooltip */}
+      <AuthTooltip
+        isOpen={showAuthTooltip}
+        onClose={() => setShowAuthTooltip(false)}
+        onSignUp={() => {
+          setShowAuthTooltip(false);
+          onNavigate('cadastro');
+        }}
+      />
     </div>
   );
 }
