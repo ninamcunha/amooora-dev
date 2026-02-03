@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { ArrowLeft, Users, MessageCircle, Heart, Calendar, Palette, Briefcase, Plane, Sparkles, Home, Star, Share2, Flag, UserPlus } from 'lucide-react';
-import { Header } from '../../../shared/components';
+import { ArrowLeft, Users, MessageCircle, Heart, Calendar, Palette, Briefcase, Plane, Sparkles, Home, Star, Share2, UserPlus } from 'lucide-react';
+import { Header, AuthTooltip } from '../../../shared/components';
 import { CommunityPostCard } from '../components/CommunityPostCard';
 import { CreatePostForm } from '../components/CreatePostForm';
 import { ImageWithFallback } from '../../../shared/components';
@@ -8,14 +8,15 @@ import { EmptyState } from '../../../shared/components';
 import { SkeletonListExpanded } from '../../../shared/components';
 import { InfiniteScroll } from '../../../components/InfiniteScroll';
 import { BottomNav } from '../../../shared/components';
-import { useAdmin } from '../../../shared/hooks';
+import { useAdmin, useAuth, useCommunityReviews } from '../../../shared/hooks';
 import { useCommunity } from '../hooks/useCommunities';
 import { useCommunityPosts } from '../hooks/useCommunityPosts';
+import { useCommunityFollow } from '../hooks/useCommunityFollow';
 import { createPost } from '../services/community';
 import { MessageSquare } from 'lucide-react';
 import { shareContent, getShareUrl, getShareText } from '../../../shared/utils';
-import { joinCommunity, leaveCommunity, isUserMember } from '../services/communities';
-import { supabase } from '../../../infra/supabase';
+import { calculateAverageRating } from '../../../shared/services';
+import { Review } from '../../../shared/types';
 
 // Mapear categoria para cor
 const categoryColors: Record<string, string> = {
@@ -58,11 +59,18 @@ interface CommunityDetailsProps {
 
 export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityDetailsProps) {
   const { isAdmin } = useAdmin();
+  const { isAuthenticated } = useAuth();
   const { community, loading: communityLoading, error: communityError } = useCommunity(communityId);
-  const [isFollowing, setIsFollowing] = useState(false);
+  const { reviews: realReviews, loading: reviewsLoading, refetch: refetchReviews } = useCommunityReviews(communityId);
+  const { isFollowing, followersCount, toggleFollow, refreshCount } = useCommunityFollow(communityId, {
+    onFollowChange: () => {
+      setTimeout(() => {
+        refreshCount();
+      }, 500);
+    }
+  });
   const [shareSuccess, setShareSuccess] = useState(false);
-  const [communityRating, setCommunityRating] = useState<number>(0);
-  const [ratingCount, setRatingCount] = useState<number>(0);
+  const [showAuthTooltip, setShowAuthTooltip] = useState(false);
   
   // Buscar posts da categoria da comunidade
   const { posts, loading: postsLoading, error: postsError, hasMore, loadMore, refetch } = useCommunityPosts({
@@ -71,56 +79,24 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
     limit: 20,
   });
 
-  // Verificar se usuário está seguindo a comunidade
-  useEffect(() => {
-    const checkFollowing = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user && communityId) {
-          const member = await isUserMember(communityId, user.id);
-          setIsFollowing(member);
-        }
-      } catch (error) {
-        console.error('Erro ao verificar se está seguindo:', error);
-      }
-    };
-    checkFollowing();
-  }, [communityId]);
+  // Processar reviews
+  const reviews: Review[] = realReviews.map(review => ({
+    ...review,
+    avatar: review.avatar || review.userAvatar || undefined,
+    author: review.author || review.userName || 'Usuário',
+    date: review.date || (review.createdAt ? new Date(review.createdAt).toLocaleDateString('pt-BR') : undefined),
+  }));
 
-  // Buscar avaliações da comunidade (placeholder - será implementado depois)
-  useEffect(() => {
-    // Por enquanto, usar rating mockado ou do banco se existir
-    // TODO: Implementar sistema de avaliações para comunidades
-    if (community) {
-      // Mock: usar rating se existir, senão usar valor padrão
-      // Quando sistema de avaliações estiver pronto, buscar do banco
-      setCommunityRating(4.5); // Valor mockado por enquanto
-      setRatingCount(0); // Será atualizado quando avaliações estiverem implementadas
-    }
-  }, [community]);
+  const averageRating = reviews.length > 0 ? calculateAverageRating(reviews) : 0;
+  const reviewCount = reviews.length;
 
   // Handler para seguir/deixar de seguir
-  const handleFollow = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        // Se não estiver logado, preparar para quando login estiver ativo
-        console.log('Usuário não logado - funcionalidade será ativada quando login estiver funcionando');
-        // Por enquanto, apenas alternar visualmente
-        setIsFollowing(!isFollowing);
-        return;
-      }
-
-      if (isFollowing) {
-        await leaveCommunity(communityId, user.id);
-        setIsFollowing(false);
-      } else {
-        await joinCommunity(communityId, user.id);
-        setIsFollowing(true);
-      }
-    } catch (error) {
-      console.error('Erro ao seguir/deixar de seguir comunidade:', error);
+  const handleFollowClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
     }
+    toggleFollow();
   };
 
   // Handler para compartilhar
@@ -139,18 +115,15 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
     }
   };
 
-  // Handler para avaliar - mostrar avaliações existentes
-  const handleRate = () => {
-    // Por enquanto, apenas mostrar avaliações
-    // Quando sistema de avaliações estiver pronto, pode navegar para página de avaliação
-    // onNavigate(`create-review:community:${communityId}`);
-    // Por enquanto, apenas scroll para seção de avaliações se existir
-  };
-
-  // Handler para denunciar
-  const handleReport = () => {
-    // Navegar para página de denúncia (será criada depois)
-    onNavigate(`report:community:${communityId}`);
+  // Handler para avaliar
+  const handleReviewClick = () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
+    if (communityId) {
+      onNavigate(`create-review:community:${communityId}`);
+    }
   };
 
   // Renderizar estrelas de avaliação
@@ -300,6 +273,17 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
                   <p className="text-xs text-gray-500">Posts</p>
                 </div>
               </div>
+              {reviewCount > 0 && (
+                <div className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-gray-600" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">
+                      {averageRating.toFixed(1)} ({reviewCount})
+                    </p>
+                    <p className="text-xs text-gray-500">Avaliações</p>
+                  </div>
+                </div>
+              )}
               {community.category && (
                 <div className="ml-auto">
                   <span
@@ -317,14 +301,18 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
           <div className="px-5 py-4 bg-white border-b border-gray-100">
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               <button
-                onClick={handleFollow}
-                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
+                onClick={handleFollowClick}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
+                  isFollowing
+                    ? 'bg-[#E5D5F0] text-[#932d6f] border-[#932d6f]/30'
+                    : 'bg-[rgba(147,45,111,0.1)] text-[#932d6f] border-[#932d6f]/10 hover:bg-[rgba(147,45,111,0.2)]'
+                }`}
               >
-                <UserPlus className="w-4 h-4" />
+                <UserPlus className={`w-4 h-4 ${isFollowing ? 'fill-[#932d6f] text-[#932d6f]' : ''}`} />
                 {isFollowing ? 'Seguindo' : 'Seguir'}
               </button>
               <button
-                onClick={handleRate}
+                onClick={handleReviewClick}
                 className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
               >
                 <Star className="w-4 h-4" />
@@ -337,22 +325,58 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
                 <Share2 className="w-4 h-4" />
                 {shareSuccess ? 'Link copiado!' : 'Compartilhar'}
               </button>
-              <button
-                onClick={handleReport}
-                className="flex items-center gap-2 px-4 py-1.5 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-full text-sm font-medium whitespace-nowrap hover:bg-[rgba(147,45,111,0.2)] transition-colors"
-              >
-                <Flag className="w-4 h-4" />
-                Denunciar
-              </button>
             </div>
           </div>
 
           {/* Avaliação - sempre mostrar quando houver avaliações */}
-          {ratingCount > 0 && (
+          {reviewCount > 0 && (
             <div className="px-5 py-3 bg-white border-b border-gray-100">
               <div className="flex items-center gap-2">
-                {renderStars(communityRating)}
+                {renderStars(averageRating)}
               </div>
+            </div>
+          )}
+
+          {/* Comentários/Reviews */}
+          {reviews.length > 0 && (
+            <div className="px-5 py-4 bg-white border-b border-gray-100">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">
+                Comentários ({reviews.length})
+              </h3>
+              {reviewsLoading ? (
+                <div className="py-8 text-center">
+                  <p className="text-muted-foreground text-sm">Carregando avaliações...</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="flex gap-3">
+                      <ImageWithFallback
+                        src={review.avatar || review.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHx1c2VyJTIwYXZhdGFyfGVufDF8fHx8MTcwMTY1NzYwMHww&ixlib=rb-4.1.0&q=80&w=1080'}
+                        alt={review.author || review.userName || 'Usuário'}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-bold text-gray-900 text-sm">{review.author || review.userName || 'Usuário'}</h4>
+                          <p className="text-xs text-gray-500">{review.date || (review.createdAt ? new Date(review.createdAt).toLocaleDateString('pt-BR') : 'Data não disponível')}</p>
+                        </div>
+                        {review.rating > 0 && (
+                          <div className="flex items-center gap-0.5 mb-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`w-3.5 h-3.5 ${star <= review.rating ? 'fill-[#932d6f] text-[#932d6f]' : 'text-gray-300'}`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                        <p className="text-sm text-gray-700 leading-relaxed">{review.comment}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

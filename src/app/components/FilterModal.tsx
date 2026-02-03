@@ -42,7 +42,7 @@ const availableTags = [
   { label: 'Ar Livre', value: 'ar-livre', icon: '🌳' },
 ];
 
-const eventTags = [
+const eventTagsList = [
   { label: 'Gratuito', value: 'gratuito', icon: '🆓' },
   { label: 'Ar Livre', value: 'ar-livre', icon: '🌳' },
   { label: 'Música', value: 'musica', icon: '🎵' },
@@ -67,7 +67,7 @@ export function FilterModal({
   if (!isOpen) return null;
 
   // Escolher tags baseado no tipo (eventos ou locais)
-  const tagsToUse = eventTags ? eventTags : availableTags;
+  const tagsToUse = eventTags ? eventTagsList : availableTags;
 
   return (
     <>
