@@ -36,9 +36,10 @@ export function CommunityPostCard({
   onClick,
 }: CommunityPostCardProps) {
   // Usar hook para gerenciar likes do banco
+  // Não passar userId para permitir uso de localStorage quando não autenticado
   const { isLiked, likesCount, toggleLike, setLikesCount } = usePostLikes({
     postId: id || '',
-    userId: undefined, // Por enquanto sem login
+    userId: undefined, // Sem userId para usar localStorage quando não autenticado
     authorName: undefined,
   });
 
@@ -47,12 +48,18 @@ export function CommunityPostCard({
     if (initialLikes !== undefined && likesCount === 0 && initialLikes > 0) {
       setLikesCount(initialLikes);
     }
-  }, [initialLikes]);
+  }, [initialLikes, likesCount, setLikesCount]);
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevenir navegação ao clicar no like
+    e.preventDefault(); // Prevenir qualquer comportamento padrão
     if (id) {
-      await toggleLike();
+      try {
+        await toggleLike();
+      } catch (error) {
+        console.error('Erro ao alternar like:', error);
+        // Não acionar modal aqui - apenas logar o erro
+      }
     }
   };
 

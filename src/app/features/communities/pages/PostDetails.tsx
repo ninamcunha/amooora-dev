@@ -41,9 +41,10 @@ export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {
   const { isAdmin } = useAdmin();
   const { isAuthenticated } = useAuth();
   const { post, loading: postLoading, error: postError, refetch: refetchPost } = usePost(postId);
+  // Não passar userId para permitir uso de localStorage quando não autenticado
   const { isLiked, likesCount, toggleLike } = usePostLikes({
     postId,
-    userId: undefined,
+    userId: undefined, // Sem userId para usar localStorage quando não autenticado
     authorName: undefined,
   });
   const [newComment, setNewComment] = useState('');

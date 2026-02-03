@@ -2,15 +2,30 @@ import { useState, useEffect, useRef } from 'react';
 import { X, UserPlus } from 'lucide-react';
 
 interface AuthTooltipProps {
+  isOpen?: boolean;
   onClose?: () => void;
+  onLogin?: () => void;
+  onSignUp?: () => void;
   onNavigate?: (page: string) => void;
 }
 
-export function AuthTooltip({ onClose, onNavigate }: AuthTooltipProps) {
-  const [isVisible, setIsVisible] = useState(true);
+export function AuthTooltip({ isOpen = false, onClose, onLogin, onSignUp, onNavigate }: AuthTooltipProps) {
+  const [isVisible, setIsVisible] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
+  // Sincronizar isVisible com isOpen
   useEffect(() => {
+    if (isOpen) {
+      setIsVisible(true);
+    } else {
+      setIsVisible(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    // Só adicionar listeners se estiver aberto
+    if (!isVisible) return;
+
     // Fechar ao clicar fora
     const handleClickOutside = (event: MouseEvent) => {
       if (tooltipRef.current && !tooltipRef.current.contains(event.target as Node)) {
@@ -29,7 +44,7 @@ export function AuthTooltip({ onClose, onNavigate }: AuthTooltipProps) {
       clearTimeout(timeout);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [isVisible]);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -39,7 +54,20 @@ export function AuthTooltip({ onClose, onNavigate }: AuthTooltipProps) {
   };
 
   const handleCadastro = () => {
-    onNavigate?.('cadastro');
+    if (onSignUp) {
+      onSignUp();
+    } else if (onNavigate) {
+      onNavigate('cadastro');
+    }
+    handleClose();
+  };
+
+  const handleLogin = () => {
+    if (onLogin) {
+      onLogin();
+    } else if (onNavigate) {
+      onNavigate('login');
+    }
     handleClose();
   };
 
