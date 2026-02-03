@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Send, MoreVertical, Loader2 } from 'lucide-react';
-import { Header } from '../../../shared/components';
+import { Header, AuthTooltip } from '../../../shared/components';
 import { ImageWithFallback } from '../../../shared/components';
 import { Tag } from '../../../shared/components';
 import { EmptyState } from '../../../shared/components';
-import { useAdmin } from '../../../shared/hooks';
+import { useAdmin, useAuth } from '../../../shared/hooks';
 import { usePost } from '../../../hooks/useCommunityPosts';
 import { usePostLikes } from '../../../hooks/usePostLikes';
 import { usePostReplies } from '../../../hooks/usePostReplies';
@@ -39,6 +39,7 @@ const categoryColors: Record<string, string> = {
 
 export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {
   const { isAdmin } = useAdmin();
+  const { isAuthenticated } = useAuth();
   const { post, loading: postLoading, error: postError, refetch: refetchPost } = usePost(postId);
   const { isLiked, likesCount, toggleLike } = usePostLikes({
     postId,
@@ -49,6 +50,7 @@ export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [authorName, setAuthorName] = useState('');
+  const [showAuthTooltip, setShowAuthTooltip] = useState(false);
 
   const { replies, loading: repliesLoading, addReply, refetch: refetchReplies } = usePostReplies({
     postId,
@@ -56,6 +58,10 @@ export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {
   });
 
   const handleLike = async () => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
     await toggleLike();
   };
 
@@ -69,6 +75,8 @@ export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {
       return;
     }
 
+    // Se não estiver autenticado, permitir comentar como visitante (já implementado no backend)
+    // Mas mostrar tooltip se necessário
     try {
       console.log('📝 Enviando comentário...');
       await addReply(newComment, undefined, authorName || undefined);
@@ -85,6 +93,7 @@ export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {
   const handleSendReply = async (commentId: string) => {
     if (!replyText.trim()) return;
 
+    // Se não estiver autenticado, permitir responder como visitante (já implementado no backend)
     try {
       console.log('📝 Enviando resposta ao comentário:', commentId);
       await addReply(replyText, commentId, authorName || undefined);
@@ -324,13 +333,27 @@ export function PostDetails({ postId, onNavigate, onBack }: PostDetailsProps) {
               <Send className="w-5 h-5" />
             </button>
           </div>
-          {authorName && (
+            {authorName && (
             <div className="mt-2 text-xs text-muted-foreground text-center">
               Comentando como: <span className="font-medium">{authorName}</span>
             </div>
           )}
         </div>
       </div>
+
+      {/* AuthTooltip para ações que requerem autenticação */}
+      <AuthTooltip
+        isOpen={showAuthTooltip}
+        onClose={() => setShowAuthTooltip(false)}
+        onLogin={() => {
+          setShowAuthTooltip(false);
+          onNavigate('login');
+        }}
+        onSignUp={() => {
+          setShowAuthTooltip(false);
+          onNavigate('cadastro');
+        }}
+      />
     </div>
   );
 }
