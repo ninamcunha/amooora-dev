@@ -53,7 +53,7 @@ export default function App() {
   const { isAuthenticated, loading: authLoading } = useAuth();
   const { isAdmin, isAdminGeral, status: accessStatus, loading: accessLoading } = useAdmin();
 
-  // TEMPORARIAMENTE: tornar todas as páginas públicas
+  // Todas as páginas são públicas (navegação livre)
   const publicPages = useMemo(
     () =>
       new Set([
@@ -309,14 +309,10 @@ export default function App() {
     // Permitir páginas públicas mesmo durante loading (para login/cadastro funcionarem)
     const isPublicPage = publicPages.has(currentPage);
     
-    // Se está em uma página pública, renderizar normalmente mesmo durante loading
+    // Todas as páginas são públicas - renderizar normalmente
+    // (código de verificação de autenticação está comentado)
     if (isPublicPage) {
-      console.log('✅ Página pública, renderizando normalmente');
-      // Mas ainda verificar se usuário autenticado não deve estar em páginas públicas
-      if (!authLoading && !accessLoading && isAuthenticated && publicPages.has(currentPage)) {
-        return <Home onNavigate={handleNavigate} />;
-      }
-      // Renderizar a página pública normalmente
+      // Renderizar a página normalmente
     } else {
       // TEMPORARIAMENTE: permitir acesso a todas as páginas sem autenticação
       // TODO: Reativar verificação quando necessário
