@@ -27,7 +27,7 @@ import { AdminEditarEvento } from './features/events';
 import { AdminCadastrarComunidade, AdminEditarComunidade, CommunityDetails } from './features/communities';
 import { Login } from './pages/Login';
 import { Cadastro } from './pages/Cadastro';
-import { useAdmin } from './shared/hooks';
+import { useAdmin, useAuth } from './shared/hooks';
 import { AdminGerenciarUsuarios } from './pages/AdminGerenciarUsuarios';
 import { MinhasPublicacoes } from './pages/MinhasPublicacoes';
 import { AdminConteudosDesativados } from './pages/AdminConteudosDesativados';
@@ -49,51 +49,8 @@ export default function App() {
 
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
 
-  // Autenticação: TEMPORARIAMENTE DESABILITADA - permitir navegação sem login
-  // TODO: Reativar autenticação quando necessário
-  const [authLoading, setAuthLoading] = useState(false); // Não carregar mais
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    // TEMPORARIAMENTE: sempre retornar false para permitir navegação sem login
-    return false;
-    /* CÓDIGO ORIGINAL COMENTADO - REATIVAR QUANDO NECESSÁRIO
-    // Verificação otimista: verificar se há sessão no localStorage do Supabase
-    // Isso evita o "piscar" enquanto a sessão está sendo carregada
-    try {
-      // O Supabase armazena a sessão em uma chave específica
-      // Verificar todas as chaves que começam com 'sb-' e contêm 'auth-token'
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('sb-') && key.includes('auth-token')) {
-          const tokenData = localStorage.getItem(key);
-          if (tokenData) {
-            try {
-              const parsed = JSON.parse(tokenData);
-              // Verificar se há access_token
-              if (parsed.access_token) {
-                // Verificar se o token não expirou (opcional, mas recomendado)
-                if (parsed.expires_at) {
-                  const expiresAt = parsed.expires_at * 1000; // Converter para milliseconds
-                  if (Date.now() < expiresAt) {
-                    return true;
-                  }
-                } else {
-                  // Se não tem expires_at, assumir válido
-                  return true;
-                }
-              }
-            } catch {
-              // Se não conseguir parsear, ainda pode ser válido (deixar Supabase validar)
-              return true;
-            }
-          }
-        }
-      }
-      return false;
-    } catch {
-      return false;
-    }
-    */
-  });
+  // Usar hook useAuth para verificar autenticação corretamente
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { isAdmin, isAdminGeral, status: accessStatus, loading: accessLoading } = useAdmin();
 
   // TEMPORARIAMENTE: tornar todas as páginas públicas
@@ -132,82 +89,7 @@ export default function App() {
     []
   );
 
-  // TEMPORARIAMENTE: desabilitar carregamento de sessão
-  // TODO: Reativar quando necessário
-  useEffect(() => {
-    // Não carregar sessão - permitir navegação livre
-    setAuthLoading(false);
-    return;
-    
-    /* CÓDIGO ORIGINAL COMENTADO - REATIVAR QUANDO NECESSÁRIO
-    let isMounted = true;
-    let abortController: AbortController | null = null;
-
-    const loadSession = async () => {
-      // Cancelar requisição anterior se existir
-      if (abortController) {
-        abortController.abort();
-      }
-      
-      abortController = new AbortController();
-      
-      console.log('🔄 Carregando sessão...');
-      setAuthLoading(true);
-      
-      try {
-        // Usar getSession com timeout implícito do Supabase
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (!isMounted) return;
-        
-        if (error) {
-          console.log('⚠️ Erro ao carregar sessão (não crítico):', error);
-          // Não autenticado em caso de erro
-          setIsAuthenticated(false);
-        } else {
-          console.log('📋 Sessão carregada:', { hasSession: !!session });
-          setIsAuthenticated(!!session);
-        }
-      } catch (error) {
-        if (!isMounted) return;
-        
-        // Ignorar AbortError (é esperado quando componente desmonta)
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.log('🔄 Requisição cancelada (componente desmontado)');
-          return;
-        }
-        
-        console.error('❌ Erro ao carregar sessão:', error);
-        setIsAuthenticated(false);
-      } finally {
-        if (isMounted) {
-          setAuthLoading(false);
-          console.log('✅ Auth loading finalizado');
-        }
-      }
-    };
-
-    loadSession();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (isMounted) {
-        console.log('🔄 Auth state mudou:', event, { hasSession: !!session });
-        // Só recarregar se realmente houver mudança significativa
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-          loadSession();
-        }
-      }
-    });
-    
-    return () => {
-      isMounted = false;
-      if (abortController) {
-        abortController.abort();
-      }
-      subscription.unsubscribe();
-    };
-    */
-  }, []);
+  // useAuth hook já gerencia a autenticação, não precisamos de useEffect adicional
 
   // Detectar URL ao carregar a página e navegar para a página correta
   useEffect(() => {
@@ -227,12 +109,7 @@ export default function App() {
       window.history.replaceState({}, '', cleanUrl);
       
       // Se houver token, o Supabase já processou a sessão automaticamente
-      // Verificar a sessão novamente
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
-          setIsAuthenticated(true);
-        }
-      });
+      // O hook useAuth já detecta mudanças na sessão automaticamente
       
       // Se foi verificação de email, navegar para login com mensagem
       if (verified === 'true' || type === 'signup') {
