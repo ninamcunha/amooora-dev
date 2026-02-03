@@ -114,6 +114,14 @@ export function AuthTooltip({ isOpen = false, onClose, onLogin, onSignUp, onNavi
           >
             Fechar
           </button>
+          {onLogin && (
+            <button
+              onClick={handleLogin}
+              className="flex-1 px-4 py-2.5 rounded-xl border-2 border-[#932d6f] text-[#932d6f] font-medium hover:bg-[#932d6f]/5 transition-colors"
+            >
+              Entrar
+            </button>
+          )}
           <button
             onClick={handleCadastro}
             className="flex-1 px-4 py-2.5 rounded-xl bg-[#932d6f] text-white font-medium hover:bg-[#7a2560] transition-colors"
