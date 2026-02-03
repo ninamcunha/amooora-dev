@@ -177,6 +177,10 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
   }, [community]);
 
   const handleCreatePost = async (content: string, selectedCommunityId: string) => {
+    if (!isAuthenticated) {
+      setShowAuthTooltip(true);
+      return;
+    }
     if (!community?.category) return;
     
     const title = content.split('\n')[0].substring(0, 100) || 'Novo Post';
@@ -380,14 +384,25 @@ export function CommunityDetails({ communityId, onNavigate, onBack }: CommunityD
             </div>
           )}
 
-          {/* Formulário de Criação de Post */}
-          {community.category && (
+          {/* Formulário de Criação de Post - apenas para usuários autenticados */}
+          {community.category && isAuthenticated && (
             <div className="px-5 pt-6">
               <CreatePostForm
                 communities={communitiesForForm}
                 defaultCommunityId={community.id}
                 onSubmit={handleCreatePost}
               />
+            </div>
+          )}
+          {/* Botão para publicar quando não autenticado */}
+          {community.category && !isAuthenticated && (
+            <div className="px-5 pt-6">
+              <button
+                onClick={() => setShowAuthTooltip(true)}
+                className="w-full px-4 py-3 bg-[rgba(147,45,111,0.1)] text-[#932d6f] rounded-xl font-medium hover:bg-[rgba(147,45,111,0.2)] transition-colors border border-[#932d6f]/20"
+              >
+                Faça login para publicar um post
+              </button>
             </div>
           )}
 
