@@ -9,8 +9,9 @@ interface CreateReviewProps {
   placeId?: string;
   serviceId?: string;
   eventId?: string;
+  communityId?: string;
   itemName?: string;
-  itemType?: 'place' | 'service' | 'event';
+  itemType?: 'place' | 'service' | 'event' | 'community';
   onBack?: () => void;
 }
 
@@ -19,6 +20,7 @@ export function CreateReview({
   placeId, 
   serviceId, 
   eventId,
+  communityId,
   itemName = 'este local',
   itemType = 'place',
   onBack 
@@ -43,6 +45,7 @@ export function CreateReview({
         placeId,
         serviceId,
         eventId,
+        communityId,
         rating,
         comment: reviewText,
         authorName: authorName.trim() || undefined, // Nome opcional

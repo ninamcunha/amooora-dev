@@ -385,9 +385,9 @@ export default function App() {
       setSelectedViewProfileUserId(userId);
       setCurrentPage('view-profile');
     } else if (page.startsWith('create-review:')) {
-      // Formato: 'create-review:place:id', 'create-review:service:id', 'create-review:event:id'
+      // Formato: 'create-review:place:id', 'create-review:service:id', 'create-review:event:id', 'create-review:community:id'
       const parts = page.split(':');
-      const itemType = parts[1]; // place, service ou event
+      const itemType = parts[1]; // place, service, event ou community
       const itemId = parts[2];
       
       if (itemType === 'place') {
@@ -396,6 +396,8 @@ export default function App() {
         setSelectedServiceId(itemId);
       } else if (itemType === 'event') {
         setSelectedEventId(itemId);
+      } else if (itemType === 'community') {
+        setSelectedCommunityId(itemId);
       }
       setCurrentPage('create-review');
     } else if (page.startsWith('admin-editar-local:')) {
@@ -534,6 +536,17 @@ export default function App() {
             itemType="event"
             onBack={() => {
               setCurrentPage('event-details');
+            }}
+          />;
+        } else if (selectedCommunityId) {
+          return <CreateReview 
+            onNavigate={handleNavigate} 
+            communityId={selectedCommunityId}
+            itemType="community"
+            itemName="esta comunidade"
+            onBack={() => {
+              setCurrentPage('community-details');
+              setSelectedCommunityId(undefined);
             }}
           />;
         }
