@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { followCommunity, unfollowCommunity, isFollowingCommunity, getCommunityFollowersCount } from '../services/communityFollows';
+import { useAuth } from '../../../shared/hooks';
 
 interface UseCommunityFollowOptions {
   onFollowChange?: () => void;
@@ -9,6 +10,7 @@ export const useCommunityFollow = (
   communityId: string | undefined,
   options?: UseCommunityFollowOptions
 ) => {
+  const { isAuthenticated } = useAuth();
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -16,6 +18,23 @@ export const useCommunityFollow = (
   useEffect(() => {
     if (!communityId) {
       setLoading(false);
+      return;
+    }
+
+    // Só verificar follow se estiver autenticado
+    if (!isAuthenticated) {
+      setIsFollowing(false);
+      // Ainda buscar contador de seguidores (não requer autenticação)
+      getCommunityFollowersCount(communityId)
+        .then(count => {
+          setFollowersCount(count);
+          setLoading(false);
+        })
+        .catch(error => {
+          console.error('Erro ao buscar contador de seguidores:', error);
+          setFollowersCount(0);
+          setLoading(false);
+        });
       return;
     }
 
@@ -37,7 +56,7 @@ export const useCommunityFollow = (
     };
 
     checkFollow();
-  }, [communityId]);
+  }, [communityId, isAuthenticated]);
 
   const toggleFollow = async () => {
     if (!communityId) return;
